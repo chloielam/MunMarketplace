@@ -45,7 +45,7 @@ The platform will ensure trust by requiring authentication with a valid MUN emai
 
 ## 📂 Repository Structure
 ```plaintext
-big-assignment/
+mun-marketplace/
 │
 ├── frontend/        # React application (UI)
 ├── backend/         # NestJS application (API, auth, chat, etc.)
