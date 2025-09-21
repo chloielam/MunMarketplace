@@ -14,6 +14,20 @@ npm install
 ```
 
 2. **Configure environment variables**
+
+For Apple Silicone Macbook, in the docker-compose.yml add: 
+```docker-compose.yml
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  platform: linux/arm64/v8
+```
+
+To run docker: 
+```bash
+docker compose down -v   # stop + remove containers and volumes
+docker compose up -d     # rebuild and start fresh
+```
+
 Create a `.env` file in `backend/`:
 ```env
 DATABASE_URL="mysql://mun_user:mun_pass@localhost:3306/mun_marketplace"
