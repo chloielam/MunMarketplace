@@ -5,6 +5,7 @@ import { Listing } from './modules/listings/entities/listing.entity';
 import { User } from './modules/users/entities/user.entity';
 import { UserProfile } from './modules/users/entities/user-profile.entity';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 import { ListingModule } from './modules/listings/listing.module';
 // import UsersModule if you have it
@@ -25,6 +26,7 @@ import { ListingModule } from './modules/listings/listing.module';
       entities: [Listing, User, UserProfile],
     }),
     ListingModule,
+    UsersModule
   ],
 })
 export class AppModule {}
