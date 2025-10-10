@@ -1,16 +1,29 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, Res } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  @Post('login')
-  login(@Body() body: { email: string }) {
-    const { email } = body;
+  constructor(private authService: AuthService) {}
 
-    // Hardcoded check for MUN emails
-    if (email && email.endsWith('@mun.ca')) {
-      return { message: 'Login successful', email };
-    } else {
-      return { message: 'Invalid MUN email address' };
-    }
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin() {
+    // Redirect handled by Passport
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req, @Res() res) {
+    const { email, name, provider, providerId } = req.user;
+    const result = await this.authService.validateAndGetJwt(
+      email,
+      name,
+      provider,
+      providerId,
+    );
+
+    // Return JWT and user info as JSON
+    return res.json(result);
   }
 }
