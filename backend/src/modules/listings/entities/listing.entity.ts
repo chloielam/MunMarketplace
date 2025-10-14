@@ -9,7 +9,8 @@ import {
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { ManyToOne, JoinColumn } from 'typeorm';
+import { Conversation } from '../../conversations/entities/conversation.entity';
+import { OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 export enum ListingStatus {
   ACTIVE = 'ACTIVE',
   SOLD = 'SOLD',
@@ -57,6 +58,9 @@ export class Listing {
   @Index()
   @Column({ type: 'enum', enum: ListingStatus, default: ListingStatus.ACTIVE })
   status: ListingStatus;
+
+  @OneToMany(() => Conversation, (conversation) => conversation.listing)
+  conversations: Conversation[];
 
   // timestamps
   @CreateDateColumn()

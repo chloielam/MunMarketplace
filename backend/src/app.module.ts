@@ -23,7 +23,7 @@ import { ListingModule } from './modules/listings/listing.module';
       // Dev only: auto-sync tables. Use migrations later.
       synchronize: true,
       autoLoadEntities: true,
-      entities: [Listing, User, UserProfile],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'], 
     }),
     ListingModule,
     UsersModule
