@@ -2,11 +2,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   Index,
 } from 'typeorm';
+import { Conversation } from '../../conversations/entities/conversation.entity';
 
 @Entity('users')
 export class User {
@@ -23,4 +26,11 @@ export class User {
   @CreateDateColumn() created_at: Date;
   @Column({ type: 'timestamp', nullable: true }) last_login?: Date;
   @Column({ default: true }) is_active: boolean;
+
+  @OneToMany(() => Conversation, (conversation) => conversation.participant1)
+  conversationsAsParticipant1: Conversation[];
+
+  @OneToMany(() => Conversation, (conversation) => conversation.participant2)
+  conversationsAsParticipant2: Conversation[];
+
 }
