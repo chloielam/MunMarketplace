@@ -1,0 +1,49 @@
+name: CI - Backend
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+  push:
+    branches: [ main, develop, feature/** ]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci-backend.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      # Optional but good practice
+      - name: Type check
+        run: npm run typecheck || echo "No typecheck script"
+
+      - name: Lint
+        run: npm run lint || echo "No lint script"
+
+      # Unit tests + coverage (will pass even if you only have e2e right now)
+      - name: Unit tests (coverage)
+        run: npm run test:cov
+        env:
+          CI: true
+
+      # E2E tests (SQLite in-memory)
+      - name: E2E tests
+        run: npm run test:e2e

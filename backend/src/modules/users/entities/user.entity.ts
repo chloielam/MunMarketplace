@@ -21,6 +21,6 @@ export class User {
   @Column({ default: false }) is_email_verified: boolean;
 
   @CreateDateColumn() created_at: Date;
-  @Column({ type: 'timestamp', nullable: true }) last_login?: Date;
+  @Column({ type: 'datetime', nullable: true }) last_login?: Date;
   @Column({ default: true }) is_active: boolean;
 }
