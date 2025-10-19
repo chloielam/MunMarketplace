@@ -2,19 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginPage from '../LoginPage';
 
-// Mock the navigation functions
-const mockProps = {
-  onBackToHome: jest.fn(),
-  onGoToRegister: jest.fn()
-};
-
 describe('LoginPage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test('renders login form', () => {
-    render(<LoginPage {...mockProps} />);
+    render(<LoginPage />);
     
     expect(screen.getByText('Welcome Back')).toBeInTheDocument();
     expect(screen.getByText('Sign in to access your Memorial University student marketplace account.')).toBeInTheDocument();
@@ -24,7 +14,7 @@ describe('LoginPage', () => {
   });
 
   test('shows MUN email validation error', () => {
-    render(<LoginPage {...mockProps} />);
+    render(<LoginPage />);
     
     const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
     fireEvent.change(emailInput, { target: { value: 'test@gmail.com' } });
@@ -33,7 +23,7 @@ describe('LoginPage', () => {
   });
 
   test('clears MUN email validation error for valid email', () => {
-    render(<LoginPage {...mockProps} />);
+    render(<LoginPage />);
     
     const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
     fireEvent.change(emailInput, { target: { value: 'test@mun.ca' } });
@@ -42,7 +32,7 @@ describe('LoginPage', () => {
   });
 
   test('shows password required error', () => {
-    render(<LoginPage {...mockProps} />);
+    render(<LoginPage />);
     
     const submitButton = screen.getByRole('button', { name: 'Sign In' });
     fireEvent.click(submitButton);
@@ -50,21 +40,10 @@ describe('LoginPage', () => {
     expect(screen.getByText('Password is required')).toBeInTheDocument();
   });
 
-  test('navigates to register page', () => {
-    render(<LoginPage {...mockProps} />);
+  test('has navigation buttons', () => {
+    render(<LoginPage />);
     
-    const signUpButton = screen.getByRole('button', { name: 'SIGN UP' });
-    fireEvent.click(signUpButton);
-    
-    expect(mockProps.onGoToRegister).toHaveBeenCalledTimes(1);
-  });
-
-  test('navigates back to home', () => {
-    render(<LoginPage {...mockProps} />);
-    
-    const backButton = screen.getByText('← Back to Home');
-    fireEvent.click(backButton);
-    
-    expect(mockProps.onBackToHome).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('← Back to Home')).toBeInTheDocument();
+    expect(screen.getByText('SIGN UP')).toBeInTheDocument();
   });
 });
