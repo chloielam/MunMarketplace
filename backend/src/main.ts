@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
 
   // set a global prefix for all routes
   app.setGlobalPrefix('api');
@@ -13,6 +13,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  Logger.log('🚀 Server running on http://localhost:${port}/api');
+  Logger.log(`🚀 Server running on http://localhost:${port}/api`);
 }
-bootstrap();
+
+bootstrap();  
