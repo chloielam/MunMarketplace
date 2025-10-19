@@ -1,61 +1,34 @@
-import React, { useState } from 'react';
-import Header from './components/Header.jsx';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout.jsx';
 import MainPage from './components/MainPage.jsx';
-import Footer from './components/Footer.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 
-// Main app component - MUN Marketplace with page navigation
+// Main app component - MUN Marketplace with React Router
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-
-  const handleLoginClick = () => {
-    setCurrentPage('login');
-  };
-
-  const handleGoToRegister = () => {
-    setCurrentPage('register');
-  };
-
-  const handleGoToLogin = () => {
-    setCurrentPage('login');
-  };
-
-  const handleBackToHome = () => {
-    setCurrentPage('home');
-  };
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'login':
-        return (
-          <LoginPage 
-            onBackToHome={handleBackToHome}
-            onGoToRegister={handleGoToRegister}
-          />
-        );
-      case 'register':
-        return (
-          <RegisterPage 
-            onBackToHome={handleBackToHome}
-            onGoToLogin={handleGoToLogin}
-          />
-        );
-      default:
-        return (
-          <>
-            <Header onLoginClick={handleLoginClick} />
-            <MainPage />
-            <Footer />
-          </>
-        );
-    }
-  };
-
   return (
-    <div className="App">
-      {renderCurrentPage()}
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Home page with Layout (Header + Footer) */}
+          <Route 
+            path="/" 
+            element={
+              <Layout>
+                <MainPage />
+              </Layout>
+            } 
+          />
+          
+          {/* Login page without Layout */}
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* Register page without Layout */}
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

@@ -8,7 +8,7 @@ describe('App', () => {
     render(<App />);
   });
 
-  test('renders main sections', () => {
+  test('renders home page by default', () => {
     render(<App />);
     
     expect(screen.getByText('MUN')).toBeInTheDocument();
@@ -17,7 +17,7 @@ describe('App', () => {
     expect(screen.getByText('Featured Products')).toBeInTheDocument();
   });
 
-  test('renders navigation', () => {
+  test('renders navigation on home page', () => {
     render(<App />);
     
     expect(screen.getAllByText('Home')).toHaveLength(2);
@@ -25,7 +25,7 @@ describe('App', () => {
     expect(screen.getByText('Sign In')).toBeInTheDocument();
   });
 
-  test('renders search', () => {
+  test('renders search on home page', () => {
     render(<App />);
     
     expect(screen.getByPlaceholderText('Search products...')).toBeInTheDocument();

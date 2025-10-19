@@ -1,19 +1,20 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 // Navigation header with logo, menu, search, and sign in
-const Header = ({ onLoginClick }) => {
+const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="w-full">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           {/* Logo and navigation */}
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <div className="bg-mun-red text-white w-12 h-10 flex items-center justify-center font-bold text-base border-2 border-mun-red rounded">
                 MUN
               </div>
               <span className="text-gray-800 text-2xl font-bold">Marketplace</span>
-            </div>
+            </Link>
             <nav className="hidden md:flex gap-6">
               <a href="#home" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Home</a>
               <a href="#browse" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Browse</a>
@@ -33,12 +34,12 @@ const Header = ({ onLoginClick }) => {
               />
               <button className="text-gray-600 hover:text-gray-800">🔍</button>
             </div>
-            <button 
-              onClick={onLoginClick}
+            <Link 
+              to="/login"
               className="bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-800 transition-all duration-300"
             >
               Sign In
-            </button>
+            </Link>
           </div>
         </div>
       </div>
