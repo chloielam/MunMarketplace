@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Register page
-const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
+const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -123,7 +125,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={onBackToHome}
+        onClick={() => navigate('/')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -134,7 +136,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
         <div className="flex-1 bg-mun-red p-8 flex items-center justify-center">
           <div className="text-center">
             <button
-              onClick={onBackToHome}
+              onClick={() => navigate('/')}
               className="text-white text-opacity-80 hover:text-white mb-6 flex items-center mx-auto"
             >
               ← Back to Home
@@ -150,7 +152,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
               marketplace account
             </p>
             <button
-              onClick={onGoToLogin}
+              onClick={() => navigate('/login')}
               className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-mun-red transition-colors duration-300"
             >
               SIGN IN

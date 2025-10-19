@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Login page
-const LoginPage = ({ onBackToHome, onGoToRegister }) => {
+const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -74,7 +76,7 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={onBackToHome}
+        onClick={() => navigate('/')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -85,7 +87,7 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
         <div className="flex-1 p-8 flex items-center justify-center">
               <div className="max-w-md mx-auto">
                 <button
-                  onClick={onBackToHome}
+                  onClick={() => navigate('/')}
                   className="text-gray-500 hover:text-gray-700 mb-6 flex items-center"
                 >
                   ← Back to Home
@@ -186,7 +188,7 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
               Create your Memorial University marketplace account and start buying, selling, and connecting with other students.
             </p>
             <button
-              onClick={onGoToRegister}
+              onClick={() => navigate('/register')}
               className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-white hover:text-mun-red transition-colors duration-300"
             >
               SIGN UP

@@ -1,7 +1,13 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Navigation header with logo, menu, search, and sign in
-const Header = ({ onLoginClick }) => {
+const Header = () => {
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="w-full">
@@ -15,8 +21,18 @@ const Header = ({ onLoginClick }) => {
               <span className="text-gray-800 text-2xl font-bold">Marketplace</span>
             </div>
             <nav className="hidden md:flex gap-6">
-              <a href="#home" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Home</a>
-              <a href="#browse" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Browse</a>
+              <Link 
+                to="/"
+                className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/items"
+                className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
+              >
+                Browse
+              </Link>
               <a href="#requests" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Requests</a>
               <a href="#messages" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Messages</a>
               <a href="#sell" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Sell</a>
@@ -34,7 +50,7 @@ const Header = ({ onLoginClick }) => {
               <button className="text-gray-600 hover:text-gray-800">🔍</button>
             </div>
             <button 
-              onClick={onLoginClick}
+              onClick={handleLoginClick}
               className="bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-800 transition-all duration-300"
             >
               Sign In

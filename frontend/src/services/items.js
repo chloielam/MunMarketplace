@@ -2,6 +2,6 @@
 import api from "./api";
 
 export async function getItems() {
-  const response = await api.get("/api/listings"); // keep the /api here
+  const response = await api.get("/listings");
   return response.data.items; // backend sends { items: [...] }
 }
