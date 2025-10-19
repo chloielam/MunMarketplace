@@ -1,0 +1,57 @@
+name: CI — Frontend Component Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/ci-frontend.yml'
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # All commands run inside the frontend folder
+    defaults:
+      run:
+        working-directory: frontend
+
+    strategy:
+      matrix:
+        node: [18] # CRA 5 is safest on Node 18
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps (CI)
+        run: npm ci
+
+      # IMPORTANT for CRA/Jest in CI: CI=true and --watchAll=false
+      - name: Run component tests
+        env:
+          CI: true
+        run: npm test -- --coverage --watchAll=false
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+          if-no-files-found: ignore

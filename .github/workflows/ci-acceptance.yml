@@ -1,0 +1,74 @@
+name: CI - Acceptance
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Option A (simple): run regardless and do everything in one job
+  acceptance:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: mun_market
+          MYSQL_USER: mun
+          MYSQL_PASSWORD: munpass
+        ports: [ "3306:3306" ]
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -p$MYSQL_ROOT_PASSWORD"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend ---
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: backend/package-lock.json }
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+      - name: Start backend (dev)
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: mun_user
+          DB_PASS: mun_pass
+          DB_NAME: mun_marketplace
+          PORT: 3000
+        run: |
+          npm run build || true
+          nohup npm run start:dev >/dev/null 2>&1 &
+          npx wait-on http://localhost:3000/health || sleep 10
+
+      # Seed data (uses your seed script)
+      - name: Seed DB
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: mun_user
+          DB_PASS: mun_pass
+          DB_NAME: mun_marketplace
+        run: npm run seed
+
+      # --- Frontend ---
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+      - name: Start frontend preview server
+        working-directory: frontend
+        run: |
+          nohup npm run preview >/dev/null 2>&1 &
+          npx wait-on http://localhost:4173 || sleep 10
+
+      # --- Acceptance tests (pick one stack) ---
+      # Very simple acceptance checks (swap for Newman/Playwright later)
+      - name: Smoke check listings endpoint
+        run: |
+          curl -sSf "http://localhost:3000/api/listings" | head -c 500

@@ -55,7 +55,7 @@ export class Listing {
   @ManyToOne(() => User) @JoinColumn({ name: 'seller_id' }) seller: User;
 
   @Index()
-  @Column({ type: 'enum', enum: ListingStatus, default: ListingStatus.ACTIVE })
+  @Column({ type: 'simple-enum', enum: ListingStatus, default: ListingStatus.ACTIVE })
   status: ListingStatus;
 
   // timestamps

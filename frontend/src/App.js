@@ -1,26 +1,61 @@
-//frontend/src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState } from 'react';
 import Header from './components/Header.jsx';
 import MainPage from './components/MainPage.jsx';
 import Footer from './components/Footer.jsx';
-import TestItems from './components/testpage.jsx';  
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 
-// Main ap component - MUN Marketplace landing page
+// Main app component - MUN Marketplace with page navigation
 function App() {
-    return (
-    <Router>
-      <Header />
-      <Routes>
-        {/* Landing Page */}
-        <Route path="/" element={<MainPage />} />
+  const [currentPage, setCurrentPage] = useState('home');
 
-        {/* Item List Page */}
-        <Route path="/items" element={<TestItems />} />
+  const handleLoginClick = () => {
+    setCurrentPage('login');
+  };
 
-      </Routes>
-      <Footer />
-    </Router>
+  const handleGoToRegister = () => {
+    setCurrentPage('register');
+  };
+
+  const handleGoToLogin = () => {
+    setCurrentPage('login');
+  };
+
+  const handleBackToHome = () => {
+    setCurrentPage('home');
+  };
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'login':
+        return (
+          <LoginPage 
+            onBackToHome={handleBackToHome}
+            onGoToRegister={handleGoToRegister}
+          />
+        );
+      case 'register':
+        return (
+          <RegisterPage 
+            onBackToHome={handleBackToHome}
+            onGoToLogin={handleGoToLogin}
+          />
+        );
+      default:
+        return (
+          <>
+            <Header onLoginClick={handleLoginClick} />
+            <MainPage />
+            <Footer />
+          </>
+        );
+    }
+  };
+
+  return (
+    <div className="App">
+      {renderCurrentPage()}
+    </div>
   );
 }
 
