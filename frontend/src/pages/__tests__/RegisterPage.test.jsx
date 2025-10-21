@@ -4,18 +4,9 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import RegisterPage from '../RegisterPage';
 
-// Helper function to render with Router
-const renderWithRouter = (ui) => {
-  return render(ui, { wrapper: BrowserRouter });
-};
-
 describe('RegisterPage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test('renders registration form', () => {
-    renderWithRouter(<RegisterPage />);
+    render(<RegisterPage />);
     
     expect(screen.getByText('Join MUN Marketplace')).toBeInTheDocument();
     expect(screen.getByText('Register with your Memorial University email to access the student marketplace')).toBeInTheDocument();
@@ -27,7 +18,7 @@ describe('RegisterPage', () => {
   });
 
   test('shows MUN email validation error', () => {
-    renderWithRouter(<RegisterPage />);
+    render(<RegisterPage />);
     
     const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
     fireEvent.change(emailInput, { target: { value: 'test@gmail.com' } });
@@ -36,7 +27,7 @@ describe('RegisterPage', () => {
   });
 
   test('shows password mismatch error', () => {
-    renderWithRouter(<RegisterPage />);
+    render(<RegisterPage />);
     
     const passwordInput = screen.getByPlaceholderText('Create a password');
     const confirmPasswordInput = screen.getByPlaceholderText('Confirm your password');
@@ -48,7 +39,7 @@ describe('RegisterPage', () => {
   });
 
   test('clears password mismatch error when passwords match', () => {
-    renderWithRouter(<RegisterPage />);
+    render(<RegisterPage />);
     
     const passwordInput = screen.getByPlaceholderText('Create a password');
     const confirmPasswordInput = screen.getByPlaceholderText('Confirm your password');
@@ -60,7 +51,7 @@ describe('RegisterPage', () => {
   });
 
   test('shows required field errors on submit', () => {
-    renderWithRouter(<RegisterPage />);
+    render(<RegisterPage />);
     
     const submitButton = screen.getByRole('button', { name: 'REGISTER' });
     fireEvent.click(submitButton);
@@ -71,17 +62,10 @@ describe('RegisterPage', () => {
     expect(screen.getByText('Please confirm your password')).toBeInTheDocument();
   });
 
-  test('has sign in button', () => {
-    renderWithRouter(<RegisterPage />);
+  test('has navigation buttons', () => {
+    render(<RegisterPage />);
     
-    const signInButton = screen.getByRole('button', { name: 'SIGN IN' });
-    expect(signInButton).toBeInTheDocument();
-  });
-
-  test('has back to home button', () => {
-    renderWithRouter(<RegisterPage />);
-    
-    const backButton = screen.getByText('← Back to Home');
-    expect(backButton).toBeInTheDocument();
+    expect(screen.getByText('← Back to Home')).toBeInTheDocument();
+    expect(screen.getByText('SIGN IN')).toBeInTheDocument();
   });
 });

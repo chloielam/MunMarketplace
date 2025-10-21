@@ -112,14 +112,51 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-        console.log('Register attempt:', formData);
-        // TODO: Add regitration logic
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (validateForm()) {
+    try {
+      // Step 1: Send OTP request
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
+
+      alert("OTP has been sent to your MUN email address.");
+
+      // Step 2: Ask for OTP and verify it
+      const otp = prompt("Enter the OTP sent to your email:");
+
+      if (otp) {
+        const verifyRes = await fetch("http://localhost:3000/auth/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email, otp }),
+        });
+
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) throw new Error(verifyData.message || "OTP verification failed");
+
+        alert("Registration successful! You can now log in.");
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -4,18 +4,9 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import LoginPage from '../LoginPage';
 
-// Helper function to render with Router
-const renderWithRouter = (ui) => {
-  return render(ui, { wrapper: BrowserRouter });
-};
-
 describe('LoginPage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test('renders login form', () => {
-    renderWithRouter(<LoginPage />);
+    render(<LoginPage />);
     
     expect(screen.getByText('Welcome Back')).toBeInTheDocument();
     expect(screen.getByText('Sign in to access your Memorial University student marketplace account.')).toBeInTheDocument();
@@ -25,7 +16,7 @@ describe('LoginPage', () => {
   });
 
   test('shows MUN email validation error', () => {
-    renderWithRouter(<LoginPage />);
+    render(<LoginPage />);
     
     const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
     fireEvent.change(emailInput, { target: { value: 'test@gmail.com' } });
@@ -34,7 +25,7 @@ describe('LoginPage', () => {
   });
 
   test('clears MUN email validation error for valid email', () => {
-    renderWithRouter(<LoginPage />);
+    render(<LoginPage />);
     
     const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
     fireEvent.change(emailInput, { target: { value: 'test@mun.ca' } });
@@ -43,7 +34,7 @@ describe('LoginPage', () => {
   });
 
   test('shows password required error', () => {
-    renderWithRouter(<LoginPage />);
+    render(<LoginPage />);
     
     const submitButton = screen.getByRole('button', { name: 'Sign In' });
     fireEvent.click(submitButton);
@@ -51,17 +42,10 @@ describe('LoginPage', () => {
     expect(screen.getByText('Password is required')).toBeInTheDocument();
   });
 
-  test('has sign up button', () => {
-    renderWithRouter(<LoginPage />);
+  test('has navigation buttons', () => {
+    render(<LoginPage />);
     
-    const signUpButton = screen.getByRole('button', { name: 'SIGN UP' });
-    expect(signUpButton).toBeInTheDocument();
-  });
-
-  test('has back to home button', () => {
-    renderWithRouter(<LoginPage />);
-    
-    const backButton = screen.getByText('← Back to Home');
-    expect(backButton).toBeInTheDocument();
+    expect(screen.getByText('← Back to Home')).toBeInTheDocument();
+    expect(screen.getByText('SIGN UP')).toBeInTheDocument();
   });
 });

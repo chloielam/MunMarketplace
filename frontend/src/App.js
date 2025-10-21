@@ -1,31 +1,58 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout.jsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Header from './components/Header.jsx';
 import MainPage from './components/MainPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import Items from './components/Items.jsx';
 
-// Main app component - MUN Marketplace with React Router
+// Main app component 
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          {/* Home page with Layout (Header + Footer) */}
+          {/* Home route */}
           <Route 
             path="/" 
             element={
-              <Layout>
+              <>
+                <Header />
                 <MainPage />
-              </Layout>
+                <Footer />
+              </>
             } 
           />
           
-          {/* Login page without Layout */}
-          <Route path="/login" element={<LoginPage />} />
+          {/* Items/Browse route */}
+          <Route 
+            path="/items" 
+            element={
+              <>
+                <Header />
+                <Items />
+                <Footer />
+              </>
+            } 
+          />
           
-          {/* Register page without Layout */}
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Login route */}
+          <Route 
+            path="/login" 
+            element={<LoginPage />} 
+          />
+          
+          {/* Register route */}
+          <Route 
+            path="/register" 
+            element={<RegisterPage />} 
+          />
+          
+          {/* Catch all route - redirect to home */}
+          <Route 
+            path="*" 
+            element={<Navigate to="/" replace />} 
+          />
         </Routes>
       </div>
     </Router>
