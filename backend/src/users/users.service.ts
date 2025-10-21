@@ -1,33 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from './users.entity';
+import { User } from './users.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private usersRepo: Repository<User>) {}
 
-  // Create a new user
-  async createUser(name: string, email: string, role: UserRole = UserRole.BUYER, password?: string) {
-    const user = this.userRepository.create({
-      name,
-      email,
-      role,
-      password,
-    });
-    return this.userRepository.save(user);
-  }
-
-  // Get all users
-  async findAll() {
-    return this.userRepository.find();
-  }
-
-  // Find user by email
   async findByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } });
+    return this.usersRepo.findOne({ where: { email } });
+  }
+
+  async create(email: string, fullName = '') {
+    const user = this.usersRepo.create({ email, fullName, isVerified: false });
+    return this.usersRepo.save(user);
+  }
+
+  async findOrCreate(email: string, fullName = '') {
+    let user = await this.findByEmail(email);
+    if (!user) user = await this.create(email, fullName);
+    return user;
+  }
+
+  async setPassword(email: string, hash: string) {
+    await this.usersRepo.update({ email }, { passwordHash: hash });
+    return this.findByEmail(email);
+  }
+
+  async markVerified(email: string) {
+    await this.usersRepo.update({ email }, { isVerified: true });
+    return this.findByEmail(email);
   }
 }

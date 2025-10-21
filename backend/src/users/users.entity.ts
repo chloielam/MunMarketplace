@@ -1,9 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-
-export enum UserRole {
-  BUYER = 'buyer',
-  SELLER = 'seller',
-}
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -11,16 +6,16 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  email: string; // MUN email
+  email: string;
 
   @Column()
-  name: string;
+  fullName: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.BUYER })
-  role: UserRole;
+  @Column({ nullable: false, select: false, default: '' })
+  passwordHash: string;
 
-  @Column({ nullable: true })
-  password: string; // This is optional because users can log in via MUN OAuth/SSO
+  @Column({ default: false })
+  isVerified: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
