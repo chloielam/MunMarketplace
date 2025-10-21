@@ -4,7 +4,7 @@ import { OtpCode } from './otp.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { MailerService } from '../common/mailer.service';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from 'src/modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 

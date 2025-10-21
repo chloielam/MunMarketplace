@@ -4,7 +4,7 @@ import { Repository, MoreThan } from 'typeorm';
 import { OtpCode } from './otp.entity';
 import { MailerService } from '../common/mailer.service';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
+import { UsersService } from 'src/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
@@ -76,7 +76,7 @@ export class AuthService {
   // register after verification: set password and full name
   async register(email: string, fullName: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user || !user.isVerified) throw new BadRequestException('Email not verified');
+    if (!user || !user.is_email_verified) throw new BadRequestException('Email not verified');
     const hash = await bcrypt.hash(password, 10);
     await this.usersService.setPassword(email, hash);
     await this.usersService.markVerified(email);
@@ -85,7 +85,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user || !user.passwordHash) throw new BadRequestException('Invalid credentials');
+    if (!user || !user.password_hash) throw new BadRequestException('Invalid credentials');
 
     // need to select passwordHash (select:false). We'll query directly:
     const userWithPwd = await this.usersService['usersRepo'].findOne({ where: { email }, select: ['id','email','passwordHash','isVerified','fullName'] });
