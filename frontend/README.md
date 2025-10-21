@@ -1,11 +1,11 @@
-# MUN Marketplace - Frontend
+# MUN Marketplace  Frontend
 
-## 🚀 Tech Stack
+##  Tech Stack
 - React (Vite + TypeScript)
 - TailwindCSS (optional)
 - Axios (for API calls)
 
-## ⚙️ Setup
+##  Setup
 
 
 1. **Install dependencies**
@@ -22,7 +22,7 @@ Frontend runs at: http://localhost:5173
 
 ---
 
-## 🔌 API Connection
+## API Connection
 
 By default, the frontend expects the backend API at http://localhost:3000.
 

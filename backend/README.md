@@ -25,16 +25,30 @@ phpmyadmin:
 To run docker: 
 ```bash
 docker compose down -v   # stop + remove containers and volumes
-docker compose up -d     # rebuild and start fresh
+docker compose up -d     # rebuild and start fresh (may choose this for first setup)
 ```
 
 Create a `.env` file in `backend/`:
 ```env
-DATABASE_URL="mysql://mun_user:mun_pass@localhost:3306/mun_marketplace"
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=mun_user
+DB_PASS=mun_pass
+DB_NAME=mun_marketplace
+
+# optional app
 PORT=3000
+GLOBAL_PREFIX=api
 ```
 
-3. **Run the backend in dev mode**
+3. **Run seed for example data**
+```bash
+npm run seed
+```
+
+
+5. **Run the backend in dev mode**
 ```bash
 npm run start:dev
 ```
@@ -46,4 +60,4 @@ Backend runs at: http://localhost:3000
 ## 🔌 API Endpoints
 
 - `GET /health` → returns `{ ok: true }`
-- More endpoints coming soon…
+- `GET /api/listings` -> return list of listings
