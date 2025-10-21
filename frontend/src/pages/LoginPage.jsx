@@ -61,14 +61,34 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-        console.log('Login attempt:', formData);
-        // TODO: Add login logic
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (validateForm()) {
+    try {
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      localStorage.setItem("token", data.token);
+      alert("Login successful!");
+      navigate("/dashboard"); // Adjust route as per your app
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
