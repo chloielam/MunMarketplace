@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Register page
-const RegisterPage = () => {
-  const navigate = useNavigate();
+const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -112,20 +110,57 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-        console.log('Register attempt:', formData);
-        // TODO: Add regitration logic
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (validateForm()) {
+    try {
+      // Step 1: Send OTP request
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
+
+      alert("OTP has been sent to your MUN email address.");
+
+      // Step 2: Ask for OTP and verify it
+      const otp = prompt("Enter the OTP sent to your email:");
+
+      if (otp) {
+        const verifyRes = await fetch("http://localhost:3000/auth/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email, otp }),
+        });
+
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) throw new Error(verifyData.message || "OTP verification failed");
+
+        alert("Registration successful! You can now log in.");
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={onBackToHome}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -136,7 +171,7 @@ const RegisterPage = () => {
         <div className="flex-1 bg-mun-red p-8 flex items-center justify-center">
           <div className="text-center">
             <button
-              onClick={() => navigate('/')}
+              onClick={onBackToHome}
               className="text-white text-opacity-80 hover:text-white mb-6 flex items-center mx-auto"
             >
               ← Back to Home
@@ -152,7 +187,7 @@ const RegisterPage = () => {
               marketplace account
             </p>
             <button
-              onClick={() => navigate('/login')}
+              onClick={onGoToLogin}
               className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-mun-red transition-colors duration-300"
             >
               SIGN IN
