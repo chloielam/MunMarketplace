@@ -8,7 +8,11 @@ import { UsersModule } from './modules/users/users.module';
 import { ListingModule } from './modules/listings/listing.module';
 import { AppController } from './app.controller';
 
-const ENTITIES = [Listing, User, UserProfile];
+import { ChatModule } from './modules/chat/chat.module';
+import { Message } from './modules/chat/entities/message.entity';
+import { Conversation } from './modules/chat/entities/conversation.entity';
+
+const ENTITIES = [Listing, User, UserProfile, Message, Conversation];
 
 @Module({
   imports: [
@@ -44,7 +48,8 @@ const ENTITIES = [Listing, User, UserProfile];
       },
     }),
     UsersModule,
-    ListingModule
+    ListingModule,
+    ChatModule,
   ],
   controllers: [AppController],
 })
