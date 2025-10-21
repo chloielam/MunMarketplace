@@ -117,7 +117,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
   if (validateForm()) {
     try {
       // Step 1: Send OTP request
-      const response = await fetch("http://localhost:3000/auth/register", {
+      const response = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -136,7 +136,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
       const otp = prompt("Enter the OTP sent to your email:");
 
       if (otp) {
-        const verifyRes = await fetch("http://localhost:3000/auth/verify-otp", {
+        const verifyRes = await fetch("http://localhost:3000/api/auth/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: formData.email, otp }),
