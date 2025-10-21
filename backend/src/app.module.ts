@@ -6,9 +6,11 @@ import { User } from './modules/users/entities/user.entity';
 import { UserProfile } from './modules/users/entities/user-profile.entity';
 import { UsersModule } from './modules/users/users.module';
 import { ListingModule } from './modules/listings/listing.module';
+import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
+import { OtpCode } from './auth/otp.entity';
 
-const ENTITIES = [Listing, User, UserProfile];
+const ENTITIES = [Listing, User, UserProfile, OtpCode];
 
 @Module({
   imports: [
@@ -44,7 +46,8 @@ const ENTITIES = [Listing, User, UserProfile];
       },
     }),
     UsersModule,
-    ListingModule
+    ListingModule, 
+    AuthModule
   ],
   controllers: [AppController],
 })
