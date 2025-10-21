@@ -1,18 +1,33 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const app = express();
+const server = http.createServer(app);
 
-  // set a global prefix for all routes
-  app.setGlobalPrefix('api');
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // frontend port
+    methods: ["GET", "POST"],
+  },
+});
 
-  // optional CORS if frontend is on a different port
-  app.enableCors();
+io.on("connection", (socket) => {
+  console.log("✅ User connected:", socket.id);
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log('🚀 Server running on http://localhost:${port}/api');
-}
-bootstrap();
+  socket.on("sendMessage", (data) => {
+    console.log("Message received:", data);
+
+    // Emit to all connected clients (including sender)
+    io.emit("receiveMessage", data);
+
+    // OR, emit to everyone except sender:
+    // socket.broadcast.emit("receiveMessage", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+server.listen(3000, () => console.log("🚀 Socket.IO server running on port 3000"));

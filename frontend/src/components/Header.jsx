@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Navigation header with logo, menu, search, and sign in
-const Header = ({ onLoginClick }) => {
+const Header = ({ onLoginClick, onGoToChat }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="w-full">
@@ -39,6 +39,13 @@ const Header = ({ onLoginClick }) => {
             >
               Sign In
             </button>
+            <button 
+                onClick={onGoToChat}
+                className="bg-blue-600 text-white px-4 py-2 rounded-full font-medium hover:bg-blue-800 transition-all duration-300"
+              >
+                Chat
+              </button>
+            
           </div>
         </div>
       </div>
