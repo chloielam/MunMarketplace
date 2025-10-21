@@ -54,7 +54,7 @@ const Header = () => {
               className="bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-800 transition-all duration-300"
             >
               Sign In
-            </Link>
+            </button>
           </div>
         </div>
       </div>
