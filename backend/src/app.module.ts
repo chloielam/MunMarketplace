@@ -7,8 +7,10 @@ import { UserProfile } from './modules/users/entities/user-profile.entity';
 import { UsersModule } from './modules/users/users.module';
 import { ListingModule } from './modules/listings/listing.module';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { OtpCode } from './modules/auth/otp.entity';
 
-const ENTITIES = [Listing, User, UserProfile];
+const ENTITIES = [Listing, User, UserProfile, OtpCode];
 
 @Module({
   imports: [
@@ -44,7 +46,8 @@ const ENTITIES = [Listing, User, UserProfile];
       },
     }),
     UsersModule,
-    ListingModule
+    ListingModule,
+    AuthModule
   ],
   controllers: [AppController],
 })
