@@ -9,12 +9,7 @@ const RegisterPage = () => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    university: 'Memorial University of Newfoundland',
-    phoneNumber: '',
-    studentId: '',
-    program: '',
-    yearOfStudy: ''
+    confirmPassword: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -152,13 +147,7 @@ const RegisterPage = () => {
         await authService.verifyOtp(formData.email, otpCode);
         
         // Step 2: Complete registration
-        const profileData = {
-          university: formData.university,
-          phoneNumber: formData.phoneNumber,
-          studentId: formData.studentId,
-          program: formData.program,
-          yearOfStudy: formData.yearOfStudy
-        };
+        const profileData = {};
         await authService.register(formData.email, formData.fullName, formData.password, profileData);
         
         navigate("/login");
@@ -176,7 +165,7 @@ const RegisterPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/home')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -187,7 +176,7 @@ const RegisterPage = () => {
         <div className="flex-1 bg-mun-red p-8 flex items-center justify-center">
           <div className="text-center">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
               className="text-white text-opacity-80 hover:text-white mb-6 flex items-center mx-auto"
             >
               ← Back to Home
@@ -349,108 +338,6 @@ const RegisterPage = () => {
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          University
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-400">🎓</span>
-                          </div>
-                          <input
-                            type="text"
-                            name="university"
-                            value={formData.university}
-                            onChange={handleChange}
-                            placeholder="Memorial University of Newfoundland"
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number (Optional)
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-400">📱</span>
-                          </div>
-                          <input
-                            type="tel"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                            placeholder="(709) 123-4567"
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Student ID (Optional)
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-400">🆔</span>
-                          </div>
-                          <input
-                            type="text"
-                            name="studentId"
-                            value={formData.studentId}
-                            onChange={handleChange}
-                            placeholder="e.g., 201234567"
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Program of Study (Optional)
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-400">📚</span>
-                          </div>
-                          <input
-                            type="text"
-                            name="program"
-                            value={formData.program}
-                            onChange={handleChange}
-                            placeholder="e.g., Computer Science"
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Year of Study (Optional)
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-400">📅</span>
-                          </div>
-                          <select
-                            name="yearOfStudy"
-                            value={formData.yearOfStudy}
-                            onChange={handleChange}
-                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
-                          >
-                            <option value="">Select year</option>
-                            <option value="1st Year">1st Year</option>
-                            <option value="2nd Year">2nd Year</option>
-                            <option value="3rd Year">3rd Year</option>
-                            <option value="4th Year">4th Year</option>
-                            <option value="Graduate">Graduate</option>
-                            <option value="PhD">PhD</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </div>
-                      </div>
                     </>
                   ) : (
                     <div>

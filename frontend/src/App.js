@@ -16,19 +16,13 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          {/* Home route */}
+          {/* Redirect root to /home */}
           <Route 
             path="/" 
-            element={
-              <>
-                <Header />
-                <MainPage />
-                <Footer />
-              </>
-            } 
+            element={<Navigate to="/home" replace />} 
           />
           
-          {/* Home route (alternative) */}
+          {/* Home route - main page */}
           <Route 
             path="/home" 
             element={
@@ -85,7 +79,7 @@ function App() {
           {/* Catch all route - redirect to home */}
           <Route 
             path="*" 
-            element={<Navigate to="/" replace />} 
+            element={<Navigate to="/home" replace />} 
           />
         </Routes>
       </div>

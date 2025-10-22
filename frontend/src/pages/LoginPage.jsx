@@ -94,7 +94,7 @@ const LoginPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/home')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -105,7 +105,7 @@ const LoginPage = () => {
         <div className="flex-1 p-8 flex items-center justify-center">
               <div className="max-w-md mx-auto">
                 <button
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/home')}
                   className="text-gray-500 hover:text-gray-700 mb-6 flex items-center"
                 >
                   ← Back to Home
