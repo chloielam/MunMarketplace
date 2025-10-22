@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService, authUtils } from '../services/auth';
 
 // Login page
 const LoginPage = () => {
@@ -65,31 +66,28 @@ const LoginPage = () => {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (validateForm()) {
-    try {
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Login failed");
-
-      localStorage.setItem("token", data.token);
-      alert("Login successful!");
-      navigate("/dashboard"); // Adjust route as per your app
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
+    if (validateForm()) {
+      try {
+        console.log('LoginPage - Attempting login for:', formData.email);
+        const data = await authService.login(formData.email, formData.password);
+        console.log('LoginPage - Login response:', data);
+        
+        // Store token and set auth headers
+        authUtils.setToken(data.access_token || data.token);
+        
+        // Dispatch auth change event to update Header
+        window.dispatchEvent(new CustomEvent('authChange'));
+        
+        // Redirect to listings page without popup
+        navigate("/items");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || err.message || "Login failed");
+      }
     }
-  }
-};
+  };
 
 
   return (

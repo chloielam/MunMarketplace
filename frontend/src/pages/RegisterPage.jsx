@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/auth';
 
 // Register page
 const RegisterPage = () => {
@@ -8,12 +9,20 @@ const RegisterPage = () => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    university: 'Memorial University of Newfoundland',
+    phoneNumber: '',
+    studentId: '',
+    program: '',
+    yearOfStudy: ''
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registrationStep, setRegistrationStep] = useState(1); // 1: form, 2: OTP verification
+  const [otpCode, setOtpCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,48 +123,53 @@ const RegisterPage = () => {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (validateForm()) {
-    try {
-      // Step 1: Send OTP request
-      const response = await fetch("http://localhost:3000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
-
-      alert("OTP has been sent to your MUN email address.");
-
-      // Step 2: Ask for OTP and verify it
-      const otp = prompt("Enter the OTP sent to your email:");
-
-      if (otp) {
-        const verifyRes = await fetch("http://localhost:3000/auth/verify-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email, otp }),
-        });
-
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok) throw new Error(verifyData.message || "OTP verification failed");
-
-        alert("Registration successful! You can now log in.");
-        navigate("/login");
+    if (registrationStep === 1) {
+      // Step 1: Send OTP to email
+      if (validateForm()) {
+        setIsLoading(true);
+        try {
+          await authService.sendOtp(formData.email);
+          setRegistrationStep(2);
+        } catch (err) {
+          console.error(err);
+          alert(err.response?.data?.message || err.message || "Failed to send OTP");
+        } finally {
+          setIsLoading(false);
+        }
       }
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
+    } else {
+      // Step 2: Verify OTP and complete registration
+      if (!otpCode.trim()) {
+        alert("Please enter the OTP code");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Step 1: Verify OTP
+        await authService.verifyOtp(formData.email, otpCode);
+        
+        // Step 2: Complete registration
+        const profileData = {
+          university: formData.university,
+          phoneNumber: formData.phoneNumber,
+          studentId: formData.studentId,
+          program: formData.program,
+          yearOfStudy: formData.yearOfStudy
+        };
+        await authService.register(formData.email, formData.fullName, formData.password, profileData);
+        
+        navigate("/login");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || err.message || "Registration failed");
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }
-};
+  };
 
 
   return (
@@ -200,139 +214,282 @@ const RegisterPage = () => {
         {/* Right side - Join MU Marketplace */}
         <div className="flex-1 p-8 flex items-center justify-center">
               <div className="max-w-md mx-auto">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Join MUN Marketplace</h2>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  {registrationStep === 1 ? 'Join MUN Marketplace' : 'Verify Your Email'}
+                </h2>
                 <p className="text-gray-600 mb-8">
-                  Register with your Memorial University email to access the student marketplace
+                  {registrationStep === 1 
+                    ? 'Register with your Memorial University email to access the student marketplace'
+                    : `We've sent a verification code to ${formData.email}. Please enter the 6-digit code below.`
+                  }
                 </p>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">👤</span>
+                  {registrationStep === 1 ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">👤</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            placeholder="Enter your full name"
+                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.fullName ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                        </div>
+                        {errors.fullName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                        )}
                       </div>
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        placeholder="Enter your full name"
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.fullName ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                    </div>
-                    {errors.fullName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
-                    )}
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      University Email
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">✉️</span>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          University Email
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">✉️</span>
+                          </div>
+                          <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="your.name@mun.ca"
+                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.email ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                        </div>
+                        {errors.email && (
+                          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                        )}
                       </div>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="your.name@mun.ca"
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.email ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                    )}
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">🔒</span>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🔒</span>
+                          </div>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="Create a password"
+                            className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.password ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button 
+                              type="button" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onMouseDown={() => setShowPassword(true)}
+                              onMouseUp={() => setShowPassword(false)}
+                              onMouseLeave={() => setShowPassword(false)}
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </div>
+                        {errors.password && (
+                          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                        )}
                       </div>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Create a password"
-                        className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.password ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Confirm Password
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🔒</span>
+                          </div>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Confirm your password"
+                            className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button 
+                              type="button" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onMouseDown={() => setShowConfirmPassword(true)}
+                              onMouseUp={() => setShowConfirmPassword(false)}
+                              onMouseLeave={() => setShowConfirmPassword(false)}
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </div>
+                        {errors.confirmPassword && (
+                          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          University
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🎓</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="university"
+                            value={formData.university}
+                            onChange={handleChange}
+                            placeholder="Memorial University of Newfoundland"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone Number (Optional)
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">📱</span>
+                          </div>
+                          <input
+                            type="tel"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            placeholder="(709) 123-4567"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Student ID (Optional)
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🆔</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="studentId"
+                            value={formData.studentId}
+                            onChange={handleChange}
+                            placeholder="e.g., 201234567"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Program of Study (Optional)
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">📚</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="program"
+                            value={formData.program}
+                            onChange={handleChange}
+                            placeholder="e.g., Computer Science"
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Year of Study (Optional)
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">📅</span>
+                          </div>
+                          <select
+                            name="yearOfStudy"
+                            value={formData.yearOfStudy}
+                            onChange={handleChange}
+                            className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          >
+                            <option value="">Select year</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                            <option value="Graduate">Graduate</option>
+                            <option value="PhD">PhD</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Verification Code
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span className="text-gray-400">🔐</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          placeholder="Enter 6-digit code"
+                          maxLength="6"
+                          className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          required
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Didn't receive the code? Check your spam folder or{' '}
                         <button 
                           type="button" 
-                          className="text-gray-400 hover:text-gray-600"
-                          onMouseDown={() => setShowPassword(true)}
-                          onMouseUp={() => setShowPassword(false)}
-                          onMouseLeave={() => setShowPassword(false)}
+                          onClick={() => setRegistrationStep(1)}
+                          className="text-mun-red hover:underline"
                         >
-                          👁️
+                          try again
                         </button>
-                      </div>
+                      </p>
                     </div>
-                    {errors.password && (
-                      <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">🔒</span>
-                      </div>
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirm your password"
-                        className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button 
-                          type="button" 
-                          className="text-gray-400 hover:text-gray-600"
-                          onMouseDown={() => setShowConfirmPassword(true)}
-                          onMouseUp={() => setShowConfirmPassword(false)}
-                          onMouseLeave={() => setShowConfirmPassword(false)}
-                        >
-                          👁️
-                        </button>
-                      </div>
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                    )}
-                  </div>
+                  )}
 
                   <button
                     type="submit"
-                    className="w-full bg-mun-red text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors duration-300"
+                    disabled={isLoading}
+                    className="w-full bg-mun-red text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    REGISTER
+                    {isLoading ? 'Processing...' : (registrationStep === 1 ? 'SEND VERIFICATION CODE' : 'COMPLETE REGISTRATION')}
                   </button>
 
                   <p className="text-xs text-gray-500 text-center">

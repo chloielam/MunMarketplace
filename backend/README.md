@@ -30,6 +30,7 @@ docker compose up -d     # rebuild and start fresh (may choose this for first se
 
 Create a `.env` file in `backend/`:
 ```env
+# Database Configuration
 DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
@@ -37,9 +38,26 @@ DB_USER=mun_user
 DB_PASS=mun_pass
 DB_NAME=mun_marketplace
 
-# optional app
+# App Configuration
 PORT=3000
 GLOBAL_PREFIX=api
+
+# JWT Configuration
+JWT_SECRET=secret-jwt-key-change-this-in-production-12345
+JWT_EXPIRES_IN=1h
+
+# OTP Configuration
+OTP_TTL_MINUTES=10
+MAX_OTPS_PER_HOUR=10
+
+# Email Configuration
+GMAIL_USER=marketplacemun@gmail.com
+GMAIL_PASS=fyef xikg beor jrja
+```
+
+**Quick Setup**: Run the automatic email configuration:
+```bash
+node auto-setup-email.js
 ```
 
 3. **Run seed for example data**

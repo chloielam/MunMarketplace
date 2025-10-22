@@ -5,6 +5,9 @@ import Footer from './components/Footer.jsx';
 import MainPage from './components/MainPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import TestProfilePage from './pages/TestProfilePage.jsx';
+import DebugPage from './pages/DebugPage.jsx';
 import Items from './components/Items.jsx';
 
 // Main app component 
@@ -16,6 +19,18 @@ function App() {
           {/* Home route */}
           <Route 
             path="/" 
+            element={
+              <>
+                <Header />
+                <MainPage />
+                <Footer />
+              </>
+            } 
+          />
+          
+          {/* Home route (alternative) */}
+          <Route 
+            path="/home" 
             element={
               <>
                 <Header />
@@ -47,6 +62,24 @@ function App() {
           <Route 
             path="/register" 
             element={<RegisterPage />} 
+          />
+          
+          {/* Profile route */}
+          <Route 
+            path="/profile" 
+            element={<ProfilePage />} 
+          />
+          
+          {/* Test Profile route */}
+          <Route 
+            path="/test-profile" 
+            element={<TestProfilePage />} 
+          />
+          
+          {/* Debug route */}
+          <Route 
+            path="/debug" 
+            element={<DebugPage />} 
           />
           
           {/* Catch all route - redirect to home */}

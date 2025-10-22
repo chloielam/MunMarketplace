@@ -79,7 +79,8 @@ export class AuthService {
     if (!user || !user.is_email_verified) throw new BadRequestException('Email not verified');
     const hash = await bcrypt.hash(password_hash, 10);
     await this.usersService.setPassword(mun_email, hash);
-    await this.usersService.markVerified(mun_email);
+    // Update the user's first_name as well
+    await this.usersService.updateUser(user.user_id, { first_name });
     return { message: 'Registered' };
   }
 
@@ -91,7 +92,7 @@ export class AuthService {
     const userWithPwd = await this.usersService['userRepo'].findOne({ where: { mun_email }, select: ['user_id','mun_email','password_hash','is_email_verified','first_name'] });
     if (!userWithPwd) throw new BadRequestException('Invalid credentials');
 
-    const ok = await bcrypt.compare(password_hash, userWithPwd.password_hash);
+    const ok = await bcrypt.compare(password_hash, userWithPwd.password_hash || '');
     if (!ok) throw new BadRequestException('Invalid credentials');
 
     if (!userWithPwd.is_email_verified) throw new BadRequestException('Email not verified');
