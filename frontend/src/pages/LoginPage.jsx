@@ -73,9 +73,11 @@ const LoginPage = () => {
         console.log('LoginPage - Attempting login for:', formData.email);
         const data = await authService.login(formData.email, formData.password);
         console.log('LoginPage - Login response:', data);
-        
-        // Store token and set auth headers
-        authUtils.setToken(data.access_token || data.token);
+
+        if (data.user) {
+          authUtils.setSessionUser(data.user);
+        }
+        await authUtils.refreshSession();
         
         // Dispatch auth change event to update Header
         window.dispatchEvent(new CustomEvent('authChange'));

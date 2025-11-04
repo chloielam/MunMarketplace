@@ -7,11 +7,12 @@ import { MailerService } from '../common/mailer.service';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Session } from './entities/session.entity';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([OtpCode]),
+    TypeOrmModule.forFeature([OtpCode, Session]),
     UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

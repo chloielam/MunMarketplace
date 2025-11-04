@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authUtils } from '../services/auth';
+import { authService, authUtils } from '../services/auth';
 
 // Navigation header with logo, menu, search, and sign in
 const Header = () => {
@@ -9,40 +9,36 @@ const Header = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const authenticated = authUtils.isAuthenticated();
-      console.log('Header - checkAuth - authenticated:', authenticated);
-      setIsAuthenticated(authenticated);
-      
-      if (authenticated) {
-        // You could fetch user data here if needed
-        const userId = authUtils.getUserId();
-        console.log('Header - checkAuth - userId:', userId);
-        if (userId) {
-          // Optionally fetch user data for display
-        }
-      }
+    let active = true;
+
+    const applySession = (sessionUser) => {
+      if (!active) return;
+      setIsAuthenticated(!!sessionUser);
+      setUser(sessionUser);
     };
 
-    checkAuth();
-    
-    // Listen for auth changes (you might want to implement a context or event system)
+    const syncSession = async () => {
+      const sessionUser = await authUtils.refreshSession();
+      applySession(sessionUser);
+    };
+
+    // Initial load
+    applySession(authUtils.getSessionUser());
+    syncSession();
+
     const handleStorageChange = () => {
-      console.log('Header - Storage change detected');
-      checkAuth();
+      applySession(authUtils.getSessionUser());
+    };
+
+    const handleAuthChange = () => {
+      syncSession();
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
-    // Listen for custom auth events
-    const handleAuthChange = () => {
-      console.log('Header - Auth change event received');
-      checkAuth();
-    };
-    
     window.addEventListener('authChange', handleAuthChange);
-    
+
     return () => {
+      active = false;
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleAuthChange);
     };
@@ -52,15 +48,18 @@ const Header = () => {
     navigate('/login');
   };
 
-  const handleLogout = () => {
-    authUtils.removeToken();
-    setIsAuthenticated(false);
-    setUser(null);
-    
-    // Dispatch auth change event
-    window.dispatchEvent(new CustomEvent('authChange'));
-    
-    navigate('/home');
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Failed to log out', error);
+    } finally {
+      authUtils.clearSession();
+      setIsAuthenticated(false);
+      setUser(null);
+      window.dispatchEvent(new CustomEvent('authChange'));
+      navigate('/home');
+    }
   };
 
   const handleProfileClick = () => {

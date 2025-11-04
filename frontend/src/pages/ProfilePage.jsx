@@ -23,7 +23,8 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userId = authUtils.getUserId();
+        const sessionUser = await authUtils.refreshSession();
+        const userId = sessionUser?.id || authUtils.getUserId();
         if (!userId) {
           navigate('/login');
           return;
@@ -118,9 +119,16 @@ const ProfilePage = () => {
     }
   };
 
-  const handleLogout = () => {
-    authUtils.removeToken();
-    navigate('/home');
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Failed to log out', error);
+    } finally {
+      authUtils.clearSession();
+      navigate('/home');
+      window.dispatchEvent(new CustomEvent('authChange'));
+    }
   };
 
   if (loading) {

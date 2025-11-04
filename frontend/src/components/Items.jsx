@@ -26,9 +26,12 @@ export default function Items() {
   ];
 
   useEffect(() => {
-    // Check authentication status
-    const authenticated = authUtils.isAuthenticated();
-    setIsAuthenticated(authenticated);
+    let active = true;
+
+    const syncAuth = (user) => {
+      if (!active) return;
+      setIsAuthenticated(!!user);
+    };
 
     // Handle URL parameters
     const urlParams = new URLSearchParams(location.search);
@@ -46,14 +49,21 @@ export default function Items() {
     async function fetchItems() {
       try {
         const data = await getItems();
-        setItems(data);
+        if (active) setItems(data);
       } catch (err) {
-        setError(err.message || "Failed to fetch items");
+        if (active) setError(err.message || "Failed to fetch items");
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
+
+    syncAuth(authUtils.getSessionUser());
+    authUtils.refreshSession().then(syncAuth);
     fetchItems();
+
+    return () => {
+      active = false;
+    };
   }, [location.search]);
 
   const handleSortChange = (e) => {
