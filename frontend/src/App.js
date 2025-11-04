@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -9,9 +9,14 @@ import ProfilePage from './pages/ProfilePage.jsx';
 import TestProfilePage from './pages/TestProfilePage.jsx';
 import DebugPage from './pages/DebugPage.jsx';
 import Items from './components/Items.jsx';
+import { authUtils } from './services/auth';
 
 // Main app component 
 function App() {
+  useEffect(() => {
+    authUtils.refreshSession();
+  }, []);
+
   return (
     <Router>
       <div className="App">

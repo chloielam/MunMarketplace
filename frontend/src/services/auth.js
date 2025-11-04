@@ -65,54 +65,67 @@ export const authService = {
   async updateUserProfile(userId, profileData) {
     const response = await api.patch(`/users/${userId}/profile`, profileData);
     return response.data;
+  },
+
+  async getSession() {
+    const response = await api.get('/auth/session');
+    return response.data;
+  },
+
+  async logout() {
+    await api.post('/auth/logout');
   }
 };
 
 // Auth state management
 export const authUtils = {
-  // Set auth token
-  setToken(token) {
-    localStorage.setItem('token', token);
-    // Set default authorization header for all requests
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  sessionKey: 'sessionUser',
+
+  setSessionUser(user) {
+    if (!user) {
+      this.clearSession();
+      return;
+    }
+    localStorage.setItem(this.sessionKey, JSON.stringify(user));
   },
 
-  // Get auth token
-  getToken() {
-    return localStorage.getItem('token');
-  },
-
-  // Remove auth token
-  removeToken() {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-  },
-
-  // Check if user is authenticated
-  isAuthenticated() {
-    return !!this.getToken();
-  },
-
-  // Get user ID from token (you might need to decode JWT)
-  getUserId() {
-    const token = this.getToken();
-    if (!token) return null;
-    
+  getSessionUser() {
+    const raw = localStorage.getItem(this.sessionKey);
+    if (!raw) return null;
     try {
-      // Simple JWT decode (you might want to use a proper JWT library)
-      const parts = token.split('.');
-      
-      if (parts.length !== 3) {
-        console.error('Invalid JWT format');
-        return null;
-      }
-      
-      const payload = JSON.parse(atob(parts[1]));
-      const userId = payload.sub || payload.userId || payload.id;
-      return userId;
+      return JSON.parse(raw);
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error('Failed to parse stored session user', error);
+      localStorage.removeItem(this.sessionKey);
       return null;
     }
-  }
+  },
+
+  clearSession() {
+    localStorage.removeItem(this.sessionKey);
+  },
+
+  isAuthenticated() {
+    return !!this.getSessionUser();
+  },
+
+  getUserId() {
+    const user = this.getSessionUser();
+    return user?.id || null;
+  },
+
+  async refreshSession() {
+    try {
+      const { user } = await authService.getSession();
+      if (user) {
+        this.setSessionUser(user);
+        return user;
+      }
+      this.clearSession();
+      return null;
+    } catch (error) {
+      this.clearSession();
+      return null;
+    }
+  },
 };

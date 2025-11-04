@@ -1,44 +1,67 @@
-import React from 'react';
-import { authUtils } from '../services/auth';
+import React, { useEffect, useState } from 'react';
+import { authService, authUtils } from '../services/auth';
 
 const DebugPage = () => {
-  const token = authUtils.getToken();
-  const isAuth = authUtils.isAuthenticated();
-  const userId = authUtils.getUserId();
-  
-  let decodedToken = null;
-  if (token) {
+  const [sessionUser, setSessionUser] = useState(authUtils.getSessionUser());
+  const [lastSyncError, setLastSyncError] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    const sync = async () => {
+      try {
+        const user = await authUtils.refreshSession();
+        if (!active) return;
+        setSessionUser(user);
+        setLastSyncError(null);
+      } catch (error) {
+        if (!active) return;
+        setSessionUser(null);
+        setLastSyncError(error.message || 'Failed to refresh session');
+      }
+    };
+    sync();
+    return () => { active = false; };
+  }, []);
+
+  const handleManualRefresh = async () => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      decodedToken = payload;
-    } catch (e) {
-      console.error('Error decoding token:', e);
+      const { user } = await authService.getSession();
+      setSessionUser(user || null);
+      if (!user) authUtils.clearSession();
+      setLastSyncError(null);
+    } catch (error) {
+      setSessionUser(null);
+      authUtils.clearSession();
+      setLastSyncError(error.message || 'Failed to refresh session');
     }
-  }
+  };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Debug Information</h1>
-      <div className="space-y-4">
-        <div>
-          <strong>Token exists:</strong> {token ? 'Yes' : 'No'}
-        </div>
-        <div>
-          <strong>Is authenticated:</strong> {isAuth ? 'Yes' : 'No'}
-        </div>
-        <div>
-          <strong>User ID:</strong> {userId || 'None'}
-        </div>
-        <div>
-          <strong>Token (first 50 chars):</strong> {token ? token.substring(0, 50) + '...' : 'None'}
-        </div>
-        <div>
-          <strong>Decoded token:</strong>
-          <pre className="bg-gray-100 p-2 rounded mt-2">
-            {JSON.stringify(decodedToken, null, 2)}
-          </pre>
-        </div>
+    <div className="p-8 space-y-4">
+      <h1 className="text-2xl font-bold">Session Debug</h1>
+      <div>
+        <strong>Is authenticated:</strong> {authUtils.isAuthenticated() ? 'Yes' : 'No'}
       </div>
+      <div>
+        <strong>User ID:</strong> {authUtils.getUserId() || 'None'}
+      </div>
+      <div>
+        <strong>Stored session payload:</strong>
+        <pre className="bg-gray-100 p-3 rounded text-sm mt-2">
+          {JSON.stringify(sessionUser, null, 2)}
+        </pre>
+      </div>
+      {lastSyncError && (
+        <div className="text-red-500">
+          <strong>Last sync error:</strong> {lastSyncError}
+        </div>
+      )}
+      <button
+        onClick={handleManualRefresh}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+      >
+        Refresh Session
+      </button>
     </div>
   );
 };

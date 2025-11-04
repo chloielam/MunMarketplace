@@ -4,25 +4,9 @@ import { authUtils } from '../services/auth';
 
 const TestProfilePage = () => {
   const navigate = useNavigate();
-  const token = authUtils.getToken();
+  const sessionUser = authUtils.getSessionUser();
   const isAuth = authUtils.isAuthenticated();
   const userId = authUtils.getUserId();
-  
-  // Debug JWT token
-  let decodedToken = null;
-  if (token) {
-    try {
-      const parts = token.split('.');
-      console.log('Token parts:', parts.length);
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        decodedToken = payload;
-        console.log('Decoded JWT payload:', payload);
-      }
-    } catch (e) {
-      console.error('Error decoding token:', e);
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -39,17 +23,16 @@ const TestProfilePage = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-xl font-semibold mb-4">Authentication Status</h2>
           <div className="space-y-2">
-            <p><strong>Token exists:</strong> {token ? 'Yes' : 'No'}</p>
             <p><strong>Is authenticated:</strong> {isAuth ? 'Yes' : 'No'}</p>
             <p><strong>User ID:</strong> {userId || 'None'}</p>
-            <p><strong>Token (first 50 chars):</strong> {token ? token.substring(0, 50) + '...' : 'None'}</p>
+            <p><strong>Stored session:</strong> {sessionUser ? 'Present' : 'None'}</p>
           </div>
           
-          {decodedToken && (
+          {sessionUser && (
             <div className="mt-4">
-              <h3 className="text-lg font-semibold mb-2">Decoded JWT Payload:</h3>
+              <h3 className="text-lg font-semibold mb-2">Stored Session User:</h3>
               <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
-                {JSON.stringify(decodedToken, null, 2)}
+                {JSON.stringify(sessionUser, null, 2)}
               </pre>
             </div>
           )}

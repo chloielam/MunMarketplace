@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { OtpCode } from './otp.entity';
@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -98,7 +99,18 @@ export class AuthService {
     if (!userWithPwd.is_email_verified) throw new BadRequestException('Email not verified');
 
     const token = this.jwtService.sign({ sub: userWithPwd.user_id, email: userWithPwd.mun_email });
-    return { access_token: token, user: { id: userWithPwd.user_id, email: userWithPwd.mun_email, first_name: userWithPwd.first_name } };
+    return { access_token: token, user: this.toPublicUser(userWithPwd as User) };
+  }
+
+  async getSessionUser(userId: string | undefined) {
+    if (!userId) return null;
+    try {
+      const user = await this.usersService.findOne(userId);
+      return this.toPublicUser(user);
+    } catch (error) {
+      if (error instanceof NotFoundException) return null;
+      throw error;
+    }
   }
 
   async forgotPassword(mun_email: string) {
@@ -124,5 +136,16 @@ export class AuthService {
     await this.usersService.setPassword(mun_email, hash);
 
     return { message: 'Password reset successful' };
+  }
+
+  private toPublicUser(user: User | (Partial<User> & { user_id: string; mun_email: string })) {
+    if (!user) return null;
+    return {
+      id: user.user_id,
+      email: user.mun_email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      profilePictureUrl: user.profile_picture_url,
+    };
   }
 }

@@ -9,8 +9,9 @@ import { ListingModule } from './modules/listings/listing.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { OtpCode } from './modules/auth/otp.entity';
+import { Session } from './modules/auth/entities/session.entity';
 
-const ENTITIES = [Listing, User, UserProfile, OtpCode];
+const ENTITIES = [Listing, User, UserProfile, OtpCode, Session];
 
 @Module({
   imports: [

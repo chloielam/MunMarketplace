@@ -12,9 +12,11 @@ const MainPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const checkAuth = () => {
-      const authenticated = authUtils.isAuthenticated();
-      setIsAuthenticated(authenticated);
+    let active = true;
+
+    const updateAuthState = (user) => {
+      if (!active) return;
+      setIsAuthenticated(!!user);
     };
 
     const fetchFeaturedItems = async () => {
@@ -25,12 +27,17 @@ const MainPage = () => {
       } catch (error) {
         console.error('Error fetching featured items:', error);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
-    checkAuth();
+    updateAuthState(authUtils.getSessionUser());
+    authUtils.refreshSession().then(updateAuthState);
     fetchFeaturedItems();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleSearch = (e) => {
