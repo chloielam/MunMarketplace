@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
 
@@ -7,6 +7,8 @@ const Header = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+
+  const logoutInProgress = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -18,6 +20,7 @@ const Header = () => {
     };
 
     const syncSession = async () => {
+      if (logoutInProgress.current) return;
       const sessionUser = await authUtils.refreshSession();
       applySession(sessionUser);
     };
@@ -30,7 +33,11 @@ const Header = () => {
       applySession(authUtils.getSessionUser());
     };
 
-    const handleAuthChange = () => {
+    const handleAuthChange = (event) => {
+      if (event?.detail && Object.prototype.hasOwnProperty.call(event.detail, 'user')) {
+        applySession(event.detail.user);
+        return;
+      }
       syncSession();
     };
 
@@ -49,15 +56,18 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
+    logoutInProgress.current = true;
+    authUtils.clearSession();
+    setIsAuthenticated(false);
+    setUser(null);
+    window.dispatchEvent(new CustomEvent('authChange', { detail: { user: null } }));
+
     try {
       await authService.logout();
     } catch (error) {
       console.error('Failed to log out', error);
     } finally {
-      authUtils.clearSession();
-      setIsAuthenticated(false);
-      setUser(null);
-      window.dispatchEvent(new CustomEvent('authChange'));
+      logoutInProgress.current = false;
       navigate('/home');
     }
   };

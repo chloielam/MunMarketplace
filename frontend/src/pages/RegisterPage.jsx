@@ -36,16 +36,12 @@ const RegisterPage = () => {
 
         // Check password match
     if (name === 'confirmPassword') {
-      console.log('Confirm password changed:', value);
-      console.log('Current password:', formData.password);
       if (value && formData.password && value !== formData.password) {
-        console.log('Passwords dont match');
         setErrors({
           ...errors,
           confirmPassword: 'Passwords do not match'
         });
       } else if (value && formData.password && value === formData.password) {
-        console.log('Passwords match');
         setErrors({
           ...errors,
           confirmPassword: ''
@@ -70,15 +66,12 @@ const RegisterPage = () => {
 
         // Check MUN email
     if (name === 'email') {
-      console.log('Email changed:', value);
       if (value && !value.includes('@mun.ca')) {
-        console.log('Bad email');
         setErrors({
           ...errors,
           email: 'Please use your MUN email address (@mun.ca)'
         });
       } else if (value && value.includes('@mun.ca')) {
-        console.log('Good email');
         setErrors({
           ...errors,
           email: ''

@@ -5,8 +5,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { MailerService } from '../common/mailer.service';
 import { UsersModule } from '../users/users.module';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { Session } from './entities/session.entity';
 
 @Module({
@@ -14,14 +13,6 @@ import { Session } from './entities/session.entity';
     ConfigModule,
     TypeOrmModule.forFeature([OtpCode, Session]),
     UsersModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (cfg: ConfigService) => ({
-        secret: cfg.get('JWT_SECRET'),
-        signOptions: { expiresIn: cfg.get('JWT_EXPIRES_IN') || '1h' },
-      }),
-      inject: [ConfigService],
-    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, MailerService],

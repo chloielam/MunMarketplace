@@ -30,15 +30,12 @@ const LoginPage = () => {
 
     // Check MUN email
     if (name === 'email') {
-      console.log('Email changed:', value);
       if (value && !value.includes('@mun.ca')) {
-        console.log('Bad email');
         setErrors({
           ...errors,
           email: 'Please use your MUN email address (@mun.ca)'
         });
       } else if (value && value.includes('@mun.ca')) {
-        console.log('Good email');
         setErrors({
           ...errors,
           email: ''
@@ -70,17 +67,15 @@ const LoginPage = () => {
 
     if (validateForm()) {
       try {
-        console.log('LoginPage - Attempting login for:', formData.email);
         const data = await authService.login(formData.email, formData.password);
-        console.log('LoginPage - Login response:', data);
 
         if (data.user) {
           authUtils.setSessionUser(data.user);
         }
-        await authUtils.refreshSession();
-        
+        const refreshedUser = await authUtils.refreshSession();
+
         // Dispatch auth change event to update Header
-        window.dispatchEvent(new CustomEvent('authChange'));
+        window.dispatchEvent(new CustomEvent('authChange', { detail: { user: refreshedUser ?? data.user ?? null } }));
         
         // Redirect to listings page without popup
         navigate("/items");

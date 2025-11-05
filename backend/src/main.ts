@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
-import * as session from 'express-session';
+import session from 'express-session';
+import type { CookieOptions } from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import { DataSource } from 'typeorm';
 import { Session as SessionEntity } from './modules/auth/entities/session.entity';
@@ -16,7 +17,7 @@ async function bootstrap() {
   const sessionTtlMs = Number(process.env.SESSION_TTL_MS || 1000 * 60 * 60 * 24 * 7); // default 7 days
   const sessionCookieName = process.env.SESSION_COOKIE_NAME || 'mun.sid';
   const sessionSecret = process.env.SESSION_SECRET || 'change-me-in-env';
-  const sameSite = (process.env.SESSION_SAME_SITE as session.CookieOptions['sameSite']) ??
+  const sameSite = (process.env.SESSION_SAME_SITE as CookieOptions['sameSite']) ??
     (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
 
   app.use(
@@ -34,6 +35,7 @@ async function bootstrap() {
       },
       store: new TypeormStore({
         cleanupLimit: 2,
+        limitSubquery: false,
         ttl: Math.floor(sessionTtlMs / 1000),
       }).connect(sessionRepository),
     }),

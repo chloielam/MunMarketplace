@@ -30,11 +30,11 @@ const ProfilePage = () => {
           return;
         }
         const [userData, profileData] = await Promise.all([
-          authService.getUser(userId).catch(err => {
+          authService.getUser().catch(err => {
             console.error('Error fetching user:', err);
             throw err;
           }),
-          authService.getUserProfile(userId).catch(err => {
+          authService.getUserProfile().catch(err => {
             console.log('Profile not found (this is OK):', err.message);
             return null; // Profile might not exist yet
           })
@@ -86,15 +86,13 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      const userId = authUtils.getUserId();
-      
       // Update user basic info
-      await authService.updateUser(userId, {
+      await authService.updateUser(undefined, {
         fullName: editForm.fullName
       });
 
       // Update profile info
-      await authService.updateUserProfile(userId, {
+      await authService.updateUserProfile(undefined, {
         bio: editForm.bio,
         phone: editForm.phone,
         campus: editForm.campus,
@@ -104,8 +102,8 @@ const ProfilePage = () => {
 
       // Refresh data
       const [userData, profileData] = await Promise.all([
-        authService.getUser(userId),
-        authService.getUserProfile(userId)
+        authService.getUser(),
+        authService.getUserProfile()
       ]);
 
       setUser(userData);
@@ -127,7 +125,7 @@ const ProfilePage = () => {
     } finally {
       authUtils.clearSession();
       navigate('/home');
-      window.dispatchEvent(new CustomEvent('authChange'));
+      window.dispatchEvent(new CustomEvent('authChange', { detail: { user: null } }));
     }
   };
 

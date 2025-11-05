@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   InternalServerErrorException,
+  Logger,
   Post,
   Req,
   UnauthorizedException,
@@ -16,10 +17,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotDto } from './dto/forgot.dto';
 import { ResetDto } from './dto/reset.dto';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private auth: AuthService) {}
 
   @Post('send-otp')
@@ -41,7 +44,9 @@ export class AuthController {
 
   @Get('session')
   async getSession(@Req() req: Request) {
-    const user = await this.auth.getSessionUser(req.session.userId);
+    const sessionUserId = req.session?.userId;
+    if (!sessionUserId) throw new UnauthorizedException('Not authenticated');
+    const user = await this.auth.getSessionUser(sessionUserId);
     if (!user) throw new UnauthorizedException('Not authenticated');
     return { user };
   }
@@ -73,12 +78,19 @@ export class AuthController {
   }
 
   private async startSession(req: Request, userId: string) {
+    if (!req.session) {
+      throw new InternalServerErrorException('Session middleware not initialized');
+    }
     await new Promise<void>((resolve, reject) => {
       req.session.regenerate(err => {
         if (err) return reject(err);
         req.session.userId = userId;
         resolve();
       });
-    }).catch(() => { throw new InternalServerErrorException('Failed to create session'); });
+    }).catch(err => {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Failed to create session: ${message}`, err instanceof Error ? err.stack : undefined);
+      throw new InternalServerErrorException('Failed to create session');
+    });
   }
 }

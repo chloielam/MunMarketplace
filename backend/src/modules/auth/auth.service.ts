@@ -5,7 +5,6 @@ import { OtpCode } from './otp.entity';
 import { MailerService } from '../common/mailer.service';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
 
@@ -19,7 +18,6 @@ export class AuthService {
     @InjectRepository(OtpCode) private otpRepo: Repository<OtpCode>,
     private mailer: MailerService,
     private usersService: UsersService,
-    private jwtService: JwtService,
     private config: ConfigService,
   ) {
     this.otpTtlMs = (Number(this.config.get('OTP_TTL_MINUTES') || 10)) * 60 * 1000;
@@ -98,8 +96,7 @@ export class AuthService {
 
     if (!userWithPwd.is_email_verified) throw new BadRequestException('Email not verified');
 
-    const token = this.jwtService.sign({ sub: userWithPwd.user_id, email: userWithPwd.mun_email });
-    return { access_token: token, user: this.toPublicUser(userWithPwd as User) };
+    return { user: this.toPublicUser(userWithPwd as User) };
   }
 
   async getSessionUser(userId: string | undefined) {
