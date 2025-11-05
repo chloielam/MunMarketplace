@@ -2,10 +2,21 @@ import { Controller, Get, Param, Patch, Body, ParseUUIDPipe } from '@nestjs/comm
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { SessionUserId } from '../auth/session-user.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
+
+  @Get('me')
+  getMe(@SessionUserId() userId: string) {
+    return this.users.findOne(userId);
+  }
+
+  @Get('me/profile')
+  getMyProfile(@SessionUserId() userId: string) {
+    return this.users.findProfile(userId);
+  }
 
   // GET /users/:id  => basic user info
   @Get(':id')
@@ -28,6 +39,11 @@ export class UsersController {
     return this.users.updateUser(id, body);
   }
 
+  @Patch('me')
+  updateMe(@SessionUserId() userId: string, @Body() body: UpdateUserDto) {
+    return this.users.updateUser(userId, body);
+  }
+
   // PATCH /users/:id/profile  => create/update profile fields
   @Patch(':id/profile')
   updateProfile(
@@ -35,5 +51,13 @@ export class UsersController {
     @Body() body: UpdateProfileDto,
   ) {
     return this.users.upsertProfile(id, body);
+  }
+
+  @Patch('me/profile')
+  updateMyProfile(
+    @SessionUserId() userId: string,
+    @Body() body: UpdateProfileDto,
+  ) {
+    return this.users.upsertProfile(userId, body);
   }
 }

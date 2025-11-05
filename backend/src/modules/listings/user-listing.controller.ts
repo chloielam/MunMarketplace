@@ -14,14 +14,15 @@ import { CreateListingDto } from './dto/create-listing.dto';
 import { QueryOwnListingsDto } from './dto/query-own-listings.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { ListingService } from './listing.service';
+import { SessionUserId } from '../auth/session-user.decorator';
 
-@Controller('users/:userId/listings')
+@Controller('me/listings')
 export class UserListingController {
   constructor(private readonly listings: ListingService) {}
 
   @Get()
   findUserListings(
-    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @SessionUserId() userId: string,
     @Query() query: QueryOwnListingsDto,
   ) {
     return this.listings.findBySeller(userId, query);
@@ -29,7 +30,7 @@ export class UserListingController {
 
   @Post()
   createListing(
-    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @SessionUserId() userId: string,
     @Body() body: CreateListingDto,
   ) {
     return this.listings.createListing(userId, body);
@@ -37,16 +38,16 @@ export class UserListingController {
 
   @Get(':listingId')
   findOneListing(
-    @Param('userId', new ParseUUIDPipe()) userId: string,
     @Param('listingId', new ParseUUIDPipe()) listingId: string,
+    @SessionUserId() userId: string,
   ) {
     return this.listings.findOneForSeller(listingId, userId);
   }
 
   @Patch(':listingId')
   updateListing(
-    @Param('userId', new ParseUUIDPipe()) userId: string,
     @Param('listingId', new ParseUUIDPipe()) listingId: string,
+    @SessionUserId() userId: string,
     @Body() body: UpdateListingDto,
   ) {
     return this.listings.updateListing(listingId, userId, body);
@@ -55,9 +56,10 @@ export class UserListingController {
   @Delete(':listingId')
   @HttpCode(204)
   removeListing(
-    @Param('userId', new ParseUUIDPipe()) userId: string,
     @Param('listingId', new ParseUUIDPipe()) listingId: string,
+    @SessionUserId() userId: string,
   ) {
     return this.listings.removeListing(listingId, userId);
   }
 }
+

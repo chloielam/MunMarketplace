@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, Index, PrimaryColumn } from 'typeorm';
 
 @Entity('sessions')
 export class Session {
@@ -11,4 +11,7 @@ export class Session {
 
   @Column('text')
   json: string;
+
+  @DeleteDateColumn({ type: 'datetime' })
+  destroyedAt?: Date;
 }

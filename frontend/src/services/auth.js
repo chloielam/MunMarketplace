@@ -45,25 +45,29 @@ export const authService = {
 
   // Get user info
   async getUser(userId) {
-    const response = await api.get(`/users/${userId}`);
+    const endpoint = userId ? `/users/${userId}` : '/users/me';
+    const response = await api.get(endpoint);
     return response.data;
   },
 
   // Get user profile
   async getUserProfile(userId) {
-    const response = await api.get(`/users/${userId}/profile`);
+    const endpoint = userId ? `/users/${userId}/profile` : '/users/me/profile';
+    const response = await api.get(endpoint);
     return response.data;
   },
 
   // Update user
   async updateUser(userId, userData) {
-    const response = await api.patch(`/users/${userId}`, userData);
+    const endpoint = userId ? `/users/${userId}` : '/users/me';
+    const response = await api.patch(endpoint, userData);
     return response.data;
   },
 
   // Update user profile
   async updateUserProfile(userId, profileData) {
-    const response = await api.patch(`/users/${userId}/profile`, profileData);
+    const endpoint = userId ? `/users/${userId}/profile` : '/users/me/profile';
+    const response = await api.patch(endpoint, profileData);
     return response.data;
   },
 
