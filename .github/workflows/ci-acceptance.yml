@@ -67,6 +67,19 @@ jobs:
           nohup npm run preview >/dev/null 2>&1 &
           npx wait-on http://localhost:4173 || sleep 10
 
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright login acceptance test
+        working-directory: frontend
+        env:
+          CI: '1'
+          E2E_SKIP_WEB_SERVERS: '1'
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_BACKEND_BASE_URL: http://127.0.0.1:3000/api
+        run: npm run test:e2e
+
       # --- Acceptance tests (pick one stack) ---
       # Very simple acceptance checks (swap for Newman/Playwright later)
       - name: Smoke check listings endpoint
