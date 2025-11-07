@@ -72,7 +72,9 @@ const LoginPage = () => {
         if (data.user) {
           authUtils.setSessionUser(data.user);
         }
-        const refreshedUser = await authUtils.refreshSession();
+        const refreshedUser = await authUtils.refreshSession({
+          preserveOnUnauthorized: true,
+        });
 
         // Dispatch auth change event to update Header
         window.dispatchEvent(new CustomEvent('authChange', { detail: { user: refreshedUser ?? data.user ?? null } }));

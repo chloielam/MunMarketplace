@@ -118,19 +118,24 @@ export const authUtils = {
     return user?.id || null;
   },
 
-  async refreshSession() {
+  async refreshSession(options = {}) {
+    const { preserveOnUnauthorized = false } = options;
     try {
       const { user } = await authService.getSession();
       if (user) {
         this.setSessionUser(user);
         return user;
       }
-      this.clearSession();
+      if (!preserveOnUnauthorized) {
+        this.clearSession();
+      }
       return null;
     } catch (error) {
       const status = error?.response?.status;
       if (status === 401) {
-        this.clearSession();
+        if (!preserveOnUnauthorized) {
+          this.clearSession();
+        }
         return null;
       }
       console.warn('Failed to refresh session, using cached session', error);

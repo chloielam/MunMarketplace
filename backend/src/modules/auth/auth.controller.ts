@@ -110,8 +110,15 @@ export class AuthController {
       req.session.regenerate((err) => {
         if (err)
           return reject(err instanceof Error ? err : new Error(String(err)));
-        (req.session as SessionWithUser).userId = userId;
-        resolve();
+        const session = req.session as SessionWithUser;
+        session.userId = userId;
+        session.save((saveErr) => {
+          if (saveErr)
+            return reject(
+              saveErr instanceof Error ? saveErr : new Error(String(saveErr)),
+            );
+          resolve();
+        });
       });
     }).catch((err) => {
       const message = err instanceof Error ? err.message : String(err);
