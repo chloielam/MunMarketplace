@@ -18,6 +18,9 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotDto } from './dto/forgot.dto';
 import { ResetDto } from './dto/reset.dto';
 import type { Request, Response } from 'express';
+import type { Session } from 'express-session';
+
+type SessionWithUser = Session & { userId?: string };
 
 @Controller('auth')
 export class AuthController {
@@ -51,7 +54,8 @@ export class AuthController {
 
   @Get('session')
   async getSession(@Req() req: Request) {
-    const sessionUserId = req.session?.userId;
+    const session = req.session as SessionWithUser | undefined;
+    const sessionUserId = session?.userId;
     if (!sessionUserId) throw new UnauthorizedException('Not authenticated');
     const user = await this.auth.getSessionUser(sessionUserId);
     if (!user) throw new UnauthorizedException('Not authenticated');
@@ -106,7 +110,7 @@ export class AuthController {
       req.session.regenerate((err) => {
         if (err)
           return reject(err instanceof Error ? err : new Error(String(err)));
-        req.session.userId = userId;
+        (req.session as SessionWithUser).userId = userId;
         resolve();
       });
     }).catch((err) => {
