@@ -128,8 +128,13 @@ export const authUtils = {
       this.clearSession();
       return null;
     } catch (error) {
-      this.clearSession();
-      return null;
+      const status = error?.response?.status;
+      if (status === 401) {
+        this.clearSession();
+        return null;
+      }
+      console.warn('Failed to refresh session, using cached session', error);
+      return this.getSessionUser();
     }
   },
 };
