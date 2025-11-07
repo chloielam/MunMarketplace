@@ -1,4 +1,8 @@
-import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { Request } from 'express';
 
 interface SessionUserOptions {
@@ -6,11 +10,14 @@ interface SessionUserOptions {
 }
 
 export const SessionUserId = createParamDecorator(
-  (options: SessionUserOptions | undefined, ctx: ExecutionContext): string | undefined => {
+  (
+    options: SessionUserOptions | undefined,
+    ctx: ExecutionContext,
+  ): string | undefined => {
     const request = ctx.switchToHttp().getRequest<Request>();
     const userId = request.session?.userId;
 
-    if (!userId && !(options?.optional)) {
+    if (!userId && !options?.optional) {
       throw new UnauthorizedException('Not authenticated');
     }
 

@@ -1,31 +1,76 @@
 import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
+
+type NodemailerModule = {
+  createTransport: (options: {
+    service: string;
+    auth: { user: string; pass: string };
+  }) => unknown;
+};
+
+type TransporterLike = {
+  sendMail: (mail: {
+    from: string;
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+  }) => Promise<unknown>;
+};
+
+const isNodemailerModule = (value: unknown): value is NodemailerModule =>
+  typeof value === 'object' &&
+  value !== null &&
+  'createTransport' in value &&
+  typeof (value as { createTransport: unknown }).createTransport === 'function';
+
+const isTransporterLike = (value: unknown): value is TransporterLike =>
+  typeof value === 'object' &&
+  value !== null &&
+  'sendMail' in value &&
+  typeof (value as { sendMail: unknown }).sendMail === 'function';
 
 @Injectable()
 export class MailerService {
-  private transporter;
+  private readonly transporter: TransporterLike | null;
+
   constructor(private config: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.config.get('GMAIL_USER'),
-        pass: this.config.get('GMAIL_PASS'),
-      },
-    });
+    const gmailUser = this.config.get<string>('GMAIL_USER');
+    const gmailPass = this.config.get<string>('GMAIL_PASS');
+    const nodemailerModule: unknown = nodemailer;
+
+    if (gmailUser && gmailPass && isNodemailerModule(nodemailerModule)) {
+      const candidate = nodemailerModule.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+      });
+      this.transporter = isTransporterLike(candidate) ? candidate : null;
+      return;
+    }
+
+    this.transporter = null;
   }
 
   async sendOtp(email: string, code: string) {
-    const gmailUser = this.config.get('GMAIL_USER');
-    const gmailPass = this.config.get('GMAIL_PASS');
-    
-    if (!gmailUser || !gmailPass) {
+    const gmailUser = this.config.get<string>('GMAIL_USER');
+    const gmailPass = this.config.get<string>('GMAIL_PASS');
+    const otpTtl =
+      this.config.get<string>('OTP_TTL_MINUTES') ??
+      String(this.config.get<number>('OTP_TTL_MINUTES') ?? 10);
+
+    if (!gmailUser || !gmailPass || !isTransporterLike(this.transporter)) {
       // For development: log OTP to console instead of sending email
       console.log(`\nOTP for ${email}: ${code}\n`);
-      console.log('To enable real email sending, configure GMAIL_USER and GMAIL_PASS in .env file');
+      console.log(
+        'To enable real email sending, configure GMAIL_USER and GMAIL_PASS in .env file',
+      );
       return;
     }
-    
+
     const htmlTemplate = `
       <!DOCTYPE html>
       <html>
@@ -52,7 +97,7 @@ export class MailerService {
           
           <p><strong>Important:</strong></p>
           <ul>
-            <li>This code expires in ${this.config.get('OTP_TTL_MINUTES') || 10} minutes</li>
+            <li>This code expires in ${otpTtl} minutes</li>
             <li>Only use this code for MUN Marketplace registration</li>
             <li>Do not share this code with anyone</li>
           </ul>
@@ -80,7 +125,7 @@ You're registering for the MUN Marketplace. Please use the verification code bel
 Verification Code: ${code}
 
 Important:
-- This code expires in ${this.config.get('OTP_TTL_MINUTES') || 10} minutes
+- This code expires in ${otpTtl} minutes
 - Only use this code for MUN Marketplace registration  
 - Do not share this code with anyone
 
@@ -90,7 +135,7 @@ If you didn't request this verification code, please ignore this email.
 This email was sent by MUN Marketplace
 Memorial University of Newfoundland
     `;
-    
+
     try {
       await this.transporter.sendMail({
         from: `"MUN Marketplace" <${gmailUser}>`,
@@ -101,7 +146,11 @@ Memorial University of Newfoundland
       });
       console.log(`OTP email sent successfully to ${email}`);
     } catch (error) {
-      console.error('Email sending failed:', error.message);
+      if (error instanceof Error) {
+        console.error('Email sending failed:', error.message);
+      } else {
+        console.error('Email sending failed:', error);
+      }
       // Fallback to console logging if email fails
       console.log(`\nOTP for ${email}: ${code}\n`);
       console.log('Email sending failed, OTP logged to console');

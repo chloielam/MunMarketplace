@@ -62,4 +62,3 @@ export class UserListingController {
     return this.listings.removeListing(listingId, userId);
   }
 }
-

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Brackets } from 'typeorm';
 import { Listing, ListingStatus } from './entities/listing.entity';
@@ -12,30 +16,38 @@ export class ListingService {
   constructor(@InjectRepository(Listing) private repo: Repository<Listing>) {}
 
   async findMany(q: QueryListingDto) {
-    const qb = this.repo.createQueryBuilder('l')
+    const qb = this.repo
+      .createQueryBuilder('l')
       .where('l.deletedAt IS NULL')
       .andWhere('l.status = :active', { active: 'ACTIVE' });
 
     // keyword search (simple)
     if (q.q) {
       const term = `%${q.q.toLowerCase()}%`;
-      qb.andWhere(new Brackets(b => {
-        b.where('LOWER(l.title) LIKE :term', { term })
-         .orWhere('LOWER(l.description) LIKE :term', { term });
-      }));
+      qb.andWhere(
+        new Brackets((b) => {
+          b.where('LOWER(l.title) LIKE :term', { term }).orWhere(
+            'LOWER(l.description) LIKE :term',
+            { term },
+          );
+        }),
+      );
     }
 
     // filters
-    if (q.category) qb.andWhere('l.category = :category', { category: q.category });
+    if (q.category)
+      qb.andWhere('l.category = :category', { category: q.category });
     if (q.city) qb.andWhere('l.city = :city', { city: q.city });
     if (q.campus) qb.andWhere('l.campus = :campus', { campus: q.campus });
-    if (q.priceMin != null) qb.andWhere('l.price >= :pmin', { pmin: q.priceMin });
-    if (q.priceMax != null) qb.andWhere('l.price <= :pmax', { pmax: q.priceMax });
+    if (q.priceMin != null)
+      qb.andWhere('l.price >= :pmin', { pmin: q.priceMin });
+    if (q.priceMax != null)
+      qb.andWhere('l.price <= :pmax', { pmax: q.priceMax });
 
     // pagination + sort
     const page = q.page ?? 1;
     const limit = q.limit ?? 20;
-    const order = (q.order ?? 'desc').toUpperCase() as 'ASC'|'DESC';
+    const order = (q.order ?? 'desc').toUpperCase() as 'ASC' | 'DESC';
     qb.orderBy(`l.${q.sortBy ?? 'createdAt'}`, order)
       .skip((page - 1) * limit)
       .take(limit);
@@ -43,13 +55,14 @@ export class ListingService {
     const [items, total] = await qb.getManyAndCount();
 
     // normalize price to number in the response (if stored as decimal string)
-    const mapped = items.map(item => this.mapListing(item));
+    const mapped = items.map((item) => this.mapListing(item));
 
     return { items: mapped, total, page, limit, hasNext: page * limit < total };
   }
 
   async findBySeller(sellerId: string, q: QueryOwnListingsDto) {
-    const qb = this.repo.createQueryBuilder('l')
+    const qb = this.repo
+      .createQueryBuilder('l')
       .where('l.seller_id = :sellerId', { sellerId });
 
     if (q.includeDeleted) qb.withDeleted();
@@ -59,17 +72,24 @@ export class ListingService {
 
     if (q.q) {
       const term = `%${q.q.toLowerCase()}%`;
-      qb.andWhere(new Brackets(b => {
-        b.where('LOWER(l.title) LIKE :term', { term })
-         .orWhere('LOWER(l.description) LIKE :term', { term });
-      }));
+      qb.andWhere(
+        new Brackets((b) => {
+          b.where('LOWER(l.title) LIKE :term', { term }).orWhere(
+            'LOWER(l.description) LIKE :term',
+            { term },
+          );
+        }),
+      );
     }
 
-    if (q.category) qb.andWhere('l.category = :category', { category: q.category });
+    if (q.category)
+      qb.andWhere('l.category = :category', { category: q.category });
     if (q.city) qb.andWhere('l.city = :city', { city: q.city });
     if (q.campus) qb.andWhere('l.campus = :campus', { campus: q.campus });
-    if (q.priceMin != null) qb.andWhere('l.price >= :pmin', { pmin: q.priceMin });
-    if (q.priceMax != null) qb.andWhere('l.price <= :pmax', { pmax: q.priceMax });
+    if (q.priceMin != null)
+      qb.andWhere('l.price >= :pmin', { pmin: q.priceMin });
+    if (q.priceMax != null)
+      qb.andWhere('l.price <= :pmax', { pmax: q.priceMax });
 
     const page = q.page ?? 1;
     const limit = q.limit ?? 20;
@@ -80,12 +100,16 @@ export class ListingService {
       .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
-    const mapped = items.map(item => this.mapListing(item));
+    const mapped = items.map((item) => this.mapListing(item));
 
     return { items: mapped, total, page, limit, hasNext: page * limit < total };
   }
 
-  async findOneForSeller(listingId: string, sellerId: string, includeDeleted = false) {
+  async findOneForSeller(
+    listingId: string,
+    sellerId: string,
+    includeDeleted = false,
+  ) {
     const listing = await this.repo.findOne({
       where: { id: listingId, seller_id: sellerId },
       withDeleted: includeDeleted,
@@ -114,9 +138,16 @@ export class ListingService {
     return this.mapListing(saved);
   }
 
-  async updateListing(listingId: string, sellerId: string, dto: UpdateListingDto) {
-    const listing = await this.repo.findOne({ where: { id: listingId, seller_id: sellerId } });
-    if (!listing || listing.deletedAt) throw new NotFoundException('Listing not found');
+  async updateListing(
+    listingId: string,
+    sellerId: string,
+    dto: UpdateListingDto,
+  ) {
+    const listing = await this.repo.findOne({
+      where: { id: listingId, seller_id: sellerId },
+    });
+    if (!listing || listing.deletedAt)
+      throw new NotFoundException('Listing not found');
 
     if (dto.title != null) listing.title = dto.title;
     if (dto.description !== undefined) listing.description = dto.description;
@@ -133,7 +164,10 @@ export class ListingService {
   }
 
   async removeListing(listingId: string, sellerId: string) {
-    const result = await this.repo.softDelete({ id: listingId, seller_id: sellerId });
+    const result = await this.repo.softDelete({
+      id: listingId,
+      seller_id: sellerId,
+    });
     if (!result.affected) throw new NotFoundException('Listing not found');
   }
 

@@ -3,9 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  Index,
 } from 'typeorm';
 
 @Entity('users')
@@ -13,7 +10,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid') user_id: string;
 
   @Column({ unique: true }) mun_email: string;
-  @Column({ nullable: true }) password_hash?: string;             // nullable for OTP flow
+  @Column({ nullable: true }) password_hash?: string; // nullable for OTP flow
   @Column() first_name: string;
   @Column({ nullable: true }) last_name?: string;
   @Column({ nullable: true }) phone_number?: string;

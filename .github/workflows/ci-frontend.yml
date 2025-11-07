@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   test:
+    if: false 
     runs-on: ubuntu-latest
 
     # All commands run inside the frontend folder

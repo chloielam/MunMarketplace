@@ -15,7 +15,8 @@ import { TestSupportModule } from './modules/test-support/test-support.module';
 const ENTITIES = [Listing, User, UserProfile, OtpCode, Session];
 
 const OPTIONAL_MODULES =
-  process.env.NODE_ENV === 'production' || process.env.ENABLE_TEST_SUPPORT === 'false'
+  process.env.NODE_ENV === 'production' ||
+  process.env.ENABLE_TEST_SUPPORT === 'false'
     ? []
     : [TestSupportModule];
 
@@ -32,8 +33,8 @@ const OPTIONAL_MODULES =
             type: 'sqlite' as const,
             database: ':memory:',
             entities: ENTITIES,
-            synchronize: true,       // ok in tests
-            dropSchema: true,        // clean slate each run
+            synchronize: true, // ok in tests
+            dropSchema: true, // clean slate each run
             logging: false,
           };
         }
@@ -47,7 +48,7 @@ const OPTIONAL_MODULES =
           password: process.env.DB_PASS,
           database: process.env.DB_NAME,
           autoLoadEntities: true,
-          synchronize: true,     
+          synchronize: true,
           logging: false,
         };
       },

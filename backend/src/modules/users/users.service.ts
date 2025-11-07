@@ -10,7 +10,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(UserProfile) private readonly profileRepo: Repository<UserProfile>,
+    @InjectRepository(UserProfile)
+    private readonly profileRepo: Repository<UserProfile>,
   ) {}
 
   async findByEmail(mun_email: string) {
@@ -18,7 +19,11 @@ export class UsersService {
   }
 
   async create(mun_email: string, first_name = '') {
-    const user = this.userRepo.create({ mun_email, first_name, is_email_verified: false });
+    const user = this.userRepo.create({
+      mun_email,
+      first_name,
+      is_email_verified: false,
+    });
     return this.userRepo.save(user);
   }
 
@@ -54,7 +59,9 @@ export class UsersService {
     await this.findOne(user_id); // ensure exists
     await this.userRepo.update({ user_id }, dto);
     // return selected fields, not password_hash
-    const { password_hash, ...safe } = await this.findOne(user_id) as any;
+    const updatedUser = await this.findOne(user_id);
+    const { password_hash: _passwordHash, ...safe } = updatedUser;
+    void _passwordHash;
     return safe;
   }
 

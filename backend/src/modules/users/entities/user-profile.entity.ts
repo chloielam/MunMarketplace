@@ -2,10 +2,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
-  Index,
 } from 'typeorm';
 import { User } from './user.entity';
 import { ManyToOne, JoinColumn } from 'typeorm';
@@ -18,7 +15,8 @@ export class UserProfile {
   @ManyToOne(() => User) @JoinColumn({ name: 'user_id' }) user: User;
 
   @Column({ type: 'text', nullable: true }) bio?: string;
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 }) rating: string; // e.g. "4.50"
+  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
+  rating: string; // e.g. "4.50"
   @Column({ type: 'int', default: 0 }) total_ratings: number;
   @Column({ length: 255, nullable: true }) location?: string;
   @Column({ length: 255, nullable: true }) study_program?: string;

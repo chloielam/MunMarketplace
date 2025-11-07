@@ -1,4 +1,10 @@
-import { Column, DeleteDateColumn, Entity, Index, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity('sessions')
 export class Session {

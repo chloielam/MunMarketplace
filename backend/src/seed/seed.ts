@@ -18,4 +18,7 @@ async function bootstrap() {
   await app.close();
   console.log('✅ Seeding complete');
 }
-bootstrap().catch((e) => { console.error(e); process.exit(1); });
+bootstrap().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
