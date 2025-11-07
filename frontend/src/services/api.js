@@ -10,15 +10,10 @@ const api = axios.create({
   },
 });
 
-// Add response interceptor to handle auth errors
+// Add response interceptor to surface auth errors without mutating storage
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('sessionUser');
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
 export default api;
