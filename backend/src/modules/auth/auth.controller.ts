@@ -20,6 +20,11 @@ import { ResetDto } from './dto/reset.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { SessionUserId } from './session-user.decorator';
 import type { Request, Response } from 'express';
+import type { SessionData } from 'express-session';
+
+interface ExtendedSessionData extends SessionData {
+  userId?: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +51,8 @@ export class AuthController {
 
   @Get('session')
   async getSession(@Req() req: Request) {
-    const sessionUserId = req.session?.userId;
+    const session = req.session as ExtendedSessionData | undefined;
+    const sessionUserId = session?.userId;
     if (!sessionUserId) throw new UnauthorizedException('Not authenticated');
     const user = await this.auth.getSessionUser(sessionUserId);
     if (!user) throw new UnauthorizedException('Not authenticated');
@@ -94,7 +100,8 @@ export class AuthController {
     await new Promise<void>((resolve, reject) => {
       req.session.regenerate(err => {
         if (err) return reject(err);
-        req.session.userId = userId;
+        const session = req.session as ExtendedSessionData;
+        session.userId = userId;
         resolve();
       });
     }).catch(err => {
