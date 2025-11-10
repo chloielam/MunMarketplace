@@ -1,14 +1,20 @@
 import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
+import type { SessionData } from 'express-session';
 
 interface SessionUserOptions {
   optional?: boolean;
 }
 
+interface ExtendedSessionData extends SessionData {
+  userId?: string;
+}
+
 export const SessionUserId = createParamDecorator(
   (options: SessionUserOptions | undefined, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest<Request>();
-    const userId = request.session?.userId;
+    const session = request.session as ExtendedSessionData | undefined;
+    const userId = session?.userId;
 
     if (!userId && !(options?.optional)) {
       throw new UnauthorizedException('Not authenticated');
