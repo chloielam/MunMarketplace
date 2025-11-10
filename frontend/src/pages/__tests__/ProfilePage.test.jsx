@@ -14,12 +14,13 @@ jest.mock('../../services/auth');
 jest.mock('../../services/items');
 jest.mock('../../components/ProfilePicture', () => {
   return function MockProfilePicture({ src, editable, onUpload, onRemove }) {
+    const mockFile = { name: 'test.jpg', type: 'image/jpeg', size: 0 };
     return (
       <div data-testid="profile-picture">
         {src && <img src={src} alt="Profile" />}
         {editable && (
           <>
-            <button onClick={() => onUpload && onUpload(new File([''], 'test.jpg', { type: 'image/jpeg' }))}>
+            <button onClick={() => onUpload && onUpload(mockFile)}>
               Upload
             </button>
             <button onClick={onRemove}>Remove</button>
