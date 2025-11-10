@@ -24,9 +24,14 @@ Run tests matching a pattern:
 npm test -- --testNamePattern="renders"
 ```
 
+Run ProfilePage tests specifically:
+```bash
+npm test -- ProfilePage.test.jsx --watchAll=false
+```
+
 ## Test Coverage
 
-The frontend has **88 unit tests** across **14 test suites**, covering:
+The frontend has comprehensive unit tests covering all major components and functionality. The ProfilePage component alone has **31 tests** covering all profile features.
 
 ### Components (6 test files)
 1. `src/__tests__/App.test.jsx` - Main app component and routing
@@ -50,10 +55,19 @@ The frontend has **88 unit tests** across **14 test suites**, covering:
 
 ## Setup Files
 
-- `src/setupTests.js` - Jest configuration and global mocks (axios)
+- `src/setupTests.js` - Jest configuration and global mocks (axios, window.alert)
 - `jest.config.js` - Test environment setup
 - `src/__mocks__/axios.js` - Axios mock for testing
 - `src/__mocks__/react-router-dom.js` - React Router mocks
+
+## Test Mocks
+
+The ProfilePage tests use the following mocks:
+- **Auth Service** (`authService`, `authUtils`) - Mocked for user authentication and profile management
+- **Items Service** (`getUserListings`) - Mocked for fetching user listings
+- **React Router** (`useNavigate`) - Mocked for navigation testing
+- **Child Components** (`ProfilePicture`, `StarRating`) - Mocked to focus on ProfilePage logic
+- **Window.alert** - Mocked to prevent test failures in jsdom environment
 
 ## Dependencies
 
@@ -115,13 +129,56 @@ The tests verify that components render properly and functionality works as expe
 4. Required field validation
 5. Navigation buttons work
 
-### ProfilePage Component
-1. Loading state displays
-2. Profile data renders after loading
-3. Error handling works
-4. Edit mode functionality
-5. Profile updates work
-6. Logout functionality
+### ProfilePage Component (31 tests)
+
+The ProfilePage component has comprehensive test coverage for all profile functionality:
+
+#### Loading and Initial Render (4 tests)
+- Shows loading state initially
+- Redirects to login if no user ID is found
+- Displays user information (name, email, verification status) after loading
+- Displays profile information (bio, location, study program, department)
+
+#### Statistics Display (3 tests)
+- Displays correct statistics for sellers (Items for Sale, Active, Purchases, Rating)
+- Displays correct statistics for buyers (Items Sold, Purchases, Saved Items, Rating)
+- Displays rating correctly with star rating component
+
+#### Edit Mode (4 tests)
+- Enters edit mode when "Edit Profile" button is clicked
+- Shows input fields in edit mode (first name, last name, bio, etc.)
+- Populates form fields with current user data
+- Cancels edit mode and resets form to original values
+
+#### Save Functionality (2 tests)
+- Saves profile changes successfully (user and profile updates)
+- Handles save errors gracefully with proper error messages
+
+#### Items for Sale Section (2 tests)
+- Displays items for sale when user has listings (with images, prices, status)
+- Shows empty state with "Create Listing" button when user has no listings
+
+#### Purchase History Section (1 test)
+- Displays purchase history section with empty state and "Browse Items" button
+
+#### Account Information (2 tests)
+- Displays account information (Member Since, Last Login, Email Verification, Profile Last Updated)
+- Displays email verification status correctly (Verified/Not Verified)
+
+#### Navigation (2 tests)
+- Navigates back to home when "Back to Home" button is clicked
+- Handles logout functionality correctly
+
+#### Error Handling (2 tests)
+- Displays error message when user fetch fails
+- Handles missing profile gracefully (shows default values)
+
+#### Additional Features Tested
+- Profile picture display and upload functionality
+- Star rating component integration
+- Adaptive statistics for buyers vs sellers
+- Form validation and data sanitization
+- API integration with auth and items services
 
 ### DebugPage Component
 1. Debug information displays

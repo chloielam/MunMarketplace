@@ -83,6 +83,18 @@ describe('authService', () => {
     
     expect(api.post).toHaveBeenCalledWith('/auth/logout');
   });
+
+  test('changePassword calls correct endpoint with correct data', async () => {
+    api.post.mockResolvedValue({ data: { message: 'Password changed successfully' } });
+    
+    const result = await authService.changePassword('oldPassword123', 'newPassword123');
+    
+    expect(api.post).toHaveBeenCalledWith('/auth/change-password', {
+      currentPassword: 'oldPassword123',
+      newPassword: 'newPassword123'
+    });
+    expect(result).toEqual({ message: 'Password changed successfully' });
+  });
 });
 
 describe('authUtils', () => {

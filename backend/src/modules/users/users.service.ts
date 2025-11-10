@@ -69,4 +69,11 @@ export class UsersService {
     Object.assign(profile, { ...dto, rating: ratingStr ?? profile?.rating });
     return this.profileRepo.save(profile);
   }
+
+  async findOneWithPassword(user_id: string) {
+    return this.userRepo.findOne({ 
+      where: { user_id }, 
+      select: ['user_id', 'mun_email', 'password_hash', 'is_email_verified', 'first_name'] 
+    });
+  }
 }

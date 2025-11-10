@@ -17,6 +17,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotDto } from './dto/forgot.dto';
 import { ResetDto } from './dto/reset.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { SessionUserId } from './session-user.decorator';
 import type { Request, Response } from 'express';
 
 @Controller('auth')
@@ -56,6 +58,14 @@ export class AuthController {
 
   @Post('reset-password')
   reset(@Body() dto: ResetDto) { return this.auth.resetPassword(dto.email, dto.code, dto.newPassword); }
+
+  @Post('change-password')
+  changePassword(
+    @SessionUserId() userId: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.auth.changePassword(userId, dto.currentPassword, dto.newPassword);
+  }
 
   @Post('logout')
   @HttpCode(204)
