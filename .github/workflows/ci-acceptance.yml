@@ -13,9 +13,9 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: mun_marketplace
-          MYSQL_USER: mun_user
-          MYSQL_PASSWORD: mun_pass
+          MYSQL_DATABASE: mun_market
+          MYSQL_USER: mun
+          MYSQL_PASSWORD: munpass
         ports: [ "3306:3306" ]
         options: >-
           --health-cmd="mysqladmin ping -h localhost -p$MYSQL_ROOT_PASSWORD"
@@ -38,14 +38,10 @@ jobs:
           DB_PASS: mun_pass
           DB_NAME: mun_marketplace
           PORT: 3000
-          SESSION_SECRET: test-session-secret-for-ci
-          SESSION_COOKIE_NAME: mun.sid
         run: |
           npm run build || true
           nohup npm run start:dev >/dev/null 2>&1 &
-          echo "Waiting for backend to start..."
-          npx wait-on http://localhost:3000/api/health --timeout 30000 || sleep 15
-          curl -f http://localhost:3000/api/health || exit 1
+          npx wait-on http://localhost:3000/health || sleep 10
 
       # Seed data (uses your seed script)
       - name: Seed DB
@@ -65,13 +61,10 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
-      - name: Install serve for frontend preview
-        working-directory: frontend
-        run: npm install -g serve
       - name: Start frontend preview server
         working-directory: frontend
         run: |
-          nohup serve -s build -l 4173 >/dev/null 2>&1 &
+          nohup npm run preview >/dev/null 2>&1 &
           npx wait-on http://localhost:4173 || sleep 10
 
       # --- Acceptance tests (pick one stack) ---
