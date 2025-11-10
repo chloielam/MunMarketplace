@@ -78,6 +78,15 @@ export const authService = {
 
   async logout() {
     await api.post('/auth/logout');
+  },
+
+  // Change password
+  async changePassword(currentPassword, newPassword) {
+    const response = await api.post('/auth/change-password', {
+      currentPassword,
+      newPassword
+    });
+    return response.data;
   }
 };
 

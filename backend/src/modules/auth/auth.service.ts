@@ -135,6 +135,28 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Verify current password - need to access repository directly to get password_hash
+    const userWithPwd = await this.usersService.findOneWithPassword(userId);
+    if (!userWithPwd || !userWithPwd.password_hash) {
+      throw new BadRequestException('Password not set for this account');
+    }
+
+    const ok = await bcrypt.compare(currentPassword, userWithPwd.password_hash);
+    if (!ok) throw new BadRequestException('Current password is incorrect');
+
+    // Set new password
+    const hash = await bcrypt.hash(newPassword, 10);
+    await this.usersService.setPassword(user.mun_email, hash);
+
+    return { message: 'Password changed successfully' };
+  }
+
   private toPublicUser(user: User | (Partial<User> & { user_id: string; mun_email: string })) {
     if (!user) return null;
     return {
