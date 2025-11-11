@@ -57,7 +57,11 @@ const Header = () => {
   };
 
   const handleChatClick = () => {
-    navigate('/chat');
+    if (isAuthenticated) {
+      navigate('/chat');
+    } else {
+      navigate('/login')
+    }
   };
 
 
