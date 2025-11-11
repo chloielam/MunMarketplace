@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
+import { IoChatbubbles } from "react-icons/io5";
 
 // Navigation header with logo, menu, search, and sign in
 const Header = () => {
@@ -132,9 +133,9 @@ const Header = () => {
             </div>
             <button
               onClick={handleChatClick}
-              className="bg-purple-600 text-white px-6 py-2 rounded-full font-medium hover:bg-purple-700 transition-all duration-300"
+              className="flex items-center justify-center bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-00 transition-all duration-300"
             >
-              💬 Chat
+              <IoChatbubbles className='mr-2' /> Chat
             </button>
 
 
