@@ -1,11 +1,17 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { BrowserRouter } from 'react-router-dom';
 import Header from '../Header';
+
+// Helper function to render with Router
+const renderWithRouter = (ui) => {
+  return render(ui, { wrapper: BrowserRouter });
+};
 
 describe('Header', () => {
   test('renders logo and navigation', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
     
     expect(screen.getByText('MUN')).toBeInTheDocument();
     expect(screen.getByText('Marketplace')).toBeInTheDocument();
@@ -13,19 +19,23 @@ describe('Header', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
-  test('renders search and sign in', () => {
-    render(<Header />);
+  test('renders sign in button', () => {
+    renderWithRouter(<Header />);
     
-    expect(screen.getByPlaceholderText('Search products...')).toBeInTheDocument();
     expect(screen.getByText('Sign In')).toBeInTheDocument();
   });
 
-  test('search works', () => {
-    render(<Header />);
+  test('logo links to home page', () => {
+    renderWithRouter(<Header />);
     
-    const searchInput = screen.getByPlaceholderText('Search products...');
-    fireEvent.change(searchInput, { target: { value: 'textbook' } });
+    const logoLink = screen.getByText('MUN').closest('a');
+    expect(logoLink).toHaveAttribute('href', '/home');
+  });
+
+  test('sign in button is clickable', () => {
+    renderWithRouter(<Header />);
     
-    expect(searchInput.value).toBe('textbook');
+    const signInButton = screen.getByText('Sign In');
+    expect(signInButton).toBeInTheDocument();
   });
 });

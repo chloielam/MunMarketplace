@@ -15,6 +15,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
     restart: always
     environment:
       PMA_HOST: mysql

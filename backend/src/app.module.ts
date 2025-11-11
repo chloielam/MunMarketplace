@@ -7,12 +7,15 @@ import { UserProfile } from './modules/users/entities/user-profile.entity';
 import { UsersModule } from './modules/users/users.module';
 import { ListingModule } from './modules/listings/listing.module';
 import { AppController } from './app.controller';
-
+import { AuthModule } from './modules/auth/auth.module';
+import { OtpCode } from './modules/auth/otp.entity';
+import { Session } from './modules/auth/entities/session.entity';
 import { ChatModule } from './modules/chat/chat.module';
 import { Message } from './modules/chat/entities/message.entity';
 import { Conversation } from './modules/chat/entities/conversation.entity';
 
-const ENTITIES = [Listing, User, UserProfile, Message, Conversation];
+const ENTITIES = [Listing, User, UserProfile, OtpCode, Session, Conversation, Message];
+
 
 @Module({
   imports: [
@@ -50,6 +53,7 @@ const ENTITIES = [Listing, User, UserProfile, Message, Conversation];
     UsersModule,
     ListingModule,
     ChatModule,
+    AuthModule
   ],
   controllers: [AppController],
 })

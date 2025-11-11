@@ -2,10 +2,21 @@ import { Controller, Get, Param, Patch, Body, ParseUUIDPipe } from '@nestjs/comm
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { SessionUserId } from '../auth/session-user.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
+
+  @Get('me')
+  getMe(@SessionUserId() userId: string) {
+    return this.users.findOne(userId);
+  }
+
+  @Get('me/profile')
+  getMyProfile(@SessionUserId() userId: string) {
+    return this.users.findProfile(userId);
+  }
 
   // GET /users/:id  => basic user info
   @Get(':id')
@@ -17,6 +28,21 @@ export class UsersController {
   @Get(':id/profile')
   getProfile(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.users.findProfile(id);
+  }
+
+  // IMPORTANT: Specific routes ('me') must come BEFORE parameterized routes (':id')
+  // to ensure proper route matching
+  @Patch('me')
+  updateMe(@SessionUserId() userId: string, @Body() body: UpdateUserDto) {
+    return this.users.updateUser(userId, body);
+  }
+
+  @Patch('me/profile')
+  updateMyProfile(
+    @SessionUserId() userId: string,
+    @Body() body: UpdateProfileDto,
+  ) {
+    return this.users.upsertProfile(userId, body);
   }
 
   // PATCH /users/:id  => edit basic user fields (no password/email here)

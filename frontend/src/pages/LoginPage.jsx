@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService, authUtils } from '../services/auth';
 
 // Login page
-const LoginPage = ({ onBackToHome, onGoToRegister }) => {
+const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,15 +30,12 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
 
     // Check MUN email
     if (name === 'email') {
-      console.log('Email changed:', value);
       if (value && !value.includes('@mun.ca')) {
-        console.log('Bad email');
         setErrors({
           ...errors,
           email: 'Please use your MUN email address (@mun.ca)'
         });
       } else if (value && value.includes('@mun.ca')) {
-        console.log('Good email');
         setErrors({
           ...errors,
           email: ''
@@ -61,20 +61,37 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-        console.log('Login attempt:', formData);
-        // TODO: Add login logic
+      try {
+        const data = await authService.login(formData.email, formData.password);
+
+        if (data.user) {
+          authUtils.setSessionUser(data.user);
+        }
+        const refreshedUser = await authUtils.refreshSession();
+
+        // Dispatch auth change event to update Header
+        window.dispatchEvent(new CustomEvent('authChange', { detail: { user: refreshedUser ?? data.user ?? null } }));
+        
+        // Redirect to listings page without popup
+        navigate("/items");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || err.message || "Login failed");
+      }
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={onBackToHome}
+        onClick={() => navigate('/home')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -85,7 +102,7 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
         <div className="flex-1 p-8 flex items-center justify-center">
               <div className="max-w-md mx-auto">
                 <button
-                  onClick={onBackToHome}
+                  onClick={() => navigate('/home')}
                   className="text-gray-500 hover:text-gray-700 mb-6 flex items-center"
                 >
                   ← Back to Home
@@ -186,7 +203,7 @@ const LoginPage = ({ onBackToHome, onGoToRegister }) => {
               Create your Memorial University marketplace account and start buying, selling, and connecting with other students.
             </p>
             <button
-              onClick={onGoToRegister}
+              onClick={() => navigate('/register')}
               className="border-2 border-white text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-white hover:text-mun-red transition-colors duration-300"
             >
               SIGN UP

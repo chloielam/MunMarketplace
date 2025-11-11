@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/auth';
 
 // Register page
-const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
+const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -12,6 +15,9 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registrationStep, setRegistrationStep] = useState(1); // 1: form, 2: OTP verification
+  const [otpCode, setOtpCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,16 +36,12 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
 
         // Check password match
     if (name === 'confirmPassword') {
-      console.log('Confirm password changed:', value);
-      console.log('Current password:', formData.password);
       if (value && formData.password && value !== formData.password) {
-        console.log('Passwords dont match');
         setErrors({
           ...errors,
           confirmPassword: 'Passwords do not match'
         });
       } else if (value && formData.password && value === formData.password) {
-        console.log('Passwords match');
         setErrors({
           ...errors,
           confirmPassword: ''
@@ -64,15 +66,12 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
 
         // Check MUN email
     if (name === 'email') {
-      console.log('Email changed:', value);
       if (value && !value.includes('@mun.ca')) {
-        console.log('Bad email');
         setErrors({
           ...errors,
           email: 'Please use your MUN email address (@mun.ca)'
         });
       } else if (value && value.includes('@mun.ca')) {
-        console.log('Good email');
         setErrors({
           ...errors,
           email: ''
@@ -110,20 +109,56 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-        console.log('Register attempt:', formData);
-        // TODO: Add regitration logic
+
+    if (registrationStep === 1) {
+      // Step 1: Send OTP to email
+      if (validateForm()) {
+        setIsLoading(true);
+        try {
+          await authService.sendOtp(formData.email);
+          setRegistrationStep(2);
+        } catch (err) {
+          console.error(err);
+          alert(err.response?.data?.message || err.message || "Failed to send OTP");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    } else {
+      // Step 2: Verify OTP and complete registration
+      if (!otpCode.trim()) {
+        alert("Please enter the OTP code");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Step 1: Verify OTP
+        await authService.verifyOtp(formData.email, otpCode);
+        
+        // Step 2: Complete registration
+        const profileData = {};
+        await authService.register(formData.email, formData.fullName, formData.password, profileData);
+        
+        navigate("/login");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || err.message || "Registration failed");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Close button */}
       <button
-        onClick={onBackToHome}
+        onClick={() => navigate('/home')}
         className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 text-2xl font-bold"
       >
         ×
@@ -134,7 +169,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
         <div className="flex-1 bg-mun-red p-8 flex items-center justify-center">
           <div className="text-center">
             <button
-              onClick={onBackToHome}
+              onClick={() => navigate('/home')}
               className="text-white text-opacity-80 hover:text-white mb-6 flex items-center mx-auto"
             >
               ← Back to Home
@@ -150,7 +185,7 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
               marketplace account
             </p>
             <button
-              onClick={onGoToLogin}
+              onClick={() => navigate('/login')}
               className="border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-mun-red transition-colors duration-300"
             >
               SIGN IN
@@ -161,139 +196,180 @@ const RegisterPage = ({ onBackToHome, onGoToLogin }) => {
         {/* Right side - Join MU Marketplace */}
         <div className="flex-1 p-8 flex items-center justify-center">
               <div className="max-w-md mx-auto">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Join MUN Marketplace</h2>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  {registrationStep === 1 ? 'Join MUN Marketplace' : 'Verify Your Email'}
+                </h2>
                 <p className="text-gray-600 mb-8">
-                  Register with your Memorial University email to access the student marketplace
+                  {registrationStep === 1 
+                    ? 'Register with your Memorial University email to access the student marketplace'
+                    : `We've sent a verification code to ${formData.email}. Please enter the 6-digit code below.`
+                  }
                 </p>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">👤</span>
+                  {registrationStep === 1 ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">👤</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            placeholder="Enter your full name"
+                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.fullName ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                        </div>
+                        {errors.fullName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                        )}
                       </div>
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        placeholder="Enter your full name"
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.fullName ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                    </div>
-                    {errors.fullName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
-                    )}
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      University Email
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">✉️</span>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          University Email
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">✉️</span>
+                          </div>
+                          <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="your.name@mun.ca"
+                            className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.email ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                        </div>
+                        {errors.email && (
+                          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                        )}
                       </div>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="your.name@mun.ca"
-                        className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.email ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                    )}
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">🔒</span>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🔒</span>
+                          </div>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="Create a password"
+                            className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.password ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button 
+                              type="button" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onMouseDown={() => setShowPassword(true)}
+                              onMouseUp={() => setShowPassword(false)}
+                              onMouseLeave={() => setShowPassword(false)}
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </div>
+                        {errors.password && (
+                          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                        )}
                       </div>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Create a password"
-                        className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.password ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Confirm Password
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-gray-400">🔒</span>
+                          </div>
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Confirm your password"
+                            className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
+                              errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            required
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <button 
+                              type="button" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onMouseDown={() => setShowConfirmPassword(true)}
+                              onMouseUp={() => setShowConfirmPassword(false)}
+                              onMouseLeave={() => setShowConfirmPassword(false)}
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </div>
+                        {errors.confirmPassword && (
+                          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                        )}
+                      </div>
+
+                    </>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Verification Code
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span className="text-gray-400">🔐</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          placeholder="Enter 6-digit code"
+                          maxLength="6"
+                          className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent"
+                          required
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Didn't receive the code? Check your spam folder or{' '}
                         <button 
                           type="button" 
-                          className="text-gray-400 hover:text-gray-600"
-                          onMouseDown={() => setShowPassword(true)}
-                          onMouseUp={() => setShowPassword(false)}
-                          onMouseLeave={() => setShowPassword(false)}
+                          onClick={() => setRegistrationStep(1)}
+                          className="text-mun-red hover:underline"
                         >
-                          👁️
+                          try again
                         </button>
-                      </div>
+                      </p>
                     </div>
-                    {errors.password && (
-                      <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-400">🔒</span>
-                      </div>
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirm your password"
-                        className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-mun-red focus:border-transparent ${
-                          errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <button 
-                          type="button" 
-                          className="text-gray-400 hover:text-gray-600"
-                          onMouseDown={() => setShowConfirmPassword(true)}
-                          onMouseUp={() => setShowConfirmPassword(false)}
-                          onMouseLeave={() => setShowConfirmPassword(false)}
-                        >
-                          👁️
-                        </button>
-                      </div>
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                    )}
-                  </div>
+                  )}
 
                   <button
                     type="submit"
-                    className="w-full bg-mun-red text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors duration-300"
+                    disabled={isLoading}
+                    className="w-full bg-mun-red text-white py-3 rounded-lg font-medium hover:bg-red-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    REGISTER
+                    {isLoading ? 'Processing...' : (registrationStep === 1 ? 'SEND VERIFICATION CODE' : 'COMPLETE REGISTRATION')}
                   </button>
 
                   <p className="text-xs text-gray-500 text-center">
