@@ -182,7 +182,17 @@ const MainPage = () => {
               ))
             ) : featuredItems.length > 0 ? (
               featuredItems.map((item) => (
-                <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div 
+                  key={item.id}
+                  onClick={() => {
+                        if (!authUtils.isAuthenticated()) {
+                          alert("Please log in to view item details.");
+                          navigate("/login");
+                          return;
+                        }
+                        navigate(`/items/${item.id}`);
+                      }} 
+                  className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
                   <div className="h-48 relative">
                     <img 
                       src={item.imageUrls?.[0] || "https://via.placeholder.com/400x300"} 
