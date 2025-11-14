@@ -34,6 +34,18 @@ export default function Items() {
       setIsAuthenticated(!!user);
     };
 
+    const handleStorageChange = () => {
+      syncAuth(authUtils.getSessionUser());
+    };
+
+    const handleAuthChange = (event) => {
+      if (event?.detail && Object.prototype.hasOwnProperty.call(event.detail, 'user')) {
+        syncAuth(event.detail.user);
+        return;
+      }
+      handleStorageChange();
+    };
+
     // Handle URL parameters
     const urlParams = new URLSearchParams(location.search);
     const categoryParam = urlParams.get('category');
@@ -61,9 +73,13 @@ export default function Items() {
     syncAuth(authUtils.getSessionUser());
     authUtils.refreshSession().then(syncAuth);
     fetchItems();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authChange', handleAuthChange);
 
     return () => {
       active = false;
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
     };
   }, [location.search]);
 
