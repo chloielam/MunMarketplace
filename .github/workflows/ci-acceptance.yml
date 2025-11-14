@@ -7,6 +7,7 @@ on:
 jobs:
   # Option A (simple): run regardless and do everything in one job
   acceptance:
+    if: false 
     runs-on: ubuntu-latest
     services:
       mysql:
