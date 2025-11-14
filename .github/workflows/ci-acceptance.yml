@@ -88,6 +88,13 @@ jobs:
           E2E_BACKEND_BASE_URL: http://127.0.0.1:3000/api
         run: npm run test:e2e
 
+      # Upload test results as artifacts
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: frontend/test-results/ # Adjust the path to where your test results are stored
+
       # --- Acceptance tests (pick one stack) ---
       # Very simple acceptance checks (swap for Newman/Playwright later)
       - name: Smoke check health endpoint
