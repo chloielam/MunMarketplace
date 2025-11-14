@@ -54,9 +54,9 @@ jobs:
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_USER: mun_user
-          DB_PASS: mun_pass
-          DB_NAME: mun_marketplace
+          DB_USER: mun
+          DB_PASS: munpass
+          DB_NAME: mun_market
         run: npm run seed
 
       # --- Frontend ---
