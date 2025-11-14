@@ -1,6 +1,6 @@
 // frontend/src/components/Items.jsx
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getItems } from "../services/items";
 import { authUtils } from "../services/auth";
 
@@ -14,6 +14,7 @@ export default function Items() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const categories = [
     "All Categories",
@@ -199,6 +200,14 @@ export default function Items() {
           filteredItems.map((item) => (
             <div
               key={item.id}
+              onClick={() => {
+                        if (!authUtils.isAuthenticated()) {
+                          alert("Please log in to view item details.");
+                          navigate("/login");
+                          return;
+                        }
+                        navigate(`/items/${item.id}`);
+                      }}
               className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
             >
               <div className="relative">

@@ -37,6 +37,21 @@ export class UsersController {
     return this.users.findProfile(id);
   }
 
+  // IMPORTANT: Specific routes ('me') must come BEFORE parameterized routes (':id')
+  // to ensure proper route matching
+  @Patch('me')
+  updateMe(@SessionUserId() userId: string, @Body() body: UpdateUserDto) {
+    return this.users.updateUser(userId, body);
+  }
+
+  @Patch('me/profile')
+  updateMyProfile(
+    @SessionUserId() userId: string,
+    @Body() body: UpdateProfileDto,
+  ) {
+    return this.users.upsertProfile(userId, body);
+  }
+
   // PATCH /users/:id  => edit basic user fields (no password/email here)
   @Patch(':id')
   updateUser(
@@ -46,11 +61,6 @@ export class UsersController {
     return this.users.updateUser(id, body);
   }
 
-  @Patch('me')
-  updateMe(@SessionUserId() userId: string, @Body() body: UpdateUserDto) {
-    return this.users.updateUser(userId, body);
-  }
-
   // PATCH /users/:id/profile  => create/update profile fields
   @Patch(':id/profile')
   updateProfile(
@@ -58,13 +68,5 @@ export class UsersController {
     @Body() body: UpdateProfileDto,
   ) {
     return this.users.upsertProfile(id, body);
-  }
-
-  @Patch('me/profile')
-  updateMyProfile(
-    @SessionUserId() userId: string,
-    @Body() body: UpdateProfileDto,
-  ) {
-    return this.users.upsertProfile(userId, body);
   }
 }

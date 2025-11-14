@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Param, NotFoundException } from '@nestjs/common';
 import { QueryListingDto } from './dto/query-listing.dto';
 import { ListingService } from './listing.service';
 

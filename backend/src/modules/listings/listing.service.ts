@@ -60,6 +60,18 @@ export class ListingService {
     return { items: mapped, total, page, limit, hasNext: page * limit < total };
   }
 
+  async findOneById(id: string) {
+    const item = await this.repo.findOne({
+      where: { id },
+      relations: ['seller'], 
+    });
+
+    if (!item) return null;
+
+    // Normalize price if stored as decimal
+    return { ...item, price: Number(item.price) };
+  }
+
   async findBySeller(sellerId: string, q: QueryOwnListingsDto) {
     const qb = this.repo
       .createQueryBuilder('l')

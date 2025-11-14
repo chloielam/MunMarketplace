@@ -10,6 +10,10 @@ interface SessionUserOptions {
   optional?: boolean;
 }
 
+interface ExtendedSessionData extends SessionData {
+  userId?: string;
+}
+
 export const SessionUserId = createParamDecorator(
   (
     options: SessionUserOptions | undefined,

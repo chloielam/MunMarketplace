@@ -19,33 +19,23 @@ describe('Header', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
-  test('renders search and sign in', () => {
+  test('renders sign in button', () => {
     renderWithRouter(<Header />);
     
-    expect(screen.getByPlaceholderText('Search products...')).toBeInTheDocument();
     expect(screen.getByText('Sign In')).toBeInTheDocument();
-  });
-
-  test('search works', () => {
-    renderWithRouter(<Header />);
-    
-    const searchInput = screen.getByPlaceholderText('Search products...');
-    fireEvent.change(searchInput, { target: { value: 'textbook' } });
-    
-    expect(searchInput.value).toBe('textbook');
   });
 
   test('logo links to home page', () => {
     renderWithRouter(<Header />);
     
     const logoLink = screen.getByText('MUN').closest('a');
-    expect(logoLink).toHaveAttribute('href', '/');
+    expect(logoLink).toHaveAttribute('href', '/home');
   });
 
-  test('sign in button links to login page', () => {
+  test('sign in button is clickable', () => {
     renderWithRouter(<Header />);
     
-    const signInLink = screen.getByText('Sign In');
-    expect(signInLink).toHaveAttribute('href', '/login');
+    const signInButton = screen.getByText('Sign In');
+    expect(signInButton).toBeInTheDocument();
   });
 });

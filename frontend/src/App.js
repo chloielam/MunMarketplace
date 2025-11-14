@@ -6,10 +6,12 @@ import MainPage from './components/MainPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import PublicProfilePage from './pages/PublicProfilePage.jsx';
 import TestProfilePage from './pages/TestProfilePage.jsx';
 import DebugPage from './pages/DebugPage.jsx';
 import Items from './components/Items.jsx';
 import { authUtils } from './services/auth';
+import ItemDetail from './components/ItemDetail.jsx'; 
 
 // Main app component 
 function App() {
@@ -51,6 +53,19 @@ function App() {
             } 
           />
           
+           {/*Item Detail route */}
+          <Route 
+            path="/items/:id" 
+            element={
+              <>
+                <Header />
+                <ItemDetail />
+                <Footer />
+              </>
+            } 
+          />
+
+          
           {/* Login route */}
           <Route 
             path="/login" 
@@ -66,7 +81,25 @@ function App() {
           {/* Profile route */}
           <Route 
             path="/profile" 
-            element={<ProfilePage />} 
+            element={
+              <>
+                <Header />
+                <ProfilePage />
+                <Footer />
+              </>
+            } 
+          />
+          
+          {/* Public Profile route */}
+          <Route 
+            path="/users/:userId" 
+            element={
+              <>
+                <Header />
+                <PublicProfilePage />
+                <Footer />
+              </>
+            } 
           />
           
           {/* Test Profile route */}
