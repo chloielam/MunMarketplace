@@ -25,21 +25,26 @@ jobs:
 
       # --- Backend ---
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm, cache-dependency-path: backend/package-lock.json }
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
       - name: Install backend deps
         working-directory: backend
         run: npm ci
+
       - name: Start backend (dev)
         working-directory: backend
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_USER: mun_user
-          DB_PASS: mun_pass
-          DB_NAME: mun_marketplace
+          DB_USER: mun
+          DB_PASS: munpass
+          DB_NAME: mun_market
           PORT: 3000
         run: |
-          npm run build 
+          npm run build
           nohup npm run start:dev >/dev/null 2>&1 &
           npx wait-on http://localhost:3000/api/health
 
