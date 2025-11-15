@@ -10,6 +10,11 @@ export class ListingController {
   findMany(@Query() query: QueryListingDto) {
     return this.service.findMany(query);
   }
+
+  @Get(':listingID')
+  findOneByListingID(@Param('id') listingId: string) {
+    return this.service.findOne(listingId);
+  }
   
   @Get(':id')
   async findOne(@Param('id') id: string) {
