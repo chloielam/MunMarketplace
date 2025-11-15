@@ -21,6 +21,18 @@ const MainPage = () => {
       setIsAuthenticated(!!user);
     };
 
+    const handleStorageChange = () => {
+      updateAuthState(authUtils.getSessionUser());
+    };
+
+    const handleAuthChange = (event) => {
+      if (event?.detail && Object.prototype.hasOwnProperty.call(event.detail, 'user')) {
+        updateAuthState(event.detail.user);
+        return;
+      }
+      handleStorageChange();
+    };
+
     const fetchFeaturedItems = async () => {
       try {
         const items = await getItems();
@@ -36,9 +48,13 @@ const MainPage = () => {
     updateAuthState(authUtils.getSessionUser());
     authUtils.refreshSession().then(updateAuthState);
     fetchFeaturedItems();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authChange', handleAuthChange);
 
     return () => {
       active = false;
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
     };
   }, []);
 
@@ -204,7 +220,17 @@ const MainPage = () => {
               ))
             ) : featuredItems.length > 0 ? (
               featuredItems.map((item) => (
-                <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div 
+                  key={item.id}
+                  onClick={() => {
+                        if (!authUtils.isAuthenticated()) {
+                          alert("Please log in to view item details.");
+                          navigate("/login");
+                          return;
+                        }
+                        navigate(`/items/${item.id}`);
+                      }} 
+                  className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
                   <div className="h-48 relative">
                     <img
                       src={item.imageUrls?.[0] || "https://via.placeholder.com/400x300"}

@@ -12,6 +12,7 @@ import DebugPage from './pages/DebugPage.jsx';
 import Items from './components/Items.jsx';
 import { authUtils } from './services/auth';
 import ChatPage from './pages/ChatPage';
+import ItemDetail from './components/ItemDetail.jsx'; 
 
 // Main app component 
 function App() {
@@ -78,6 +79,20 @@ function App() {
             }
           />
 
+          
+           {/*Item Detail route */}
+          <Route 
+            path="/items/:id" 
+            element={
+              <>
+                <Header />
+                <ItemDetail />
+                <Footer />
+              </>
+            } 
+          />
+
+          
           {/* Login route */}
           <Route
             path="/login"

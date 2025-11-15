@@ -232,18 +232,6 @@ const ProfilePage = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('Failed to log out', error);
-    } finally {
-      authUtils.clearSession();
-      navigate('/home');
-      window.dispatchEvent(new CustomEvent('authChange', { detail: { user: null } }));
-    }
-  };
-
   const handleChangePassword = async () => {
     try {
       if (passwordForm.newPassword !== passwordForm.confirmPassword) {
