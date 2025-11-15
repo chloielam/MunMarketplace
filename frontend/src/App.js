@@ -133,9 +133,14 @@ function App() {
           />
           <Route
             path="/chat"
-            element={<ChatPage />}
+            element={
+              <>
+                <Header />
+                <ChatPage />
+                <Footer />
+              </>
+            }
           />
-
 
         </Routes>
 

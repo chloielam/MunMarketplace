@@ -95,7 +95,7 @@ const Header = () => {
     navigate('/profile');
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+    <header className="z-50 bg-white shadow-md">
       <div className="w-full">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           {/* Logo and navigation */}
