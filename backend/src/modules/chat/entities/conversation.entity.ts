@@ -11,6 +11,9 @@ export class Conversation {
   @Column({ nullable: true })
   listingId: string; // Which product they're talking about (optional)
 
+  @Column({ type: 'text', nullable: true })
+  lastMessage: string; // New column to store the message content for easy lookup
+  
   @UpdateDateColumn()
   lastMessageAt: Date;
 

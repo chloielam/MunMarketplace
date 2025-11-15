@@ -29,16 +29,17 @@ export class ChatGateway {
     return { success: true };
   }
 
-  // When a user sends a message
   @SubscribeMessage('sendMessage')
   async handleMessage(
-    @MessageBody() data: { conversationId: string; senderId: string; content: string },
+    @MessageBody() data: { conversationId: string; senderId: string; content: string, sellerId: string; listingId: string },
   ) {
     // Save message to database
     const message = await this.chatService.createMessage(
       data.conversationId,
       data.senderId,
       data.content,
+      data.sellerId,
+      data.listingId,
     );
 
     // Broadcast to all users in this conversation
