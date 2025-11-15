@@ -49,7 +49,7 @@ async function bootstrap() {
     .split(',')
     .map(origin => origin.trim())
     .filter(Boolean);
-
+  
   app.enableCors({
     origin: corsOrigins.length ? corsOrigins : true,
     credentials: true,
