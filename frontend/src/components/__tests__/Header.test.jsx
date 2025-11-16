@@ -1,8 +1,23 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Header from '../Header';
+import { authUtils } from '../../services/auth';
+import { mockNavigate } from '../../__mocks__/react-router-dom';
+
+// Mock auth services
+jest.mock('../../services/auth', () => ({
+  authService: {
+    logout: jest.fn(),
+  },
+  authUtils: {
+    refreshSession: jest.fn(),
+    getSessionUser: jest.fn(),
+    isAuthenticated: jest.fn(),
+    clearSession: jest.fn(),
+  },
+}));
 
 // Helper function to render with Router
 const renderWithRouter = (ui) => {
@@ -10,6 +25,14 @@ const renderWithRouter = (ui) => {
 };
 
 describe('Header', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockNavigate.mockClear();
+    authUtils.getSessionUser.mockReturnValue(null);
+    authUtils.refreshSession.mockResolvedValue(null);
+    authUtils.isAuthenticated.mockReturnValue(false);
+  });
+
   test('renders logo and navigation', () => {
     renderWithRouter(<Header />);
     
@@ -19,10 +42,23 @@ describe('Header', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
-  test('renders sign in button', () => {
+  test('renders sign in button when not authenticated', () => {
     renderWithRouter(<Header />);
     
     expect(screen.getByText('Sign In')).toBeInTheDocument();
+  });
+
+  test('renders profile and logout when authenticated', async () => {
+    authUtils.getSessionUser.mockReturnValue({ id: '123', first_name: 'John' });
+    authUtils.refreshSession.mockResolvedValue({ id: '123', first_name: 'John' });
+    authUtils.isAuthenticated.mockReturnValue(true);
+    
+    renderWithRouter(<Header />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Profile')).toBeInTheDocument();
+      expect(screen.getByText('Logout')).toBeInTheDocument();
+    });
   });
 
   test('logo links to home page', () => {
@@ -32,10 +68,27 @@ describe('Header', () => {
     expect(logoLink).toHaveAttribute('href', '/home');
   });
 
-  test('sign in button is clickable', () => {
+  test('Sell button navigates to login when not authenticated', () => {
     renderWithRouter(<Header />);
     
-    const signInButton = screen.getByText('Sign In');
-    expect(signInButton).toBeInTheDocument();
+    const sellButton = screen.getByText('Sell');
+    fireEvent.click(sellButton);
+    
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+  });
+
+  test('Sell button navigates to create listing when authenticated', async () => {
+    authUtils.getSessionUser.mockReturnValue({ id: '123' });
+    authUtils.refreshSession.mockResolvedValue({ id: '123' });
+    authUtils.isAuthenticated.mockReturnValue(true);
+    
+    renderWithRouter(<Header />);
+    
+    await waitFor(() => {
+      const sellButton = screen.getByText('Sell');
+      fireEvent.click(sellButton);
+      
+      expect(mockNavigate).toHaveBeenCalledWith('/create-listing');
+    });
   });
 });

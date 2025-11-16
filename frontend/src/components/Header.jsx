@@ -83,6 +83,15 @@ const Header = () => {
     
     navigate('/profile');
   };
+
+  const handleSellClick = (e) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      navigate('/create-listing');
+    } else {
+      navigate('/login');
+    }
+  };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
       <div className="w-full">
@@ -110,7 +119,12 @@ const Header = () => {
               </Link>
               <a href="#requests" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Requests</a>
               <a href="#messages" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Messages</a>
-              <a href="#sell" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Sell</a>
+              <button 
+                onClick={handleSellClick}
+                className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
+              >
+                Sell
+              </button>
               <a href="#about" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">About</a>
             </nav>
           </div>

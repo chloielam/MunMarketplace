@@ -157,7 +157,7 @@ describe('ProfilePage', () => {
       renderProfilePage();
       
       await waitFor(() => {
-        expect(screen.getAllByText('Items for Sale').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('My Listings').length).toBeGreaterThan(0);
       });
       
       // Check for the stats numbers - they appear multiple times, so check they exist
@@ -325,7 +325,7 @@ describe('ProfilePage', () => {
     });
   });
 
-  describe('Items for Sale Section', () => {
+  describe('My Listings Section', () => {
     test('displays items for sale when user has listings', async () => {
       renderProfilePage();
       
@@ -345,7 +345,7 @@ describe('ProfilePage', () => {
       renderProfilePage();
       
       await waitFor(() => {
-        expect(screen.getByText('No items for sale yet')).toBeInTheDocument();
+        expect(screen.getByText('No listings yet')).toBeInTheDocument();
       });
       
       expect(screen.getByText('Start selling to see your listings here')).toBeInTheDocument();

@@ -31,7 +31,7 @@ npm test -- ProfilePage.test.jsx --watchAll=false
 
 ## Test Coverage
 
-The frontend has comprehensive unit tests covering all major components and functionality. The ProfilePage component alone has **31 tests** covering all profile features.
+The frontend has comprehensive unit tests covering all major components and functionality. The ProfilePage component has **31 tests** covering all profile features, and the LoginPage component has **14 tests** including the complete forgot password flow.
 
 ### Components (6 test files)
 1. `src/__tests__/App.test.jsx` - Main app component and routing
@@ -42,15 +42,15 @@ The frontend has comprehensive unit tests covering all major components and func
 6. `src/components/__tests__/Items.test.jsx` - Items listing with filtering and sorting
 
 ### Pages (5 test files)
-1. `src/pages/__tests__/LoginPage.test.jsx` - Login form and validation
+1. `src/pages/__tests__/LoginPage.test.jsx` - Login form, validation, and forgot password flow (14 tests)
 2. `src/pages/__tests__/RegisterPage.test.jsx` - Registration form and validation
-3. `src/pages/__tests__/ProfilePage.test.jsx` - User profile management
+3. `src/pages/__tests__/ProfilePage.test.jsx` - User profile management (31 tests)
 4. `src/pages/__tests__/DebugPage.test.jsx` - Debug utility page
 5. `src/pages/__tests__/TestProfilePage.test.jsx` - Test utility page
 
 ### Services (3 test files)
 1. `src/services/__tests__/api.test.js` - API configuration and interceptors
-2. `src/services/__tests__/auth.test.js` - Authentication service functions
+2. `src/services/__tests__/auth.test.js` - Authentication service functions (11 tests including forgot password)
 3. `src/services/__tests__/items.test.js` - Items API service
 
 ## Setup Files
@@ -106,7 +106,7 @@ The tests verify that components render properly and functionality works as expe
 1. Renders Header and Footer
 2. Wraps children content correctly
 
-### Items Component
+### Items Component (17 tests)
 1. Loading state displays
 2. Items render after loading
 3. Error handling works
@@ -115,12 +115,32 @@ The tests verify that components render properly and functionality works as expe
 6. Sorting (price, date) works
 7. Authentication-based visibility
 8. SOLD badge displays for sold items
+9. "No listings found" message displays when filtered results are empty
 
-### LoginPage Component
+#### Category Filtering (5 tests)
+- Filters items with "Textbooks" category correctly
+- Shows items with "Books" category when filtering by "Textbooks" (backward compatibility)
+  - Tests the normalization fix that maps "Books" → "Textbooks" for legacy data
+- Does not show "Books" items when filtering by other categories
+- Shows all items including "Books" when "All Categories" is selected
+- Handles category normalization (Books → Textbooks) for legacy data compatibility
+
+### LoginPage Component (14 tests)
 1. Form renders with email and password fields
 2. MUN email validation (shows error for non-MUN emails)
 3. Password required validation
 4. Navigation buttons work
+
+#### Forgot Password Flow (9 tests)
+- Clicking "Click here" shows email input step
+- Email step validates MUN email
+- Email step sends OTP on valid email
+- OTP step validates 6-digit code
+- OTP step verifies code and moves to password step
+- OTP step shows error on invalid OTP
+- Password step validates password match
+- Password step successfully resets password (with success message and redirect)
+- Can navigate back from email step to login
 
 ### RegisterPage Component
 1. Form renders with all required fields
@@ -193,14 +213,38 @@ The ProfilePage component has comprehensive test coverage for all profile functi
 1. Axios instance created correctly
 2. API methods available
 
-### Auth Service
+### Auth Service (11 tests)
 1. Login endpoint calls
 2. Register endpoint calls
 3. User data fetching
 4. Profile management
 5. Session management (localStorage)
 6. Authentication state utilities
+7. Forgot password endpoint calls
+8. Verify password reset OTP endpoint calls
+9. Reset password endpoint calls with correct data
 
 ### Items Service
 1. Items fetching from API
 2. Error handling
+
+## Recent Test Additions
+
+### Forgot Password Functionality (December 2024)
+- **LoginPage Component**: Added 9 comprehensive tests for the forgot password flow
+  - Email input and validation
+  - OTP verification with error handling
+  - New password creation with confirmation
+  - Success message and redirect
+  - Navigation between steps
+- **Auth Service**: Added 3 tests for password reset API endpoints
+  - `forgotPassword()` - Sends OTP to email
+  - `verifyPasswordResetOtp()` - Verifies OTP before password reset
+  - `resetPassword()` - Resets password with verified OTP
+
+### Category Filtering Fix (December 2024)
+- **Items Component**: Added 5 tests for category normalization
+  - Tests backward compatibility for "Books" → "Textbooks" mapping
+  - Ensures legacy data with "Books" category appears when filtering by "Textbooks"
+  - Verifies isolation (Books items don't appear in other category filters)
+  - Tests "All Categories" view includes all items regardless of category name

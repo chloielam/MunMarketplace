@@ -29,8 +29,8 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
     {
       title: 'Algorithms Textbook (4th Ed.)',
       description: 'Used lightly for one semester.',
-      price: '40.00', currency: 'CAD', category: 'Books',
-      city: "St. John’s", campus: 'MUN-StJohns',
+      price: '40.00', currency: 'CAD', category: 'Textbooks',
+      city: "St. John's", campus: 'MUN-StJohns',
       imageUrls: ['https://picsum.photos/seed/book/400/300'],
       seller_id: u.get('kriti@mun.ca')!, status: ListingStatus.ACTIVE,
     },

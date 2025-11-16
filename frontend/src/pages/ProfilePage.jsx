@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
-import { getUserListings } from '../services/items';
+import { getUserListings, deleteListing } from '../services/items';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
 
@@ -15,6 +15,8 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [deletingListingId, setDeletingListingId] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [editForm, setEditForm] = useState({
     firstName: '',
     lastName: '',
@@ -244,6 +246,30 @@ const ProfilePage = () => {
     }
   };
 
+  const handleDeleteListing = async (listingId) => {
+    try {
+      setDeletingListingId(listingId);
+      
+      // Get listing title before deleting
+      const listingToDelete = listings.find(l => (l.listing_id || l.id) === listingId);
+      const listingTitle = listingToDelete?.title || 'the listing';
+      
+      await deleteListing(listingId);
+      
+      setShowDeleteConfirm(null);
+      setDeletingListingId(null);
+      
+      // Navigate to deleted confirmation page
+      navigate('/listing-deleted', { 
+        state: { listingTitle } 
+      });
+    } catch (err) {
+      console.error('Error deleting listing:', err);
+      alert(err.response?.data?.message || 'Failed to delete listing');
+      setDeletingListingId(null);
+    }
+  };
+
   const handleChangePassword = async () => {
     try {
       if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -432,7 +458,7 @@ const ProfilePage = () => {
                 <>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-mun-red">{totalListings}</div>
-                    <div className="text-sm text-gray-600">Items for Sale</div>
+                    <div className="text-sm text-gray-600">My Listings</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-mun-red">{activeListings.length}</div>
@@ -605,11 +631,11 @@ const ProfilePage = () => {
 
             {/* Activity Sections */}
             <div className="mt-8 space-y-6">
-              {/* Items for Sale Section - Only show if user has listings */}
+              {/* My Listings Section - Only show if user has listings */}
               {listings.length > 0 ? (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Items for Sale</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">My Listings</h3>
                     <button
                       onClick={() => navigate('/items?myListings=true')}
                       className="text-mun-red hover:underline text-sm"
@@ -624,19 +650,35 @@ const ProfilePage = () => {
                       return (
                         <div
                           key={listingId}
-                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => navigate(`/items/${listingId}`)}
+                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative"
                         >
-                          {imageUrl && (
-                            <img
-                              src={imageUrl}
-                              alt={listing.title}
-                              className="w-full h-32 object-cover rounded mb-2"
-                            />
-                          )}
-                          <h4 className="font-semibold text-gray-800 truncate">{listing.title}</h4>
-                          <p className="text-mun-red font-bold">${listing.price}</p>
-                          <p className="text-sm text-gray-500 capitalize">{listing.status}</p>
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => navigate(`/listings/${listingId}`)}
+                          >
+                            {imageUrl && (
+                              <img
+                                src={imageUrl}
+                                alt={listing.title}
+                                className="w-full h-32 object-cover rounded mb-2"
+                              />
+                            )}
+                            <h4 className="font-semibold text-gray-800 truncate">{listing.title}</h4>
+                            <p className="text-mun-red font-bold">${listing.price}</p>
+                            <p className="text-sm text-gray-500 capitalize">{listing.status}</p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowDeleteConfirm(listingId);
+                            }}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
+                            title="Delete listing"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
                         </div>
                       );
                     })}
@@ -645,15 +687,15 @@ const ProfilePage = () => {
               ) : (
                 // Show empty state for sellers if they have no listings
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Items for Sale</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">My Listings</h3>
                   <div className="bg-gray-50 rounded-lg p-8 text-center">
                     <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
-                    <p className="text-gray-600 mb-2">No items for sale yet</p>
+                    <p className="text-gray-600 mb-2">No listings yet</p>
                     <p className="text-sm text-gray-500">Start selling to see your listings here</p>
                     <button
-                      onClick={() => navigate('/items?create=true')}
+                      onClick={() => navigate('/create-listing')}
                       className="mt-4 bg-mun-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
                     >
                       Create Listing
@@ -758,6 +800,36 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Delete Listing</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this listing? This action cannot be undone.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(null);
+                  setDeletingListingId(null);
+                }}
+                className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteListing(showDeleteConfirm)}
+                disabled={deletingListingId !== null}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingListingId ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

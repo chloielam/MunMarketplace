@@ -124,6 +124,241 @@ describe('Items', () => {
     }
   });
 
+  test('filters items with "Textbooks" category correctly', async () => {
+    const itemsWithTextbooks = [
+      {
+        id: 1,
+        title: 'Calculus Textbook',
+        price: '50',
+        currency: 'CAD',
+        category: 'Textbooks',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-01T00:00:00Z',
+        imageUrls: ['https://example.com/image1.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 2,
+        title: 'Laptop',
+        price: '500',
+        currency: 'CAD',
+        category: 'Electronics',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-02T00:00:00Z',
+        imageUrls: ['https://example.com/image2.jpg'],
+        status: 'ACTIVE'
+      }
+    ];
+    
+    getItems.mockResolvedValue(itemsWithTextbooks);
+    
+    render(
+      <BrowserRouter>
+        <Items />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('Calculus Textbook')).toBeInTheDocument();
+      expect(screen.getByText('Laptop')).toBeInTheDocument();
+    });
+    
+    // Click on Textbooks category button (not the category text in items)
+    const textbooksButton = screen.getByRole('button', { name: 'Textbooks' });
+    fireEvent.click(textbooksButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Calculus Textbook')).toBeInTheDocument();
+      expect(screen.queryByText('Laptop')).not.toBeInTheDocument();
+    });
+  });
+
+  test('shows items with "Books" category when filtering by "Textbooks" (backward compatibility)', async () => {
+    const itemsWithBooks = [
+      {
+        id: 1,
+        title: 'Algorithms Book',
+        price: '40',
+        currency: 'CAD',
+        category: 'Books', // Old category name
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-01T00:00:00Z',
+        imageUrls: ['https://example.com/image1.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 2,
+        title: 'Modern Textbook',
+        price: '60',
+        currency: 'CAD',
+        category: 'Textbooks', // New category name
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-02T00:00:00Z',
+        imageUrls: ['https://example.com/image2.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 3,
+        title: 'Desk',
+        price: '100',
+        currency: 'CAD',
+        category: 'Furniture',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-03T00:00:00Z',
+        imageUrls: ['https://example.com/image3.jpg'],
+        status: 'ACTIVE'
+      }
+    ];
+    
+    getItems.mockResolvedValue(itemsWithBooks);
+    
+    render(
+      <BrowserRouter>
+        <Items />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('Algorithms Book')).toBeInTheDocument();
+      expect(screen.getByText('Modern Textbook')).toBeInTheDocument();
+      expect(screen.getByText('Desk')).toBeInTheDocument();
+    });
+    
+    // Click on Textbooks category button - should show both "Books" and "Textbooks" items
+    const textbooksButton = screen.getByRole('button', { name: 'Textbooks' });
+    fireEvent.click(textbooksButton);
+    
+    await waitFor(() => {
+      // Both items with "Books" and "Textbooks" should be visible
+      expect(screen.getByText('Algorithms Book')).toBeInTheDocument();
+      expect(screen.getByText('Modern Textbook')).toBeInTheDocument();
+      // Furniture item should not be visible
+      expect(screen.queryByText('Desk')).not.toBeInTheDocument();
+    });
+  });
+
+  test('does not show "Books" items when filtering by other categories', async () => {
+    const itemsWithBooks = [
+      {
+        id: 1,
+        title: 'Algorithms Book',
+        price: '40',
+        currency: 'CAD',
+        category: 'Books',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-01T00:00:00Z',
+        imageUrls: ['https://example.com/image1.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 2,
+        title: 'Office Chair',
+        price: '120',
+        currency: 'CAD',
+        category: 'Furniture',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-02T00:00:00Z',
+        imageUrls: ['https://example.com/image2.jpg'],
+        status: 'ACTIVE'
+      }
+    ];
+    
+    getItems.mockResolvedValue(itemsWithBooks);
+    
+    render(
+      <BrowserRouter>
+        <Items />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('Algorithms Book')).toBeInTheDocument();
+      expect(screen.getByText('Office Chair')).toBeInTheDocument();
+    });
+    
+    // Click on Furniture category button - should NOT show "Books" item
+    const furnitureButton = screen.getByRole('button', { name: 'Furniture' });
+    fireEvent.click(furnitureButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Office Chair')).toBeInTheDocument();
+      expect(screen.queryByText('Algorithms Book')).not.toBeInTheDocument();
+    });
+  });
+
+  test('shows all items including "Books" when "All Categories" is selected', async () => {
+    const itemsWithBooks = [
+      {
+        id: 1,
+        title: 'Algorithms Book',
+        price: '40',
+        currency: 'CAD',
+        category: 'Books',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-01T00:00:00Z',
+        imageUrls: ['https://example.com/image1.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 2,
+        title: 'Modern Textbook',
+        price: '60',
+        currency: 'CAD',
+        category: 'Textbooks',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-02T00:00:00Z',
+        imageUrls: ['https://example.com/image2.jpg'],
+        status: 'ACTIVE'
+      },
+      {
+        id: 3,
+        title: 'Laptop',
+        price: '500',
+        currency: 'CAD',
+        category: 'Electronics',
+        city: 'St. John\'s',
+        campus: 'MUN-StJohns',
+        createdAt: '2024-01-03T00:00:00Z',
+        imageUrls: ['https://example.com/image3.jpg'],
+        status: 'ACTIVE'
+      }
+    ];
+    
+    getItems.mockResolvedValue(itemsWithBooks);
+    
+    render(
+      <BrowserRouter>
+        <Items />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('Algorithms Book')).toBeInTheDocument();
+      expect(screen.getByText('Modern Textbook')).toBeInTheDocument();
+      expect(screen.getByText('Laptop')).toBeInTheDocument();
+    });
+    
+    // Click on All Categories button (should already be selected, but let's verify)
+    const allCategoriesButton = screen.getByRole('button', { name: 'All Categories' });
+    fireEvent.click(allCategoriesButton);
+    
+    await waitFor(() => {
+      // All items should be visible
+      expect(screen.getByText('Algorithms Book')).toBeInTheDocument();
+      expect(screen.getByText('Modern Textbook')).toBeInTheDocument();
+      expect(screen.getByText('Laptop')).toBeInTheDocument();
+    });
+  });
+
   test('filters items by search query', async () => {
     render(
       <BrowserRouter>

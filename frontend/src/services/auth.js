@@ -37,6 +37,12 @@ export const authService = {
     return response.data;
   },
 
+  // Verify password reset OTP
+  async verifyPasswordResetOtp(email, code) {
+    const response = await api.post('/auth/verify-password-reset-otp', { email, code });
+    return response.data;
+  },
+
   // Reset password
   async resetPassword(email, code, newPassword) {
     const response = await api.post('/auth/reset-password', { email, code, newPassword });

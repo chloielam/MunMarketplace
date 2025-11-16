@@ -1,10 +1,12 @@
-import { getItems } from '../items';
+import { getItems, createListing, getListingById, deleteListing } from '../items';
 import api from '../api';
 
 // Mock api
 jest.mock('../api', () => {
   const mockApiInstance = {
     get: jest.fn(),
+    post: jest.fn(),
+    delete: jest.fn(),
   };
   return {
     __esModule: true,
@@ -47,6 +49,57 @@ describe('items service', () => {
     api.get.mockRejectedValue(new Error('Network error'));
     
     await expect(getItems()).rejects.toThrow('Network error');
+  });
+
+  test('createListing calls correct endpoint with data', async () => {
+    const mockListingData = {
+      title: 'Test Item',
+      price: 100,
+      category: 'Electronics',
+      city: "St. John's",
+      campus: 'MUN-StJohns'
+    };
+    const mockResponse = { id: '123', ...mockListingData };
+    
+    api.post.mockResolvedValue({
+      data: mockResponse
+    });
+    
+    const result = await createListing(mockListingData);
+    
+    expect(api.post).toHaveBeenCalledWith('/me/listings', mockListingData);
+    expect(result).toEqual(mockResponse);
+  });
+
+  test('getListingById calls correct endpoint', async () => {
+    const listingId = '123';
+    const mockListing = { id: listingId, title: 'Test Item', price: 100 };
+    
+    api.get.mockResolvedValue({
+      data: mockListing
+    });
+    
+    const result = await getListingById(listingId);
+    
+    expect(api.get).toHaveBeenCalledWith(`/listings/${listingId}`);
+    expect(result).toEqual(mockListing);
+  });
+
+  test('deleteListing calls correct endpoint', async () => {
+    const listingId = '123';
+    
+    api.delete.mockResolvedValue({});
+    
+    await deleteListing(listingId);
+    
+    expect(api.delete).toHaveBeenCalledWith(`/me/listings/${listingId}`);
+  });
+
+  test('deleteListing handles errors', async () => {
+    const listingId = '123';
+    api.delete.mockRejectedValue(new Error('Delete failed'));
+    
+    await expect(deleteListing(listingId)).rejects.toThrow('Delete failed');
   });
 });
 

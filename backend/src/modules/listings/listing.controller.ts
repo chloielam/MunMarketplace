@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Param, ParseUUIDPipe } from '@nestjs/common';
 import { QueryListingDto } from './dto/query-listing.dto';
 import { ListingService } from './listing.service';
 
@@ -9,5 +9,10 @@ export class ListingController {
   @Get()
   findMany(@Query() query: QueryListingDto) {
     return this.service.findMany(query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.service.findOne(id);
   }
 }

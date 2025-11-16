@@ -164,7 +164,12 @@ const MainPage = () => {
             <span className="bg-mun-gold text-mun-red px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">TOP PICKS</span>
             <h2 className="text-4xl text-gray-800 mt-4 mb-4">Featured Products</h2>
             <p className="text-gray-600 text-lg mb-4">Popular items from our marketplace</p>
-            <a href="#signin" className="text-orange-500 font-medium hover:text-orange-600">Sign in to access all features and products</a>
+            <button 
+              onClick={() => navigate('/login')}
+              className="text-orange-500 font-medium hover:text-orange-600 cursor-pointer"
+            >
+              Sign in to access all features and products
+            </button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -182,7 +187,11 @@ const MainPage = () => {
               ))
             ) : featuredItems.length > 0 ? (
               featuredItems.map((item) => (
-                <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                <div 
+                  key={item.id} 
+                  onClick={() => navigate(`/listings/${item.id}`)}
+                  className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                >
                   <div className="h-48 relative">
                     <img 
                       src={item.imageUrls?.[0] || "https://via.placeholder.com/400x300"} 
