@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getItemById } from "../services/items";
+import { authUtils } from '../services/auth';
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -21,13 +22,27 @@ export default function ItemDetail() {
         setLoading(false);
       }
     }
-    
+
     fetchItem();
   }, [id]);
 
-  const handleChatClick = () => {
-    console.log("Chat with seller clicked");
-    alert("Chat functionality will be implemented here!");
+  const handleChatClick = (item) => {
+    // 1. Create the comprehensive context object
+    const chatContext = {
+      // Current User Details
+      currentUser: authUtils.getSessionUser(),
+      // Other User Details (Seller)
+      otherUser: {
+        id: item.seller_id,
+      },
+      // Product Details
+      product: {
+        productId: item.id,
+        ...item
+      }
+    };
+    // 2. Navigate and pass the context object via state
+    navigate('/chat', { state: { chatContext } });
   };
 
   const handleBack = () => {
@@ -41,7 +56,7 @@ export default function ItemDetail() {
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="max-w-7xl mx-auto p-6">
-        <button 
+        <button
           onClick={handleBack}
           className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition"
         >
@@ -69,11 +84,10 @@ export default function ItemDetail() {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 border-2 rounded-lg overflow-hidden transition ${
-                      selectedImage === index 
-                        ? "border-red-500" 
+                    className={`flex-shrink-0 border-2 rounded-lg overflow-hidden transition ${selectedImage === index
+                        ? "border-red-500"
                         : "border-gray-200 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     <img
                       src={url}
@@ -110,21 +124,20 @@ export default function ItemDetail() {
                 <div>
                   <p className="text-gray-500 text-sm">Posted</p>
                   <p className="font-medium">
-                    {new Date(item.createdAt).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    {new Date(item.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     })}
                   </p>
                 </div>
                 <div>
                   <p className="text-gray-500 text-sm">Status</p>
                   <p className="font-medium">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      item.status === 'AVAILABLE' 
-                        ? 'bg-green-100 text-green-800' 
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${item.status === 'AVAILABLE'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
-                    }`}>
+                      }`}>
                       {item.status}
                     </span>
                   </p>
@@ -145,24 +158,23 @@ export default function ItemDetail() {
               <h1 className="text-xl font-semibold mb-6">{item.title}</h1>
 
               <div className="space-y-3 mb-6">
-                <button 
-                  onClick={handleChatClick}
+                <button
+                  onClick={() => handleChatClick(item)}
                   disabled={item.status === 'SOLD'}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-center ${
-                    item.status === 'SOLD'
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition flex items-center justify-center ${item.status === 'SOLD'
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
-                  }`}
+                    }`}
                 >
                   <span className="mr-2">💬</span>
                   {item.status === 'SOLD' ? 'Item Sold' : 'Chat with Seller'}
                 </button>
-                
+
               </div>
 
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Seller Information</h3>
-                
+
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
                     {item.seller?.name?.charAt(0) || 'S'}

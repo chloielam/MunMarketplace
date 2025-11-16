@@ -162,4 +162,20 @@ export class ListingService {
     const { price, ...rest } = listing;
     return { ...rest, price: Number(price) };
   }
+
+  // Add this new public method to ListingService:
+
+async findOne(listingId: string) {
+    const listing = await this.repo.createQueryBuilder('l')
+        .where('l.id = :listingId', { listingId })
+        .andWhere('l.deletedAt IS NULL') // Must not be deleted
+        .andWhere('l.status = :active', { active: ListingStatus.ACTIVE }) // Must be active
+        .getOne();
+
+    if (!listing) {
+      throw new NotFoundException('Listing not found or is no longer available');
+    }
+
+    return this.mapListing(listing);
+  }
 }
