@@ -279,27 +279,6 @@ const ProfilePage = () => {
     }
   };
 
-  const handleChangePassword = async () => {
-    try {
-      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-        alert('New passwords do not match');
-        return;
-      }
-      if (passwordForm.newPassword.length < 6) {
-        alert('New password must be at least 6 characters long');
-        return;
-      }
-
-      await authService.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
-      alert('Password changed successfully!');
-      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setShowChangePassword(false);
-    } catch (err) {
-      console.error('Error changing password:', err);
-      alert(err.response?.data?.message || 'Failed to change password');
-    }
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return 'Not available';
     const date = new Date(dateString);

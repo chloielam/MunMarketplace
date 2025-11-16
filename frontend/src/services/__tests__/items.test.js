@@ -1,4 +1,4 @@
-import { getItems, createListing, getListingById, deleteListing } from '../items';
+import { getItems, createListing, getListingById, getItemById, deleteListing } from '../items';
 import api from '../api';
 
 // Mock api
@@ -100,6 +100,35 @@ describe('items service', () => {
     api.delete.mockRejectedValue(new Error('Delete failed'));
     
     await expect(deleteListing(listingId)).rejects.toThrow('Delete failed');
+  });
+
+  test('getItemById is an alias for getListingById', async () => {
+    const listingId = '123';
+    const mockListing = { id: listingId, title: 'Test Item', price: 100 };
+    
+    api.get.mockResolvedValue({
+      data: mockListing
+    });
+    
+    const result = await getItemById(listingId);
+    
+    expect(api.get).toHaveBeenCalledWith(`/listings/${listingId}`);
+    expect(result).toEqual(mockListing);
+  });
+
+  test('getItemById and getListingById return the same result', async () => {
+    const listingId = '456';
+    const mockListing = { id: listingId, title: 'Another Item', price: 200 };
+    
+    api.get.mockResolvedValue({
+      data: mockListing
+    });
+    
+    const result1 = await getItemById(listingId);
+    const result2 = await getListingById(listingId);
+    
+    expect(result1).toEqual(result2);
+    expect(result1).toEqual(mockListing);
   });
 });
 

@@ -6,7 +6,7 @@ import { authService, authUtils } from '../services/auth';
 const Header = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  // eslint-disable-next-line no-unused-vars
   const logoutInProgress = useRef(false);
 
   useEffect(() => {

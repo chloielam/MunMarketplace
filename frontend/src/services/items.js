@@ -36,6 +36,9 @@ export async function getListingById(listingId) {
   return response.data;
 }
 
+// Alias for backward compatibility with ItemDetail component
+export const getItemById = getListingById;
+
 // Delete a listing
 // Backend endpoint: DELETE /api/me/listings/:listingId
 // Only the listing owner can delete their own listing
