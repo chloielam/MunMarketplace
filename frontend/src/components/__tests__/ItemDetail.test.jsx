@@ -129,7 +129,14 @@ describe('ItemDetail', () => {
   });
 
   test('handles chat button click', async () => {
-    getItemById.mockResolvedValue(mockItem);
+    // Mock authUtils for the chat functionality
+    const mockAuthUtils = require('../../services/auth').authUtils;
+    mockAuthUtils.getSessionUser = jest.fn().mockReturnValue({ id: 'user-1', email: 'test@mun.ca' });
+    
+    getItemById.mockResolvedValue({
+      ...mockItem,
+      seller_id: 'seller-1'
+    });
     
     renderItemDetail();
     
@@ -137,10 +144,18 @@ describe('ItemDetail', () => {
       expect(screen.getByText('Test Item')).toBeInTheDocument();
     });
     
-    const chatButton = screen.getByText(/Chat with Seller/i);
+    // Find the chat button
+    const chatButton = screen.getByRole('button', { name: /Chat with Seller/i });
+    expect(chatButton).not.toBeDisabled();
+    
     fireEvent.click(chatButton);
     
-    expect(global.alert).toHaveBeenCalledWith('Chat functionality will be implemented here!');
+    // Should navigate to chat page with chat context
+    expect(mockNavigate).toHaveBeenCalledWith('/chat', expect.objectContaining({
+      state: expect.objectContaining({
+        chatContext: expect.any(Object)
+      })
+    }));
   });
 
   test('displays multiple images when available', async () => {
