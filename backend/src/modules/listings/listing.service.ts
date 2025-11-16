@@ -97,6 +97,16 @@ export class ListingService {
     return { items: mapped, total, page, limit, hasNext: page * limit < total };
   }
 
+  async findOne(listingId: string) {
+    const listing = await this.repo.findOne({
+      where: { id: listingId, status: ListingStatus.ACTIVE },
+    });
+    if (!listing || listing.deletedAt) {
+      throw new NotFoundException('Listing not found');
+    }
+    return this.mapListing(listing);
+  }
+
   async findOneForSeller(listingId: string, sellerId: string, includeDeleted = false) {
     const listing = await this.repo.findOne({
       where: { id: listingId, seller_id: sellerId },

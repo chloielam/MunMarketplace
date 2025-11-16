@@ -95,6 +95,42 @@ describe('authService', () => {
     });
     expect(result).toEqual({ message: 'Password changed successfully' });
   });
+
+  test('forgotPassword calls correct endpoint', async () => {
+    api.post.mockResolvedValue({ data: { message: 'OTP sent' } });
+    
+    const result = await authService.forgotPassword('test@mun.ca');
+    
+    expect(api.post).toHaveBeenCalledWith('/auth/forgot-password', {
+      email: 'test@mun.ca'
+    });
+    expect(result).toEqual({ message: 'OTP sent' });
+  });
+
+  test('verifyPasswordResetOtp calls correct endpoint', async () => {
+    api.post.mockResolvedValue({ data: { message: 'OTP verified' } });
+    
+    const result = await authService.verifyPasswordResetOtp('test@mun.ca', '123456');
+    
+    expect(api.post).toHaveBeenCalledWith('/auth/verify-password-reset-otp', {
+      email: 'test@mun.ca',
+      code: '123456'
+    });
+    expect(result).toEqual({ message: 'OTP verified' });
+  });
+
+  test('resetPassword calls correct endpoint with correct data', async () => {
+    api.post.mockResolvedValue({ data: { message: 'Password reset successful' } });
+    
+    const result = await authService.resetPassword('test@mun.ca', '123456', 'newPassword123');
+    
+    expect(api.post).toHaveBeenCalledWith('/auth/reset-password', {
+      email: 'test@mun.ca',
+      code: '123456',
+      newPassword: 'newPassword123'
+    });
+    expect(result).toEqual({ message: 'Password reset successful' });
+  });
 });
 
 describe('authUtils', () => {

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Query, Param, ParseUUIDPipe } from '@nestjs/common';
 import { QueryListingDto } from './dto/query-listing.dto';
 import { ListingService } from './listing.service';
 
@@ -11,17 +11,8 @@ export class ListingController {
     return this.service.findMany(query);
   }
 
-  @Get(':listingID')
-  findOneByListingID(@Param('id') listingId: string) {
-    return this.service.findOne(listingId);
-  }
-  
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const listing = await this.service.findOneById(id);
-    if (!listing) {
-      throw new NotFoundException('Listing not found');
-    }
-    return listing;
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.service.findOne(id);
   }
 }

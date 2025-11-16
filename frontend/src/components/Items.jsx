@@ -6,6 +6,7 @@ import { authUtils } from "../services/auth";
 
 export default function Items() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +15,6 @@ export default function Items() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
 
   const categories = [
     "All Categories",
@@ -113,7 +113,10 @@ export default function Items() {
 
   const filteredItems = items
     .filter((item) => {
-      const categoryMatch = selectedCategory === "All Categories" || item.category === selectedCategory;
+      // Handle category matching with normalization for backward compatibility
+      // Map "Books" to "Textbooks" for filtering
+      const normalizedItemCategory = item.category === "Books" ? "Textbooks" : item.category;
+      const categoryMatch = selectedCategory === "All Categories" || normalizedItemCategory === selectedCategory;
       const searchMatch = !searchQuery || 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -154,7 +157,16 @@ export default function Items() {
             <p className="text-gray-600 mt-1">Category: {selectedCategory}</p>
           )}
         </div>
-        <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow">
+        <button 
+          onClick={() => {
+            if (isAuthenticated) {
+              navigate('/create-listing');
+            } else {
+              navigate('/login');
+            }
+          }}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
+        >
           Post a Listing
         </button>
       </div>
@@ -216,15 +228,8 @@ export default function Items() {
           filteredItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => {
-                        if (!authUtils.isAuthenticated()) {
-                          alert("Please log in to view item details.");
-                          navigate("/login");
-                          return;
-                        }
-                        navigate(`/items/${item.id}`);
-                      }}
-              className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition"
+              onClick={() => navigate(`/listings/${item.id}`)}
+              className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer"
             >
               <div className="relative">
                 <img

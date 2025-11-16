@@ -117,6 +117,25 @@ export class AuthService {
     return this.sendOtp(mun_email);
   }
 
+  async verifyPasswordResetOtp(mun_email: string, code: string) {
+    // Verify OTP for password reset without marking it as used
+    // This allows the frontend to verify before moving to password step
+    const otp = await this.otpRepo.findOne({ where: { mun_email, used: false }, order: { createdAt: 'DESC' } });
+    if (!otp) throw new BadRequestException('No OTP found');
+    if (otp.expiresAt < Date.now()) throw new BadRequestException('OTP expired');
+    if (otp.attempts >= this.maxAttempts) throw new ForbiddenException('Too many attempts');
+
+    const ok = await bcrypt.compare(code, otp.codeHash);
+    if (!ok) {
+      otp.attempts += 1;
+      await this.otpRepo.save(otp);
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    // Don't mark as used - resetPassword will do that
+    return { message: 'OTP verified' };
+  }
+
   async resetPassword(mun_email: string, code: string, newPassword: string) {
     // verify OTP
     const otp = await this.otpRepo.findOne({ where: { mun_email, used: false }, order: { createdAt: 'DESC' } });
