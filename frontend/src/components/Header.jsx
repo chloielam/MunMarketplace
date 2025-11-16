@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
+import { IoChatbubbles } from "react-icons/io5";
 
 // Navigation header with logo, menu, search, and sign in
 const Header = () => {
@@ -53,6 +54,16 @@ const Header = () => {
     navigate('/login');
   };
 
+  const handleChatClick = () => {
+    if (isAuthenticated) {
+      navigate('/chat');
+    } else {
+      navigate('/login')
+    }
+  };
+
+
+
   const handleLogout = async () => {
     logoutInProgress.current = true;
     authUtils.clearSession();
@@ -72,12 +83,12 @@ const Header = () => {
   const handleProfileClick = () => {
     // Force check authentication state
     const currentAuth = authUtils.isAuthenticated();
-    
+
     if (!currentAuth) {
       navigate('/login');
       return;
     }
-    
+
     navigate('/profile');
   };
 
@@ -90,7 +101,7 @@ const Header = () => {
     }
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+    <header className="z-50 bg-white shadow-md">
       <div className="w-full">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           {/* Logo and navigation */}
@@ -102,13 +113,13 @@ const Header = () => {
               <span className="text-gray-800 text-2xl font-bold">Marketplace</span>
             </Link>
             <nav className="hidden md:flex gap-6">
-              <Link 
+              <Link
                 to="/home"
                 className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
               >
                 Home
               </Link>
-              <Link 
+              <Link
                 to="/items"
                 className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
               >
@@ -125,18 +136,33 @@ const Header = () => {
               <a href="#about" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">About</a>
             </nav>
           </div>
-                    {/* Auth buttons */} 
+          {/* Auth buttons */}
           <div className="flex items-center gap-4">
-            
+            <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 min-w-64">
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="border-none bg-transparent outline-none flex-1 px-1 text-sm"
+              />
+              <button className="text-gray-600 hover:text-gray-800">🔍</button>
+            </div>
+            <button
+              onClick={handleChatClick}
+              className="flex items-center justify-center bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-00 transition-all duration-300"
+            >
+              <IoChatbubbles className='mr-2' /> Chat
+            </button>
+
+
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={handleProfileClick}
                   className="bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-800 transition-all duration-300"
                 >
                   Profile
                 </button>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="text-gray-600 hover:text-gray-800 px-4 py-2 font-medium"
                 >
@@ -144,7 +170,7 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <button 
+              <button
                 onClick={handleLoginClick}
                 className="bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-800 transition-all duration-300"
               >

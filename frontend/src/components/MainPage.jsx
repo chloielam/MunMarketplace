@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getItems } from '../services/items';
 import { authUtils } from '../services/auth';
 
+import { RiChatAiFill } from "react-icons/ri";
+
 // Main landing page with main
 const MainPage = () => {
   const navigate = useNavigate();
@@ -80,6 +82,26 @@ const MainPage = () => {
     }
   };
 
+  // This function is called when the user clicks the "Chat" button on a product card
+  const onStartChat = (item) => {
+    // 1. Create the comprehensive context object
+    const chatContext = {
+      // Current User Details
+      currentUser: authUtils.getSessionUser(),
+      // Other User Details (Seller)
+      otherUser: {
+        id: item.seller_id,
+      },
+      // Product Details
+      product: {
+        productId: item.id,
+        ...item
+      }
+    };
+    // 2. Navigate and pass the context object via state
+    navigate('/chat', { state: { chatContext } });
+  };
+
   return (
     <main className="pt-20">
       {/* main section */}
@@ -92,14 +114,14 @@ const MainPage = () => {
             Buy and sell textbooks, furniture, electronics, housing, and more — all within the MUN community. Safe, local, and built for students.
           </p>
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row justify-center gap-4 max-w-lg mx-auto">
-            <input 
-              type="text" 
-              placeholder="What are you looking for?" 
+            <input
+              type="text"
+              placeholder="What are you looking for?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 px-4 py-4 border-none rounded-full text-lg outline-none text-gray-800 placeholder-gray-400"
             />
-            <button 
+            <button
               type="submit"
               className="bg-mun-gold text-mun-red px-6 py-3 md:px-8 md:py-4 rounded-full font-bold hover:bg-mun-orange transition-all duration-300 text-sm md:text-base w-32 md:w-auto mx-auto md:mx-0"
             >
@@ -114,9 +136,9 @@ const MainPage = () => {
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl text-gray-800 text-center mb-4">Browse by Category</h2>
           <p className="text-gray-600 text-center mb-12 text-lg">Find exactly what you need, organized by category.</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <button 
+            <button
               onClick={() => handleCategoryClick('Housing')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -124,8 +146,8 @@ const MainPage = () => {
               <h3 className="text-xl text-gray-800 mb-2">Housing</h3>
               <p className="text-gray-600 text-sm">Roommates and student housing</p>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleCategoryClick('Furniture')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -133,8 +155,8 @@ const MainPage = () => {
               <h3 className="text-xl text-gray-800 mb-2">Furniture</h3>
               <p className="text-gray-600 text-sm">Desks, chairs, shelves and more</p>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleCategoryClick('Transportation')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -142,8 +164,8 @@ const MainPage = () => {
               <h3 className="text-xl text-gray-800 mb-2">Transportation</h3>
               <p className="text-gray-600 text-sm">Bikes, scooters, rideshares and more</p>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleCategoryClick('Textbooks')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -151,8 +173,8 @@ const MainPage = () => {
               <h3 className="text-xl text-gray-800 mb-2">Textbooks</h3>
               <p className="text-gray-600 text-sm">Course books, study guides, notes</p>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleCategoryClick('Electronics')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -160,8 +182,8 @@ const MainPage = () => {
               <h3 className="text-xl text-gray-800 mb-2">Electronics</h3>
               <p className="text-gray-600 text-sm">Laptops, calculators, accessories</p>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => handleCategoryClick('Academic Services')}
               className="text-center p-8 border border-gray-200 rounded-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
@@ -187,7 +209,7 @@ const MainPage = () => {
               Sign in to access all features and products
             </button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {loading ? (
               // Loading skeleton
@@ -209,9 +231,9 @@ const MainPage = () => {
                   className="border border-gray-200 rounded-lg overflow-hidden hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
                   <div className="h-48 relative">
-                    <img 
-                      src={item.imageUrls?.[0] || "https://via.placeholder.com/400x300"} 
-                      alt={item.title} 
+                    <img
+                      src={item.imageUrls?.[0] || "https://via.placeholder.com/400x300"}
+                      alt={item.title}
                       className="w-full h-full object-cover"
                     />
                     {!isAuthenticated && (
@@ -229,6 +251,16 @@ const MainPage = () => {
                     <p className="text-xl font-bold text-mun-red mb-1">${item.price} {item.currency}</p>
                     <p className="text-gray-600 text-sm mb-1 capitalize">{item.category}</p>
                     <p className="text-gray-500 text-sm">{item.city} • {item.campus}</p>
+                    {isAuthenticated && item.status === 'ACTIVE' && (
+                      <button
+                        onClick={() => onStartChat(item)}
+                        className="bg-mun-red hover:bg-mun-gold text-white font-bold py-1 px-3 rounded text-sm transition-colors mt-2 flex items-center justify-center"
+                        title={`Chat with seller of ${item.title}`}
+                      >
+                        <RiChatAiFill className='mr-2' />
+                        Send Message to the Seller
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -242,9 +274,9 @@ const MainPage = () => {
               </div>
             )}
           </div>
-          
+
           <div className="text-center">
-            <button 
+            <button
               onClick={handleViewAllProducts}
               className="bg-mun-red text-white px-8 py-4 rounded-full font-bold hover:bg-red-800 transition-all duration-300"
             >
@@ -261,35 +293,35 @@ const MainPage = () => {
             <h2 className="text-4xl text-gray-800 mt-4 mb-4">How It Works</h2>
             <p className="text-gray-600 text-lg">MUN Marketplace makes buying and selling simple and secure.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <div className="text-center p-8">
               <div className="w-20 h-20 bg-mun-red text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
               <h3 className="text-xl text-gray-800 mb-4">Sign Up with MUN Email</h3>
               <p className="text-gray-600 leading-relaxed">Verify your account with your @mun.ca email to join our trusted student community.</p>
             </div>
-            
+
             <div className="text-center p-8">
               <div className="w-20 h-20 bg-mun-red text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🔍</div>
               <h3 className="text-xl text-gray-800 mb-4">Browse or List Items</h3>
               <p className="text-gray-600 leading-relaxed">Search for what you need or post something to sell. Easy listing with photos and descriptions.</p>
             </div>
-            
+
             <div className="text-center p-8">
               <div className="w-20 h-20 bg-mun-red text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">💬</div>
               <h3 className="text-xl text-gray-800 mb-4">Message & Negotiate</h3>
               <p className="text-gray-600 leading-relaxed">Chat securely with other MUN students through our messaging system.</p>
             </div>
-            
+
             <div className="text-center p-8">
               <div className="w-20 h-20 bg-mun-red text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🏠</div>
               <h3 className="text-xl text-gray-800 mb-4">Meet & Exchange</h3>
               <p className="text-gray-600 leading-relaxed">Complete your deal safely on or near campus. Connect with your local student community.</p>
             </div>
           </div>
-          
+
           <div className="text-center">
-            <button 
+            <button
               onClick={handleGetStarted}
               className="bg-mun-gold text-mun-red px-8 py-4 rounded-full font-bold hover:bg-mun-orange transition-all duration-300"
             >
