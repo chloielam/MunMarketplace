@@ -15,6 +15,7 @@ import ListingDeletedPage from './pages/ListingDeletedPage.jsx';
 import ListingCreatedPage from './pages/ListingCreatedPage.jsx';
 import Items from './components/Items.jsx';
 import { authUtils } from './services/auth';
+import ItemDetail from './components/ItemDetail.jsx';
 
 // Main app component 
 function App() {
@@ -80,6 +81,18 @@ function App() {
             } 
           />
           
+          {/* Item Detail route (legacy) */}
+          <Route
+            path="/items/:id"
+            element={
+              <>
+                <Header />
+                <ItemDetail />
+                <Footer />
+              </>
+            }
+          />
+
           {/* Listing Deleted confirmation route */}
           <Route 
             path="/listing-deleted" 

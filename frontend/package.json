@@ -16,6 +16,7 @@
     "start": "cross-env PORT=5173 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "npx playwright test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

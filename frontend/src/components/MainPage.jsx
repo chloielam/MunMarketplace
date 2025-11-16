@@ -19,6 +19,18 @@ const MainPage = () => {
       setIsAuthenticated(!!user);
     };
 
+    const handleStorageChange = () => {
+      updateAuthState(authUtils.getSessionUser());
+    };
+
+    const handleAuthChange = (event) => {
+      if (event?.detail && Object.prototype.hasOwnProperty.call(event.detail, 'user')) {
+        updateAuthState(event.detail.user);
+        return;
+      }
+      handleStorageChange();
+    };
+
     const fetchFeaturedItems = async () => {
       try {
         const items = await getItems();
@@ -34,9 +46,13 @@ const MainPage = () => {
     updateAuthState(authUtils.getSessionUser());
     authUtils.refreshSession().then(updateAuthState);
     fetchFeaturedItems();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('authChange', handleAuthChange);
 
     return () => {
       active = false;
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
     };
   }, []);
 

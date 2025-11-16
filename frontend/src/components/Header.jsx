@@ -6,7 +6,6 @@ import { authService, authUtils } from '../services/auth';
 const Header = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
 
   const logoutInProgress = useRef(false);
 
@@ -16,7 +15,6 @@ const Header = () => {
     const applySession = (sessionUser) => {
       if (!active) return;
       setIsAuthenticated(!!sessionUser);
-      setUser(sessionUser);
     };
 
     const syncSession = async () => {
@@ -59,7 +57,6 @@ const Header = () => {
     logoutInProgress.current = true;
     authUtils.clearSession();
     setIsAuthenticated(false);
-    setUser(null);
     window.dispatchEvent(new CustomEvent('authChange', { detail: { user: null } }));
 
     try {

@@ -10,6 +10,12 @@ import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { OtpCode } from './modules/auth/otp.entity';
 import { Session } from './modules/auth/entities/session.entity';
+import { TestSupportModule } from './modules/test-support/test-support.module';
+
+const OPTIONAL_MODULES =
+  process.env.NODE_ENV === 'production' || process.env.ENABLE_TEST_SUPPORT === 'false'
+    ? []
+    : [TestSupportModule];
 
 const ENTITIES = [Listing, User, UserProfile, OtpCode, Session];
 
@@ -48,7 +54,8 @@ const ENTITIES = [Listing, User, UserProfile, OtpCode, Session];
     }),
     UsersModule,
     ListingModule,
-    AuthModule
+    AuthModule,
+    ...OPTIONAL_MODULES,
   ],
   controllers: [AppController],
 })
