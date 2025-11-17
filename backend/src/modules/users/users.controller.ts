@@ -1,12 +1,17 @@
-import { Controller, Get, Param, Patch, Body, ParseUUIDPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { SessionUserId } from '../auth/session-user.decorator';
+import { SellerRatingsService } from '../ratings/seller-ratings.service';
+import { CreateSellerRatingDto } from '../ratings/dto/create-seller-rating.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly users: UsersService) {}
+  constructor(
+    private readonly users: UsersService,
+    private readonly sellerRatings: SellerRatingsService,
+  ) {}
 
   @Get('me')
   getMe(@SessionUserId() userId: string) {
@@ -16,6 +21,11 @@ export class UsersController {
   @Get('me/profile')
   getMyProfile(@SessionUserId() userId: string) {
     return this.users.findProfile(userId);
+  }
+
+  @Get(':id/ratings')
+  getRatings(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.sellerRatings.getSellerRatings(id);
   }
 
   // GET /users/:id  => basic user info
@@ -43,6 +53,15 @@ export class UsersController {
     @Body() body: UpdateProfileDto,
   ) {
     return this.users.upsertProfile(userId, body);
+  }
+
+  @Post(':id/ratings')
+  rateSeller(
+    @Param('id', new ParseUUIDPipe()) sellerId: string,
+    @SessionUserId() buyerId: string,
+    @Body() body: CreateSellerRatingDto,
+  ) {
+    return this.sellerRatings.rateSeller(buyerId, sellerId, body);
   }
 
   // PATCH /users/:id  => edit basic user fields (no password/email here)

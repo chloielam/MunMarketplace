@@ -55,6 +55,16 @@ export class Listing {
   @ManyToOne(() => User) @JoinColumn({ name: 'seller_id' }) seller: User;
 
   @Index()
+  @Column({ name: 'sold_to_user_id', nullable: true })
+  sold_to_user_id?: string;
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'sold_to_user_id' })
+  soldToUser?: User;
+
+  @Column({ type: 'datetime', nullable: true })
+  soldAt?: Date;
+
+  @Index()
   @Column({ type: 'simple-enum', enum: ListingStatus, default: ListingStatus.ACTIVE })
   status: ListingStatus;
 

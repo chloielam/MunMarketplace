@@ -5,10 +5,17 @@ import { User } from '../modules/users/entities/user.entity';
 
 export async function runListingsSeeder(ds: DataSource, users: User[]) {
   const listingRepo = ds.getRepository(Listing);
-  if (await listingRepo.count() > 0) return listingRepo.find();
-  const seller = users.find(u => u.mun_email === 'gia.lam@mun.ca') || users[0];
 
-  if (!seller) throw new Error('No users found in database for seeding listings.');
+  const userMap = new Map(users.map(u => [u.mun_email, u]));
+  const seller = userMap.get('gia.lam@mun.ca') || users[0];
+  const buyerOne = userMap.get('rumnaz@mun.ca');
+  const buyerTwo = userMap.get('kriti@mun.ca');
+
+  if (!seller || !buyerOne || !buyerTwo) {
+    throw new Error('Seeding listings requires seed users for Gia, Rumnaz, and Kriti.');
+  }
+
+  const now = new Date();
 
   const listingsData = [
     {
@@ -58,11 +65,39 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       imageUrls: ['https://picsum.photos/seed/chair/400/300'],
       seller_id: seller.user_id,
       status: ListingStatus.SOLD,
+      sold_to_user_id: buyerOne.user_id,
+      soldAt: now,
+    },
+    {
+      title: '27" Dual Monitor Bundle',
+      description: 'Two matching 27" displays with HDMI cables.',
+      price: '275.00',
+      currency: 'CAD',
+      category: 'Electronics',
+      city: "St. John’s",
+      campus: 'MUN-StJohns',
+      imageUrls: ['https://picsum.photos/seed/monitor/400/300'],
+      seller_id: seller.user_id,
+      status: ListingStatus.SOLD,
+      sold_to_user_id: buyerTwo.user_id,
+      soldAt: now,
     },
   ];
 
-  const listings = listingsData.map(data => listingRepo.create(data));
-  await listingRepo.save(listings);
+  for (const data of listingsData) {
+    let listing = await listingRepo.findOne({
+      where: { seller_id: data.seller_id, title: data.title },
+      withDeleted: true,
+    });
 
-  return listings;
+    if (listing) {
+      Object.assign(listing, data);
+    } else {
+      listing = listingRepo.create(data);
+    }
+
+    await listingRepo.save(listing);
+  }
+
+  return listingRepo.find();
 }

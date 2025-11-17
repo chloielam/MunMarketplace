@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Message } from './entities/message.entity';
 import { Conversation } from './entities/conversation.entity';
+import { SellerRatingsService } from '../ratings/seller-ratings.service';
 
 @Injectable()
 export class ChatService {
@@ -11,6 +12,7 @@ export class ChatService {
     private messageRepository: Repository<Message>,
     @InjectRepository(Conversation)
     private conversationRepository: Repository<Conversation>,
+    private readonly sellerRatings: SellerRatingsService,
   ) { }
 
   // Get or create a conversation between two users
@@ -69,7 +71,15 @@ export class ChatService {
       .orderBy('conversation.lastMessageAt', 'DESC')
       .getMany(); // Return the entities directly
 
-    return conversations;
+    const enriched = await Promise.all(
+      conversations.map(async conversation => {
+        if (!conversation.listingId) return conversation;
+        const ratingState = await this.sellerRatings.getBuyerRatingState(conversation.listingId, userId);
+        return Object.assign(conversation, { ratingState });
+      }),
+    );
+
+    return enriched;
   }
 
   // Get all messages in a conversation
