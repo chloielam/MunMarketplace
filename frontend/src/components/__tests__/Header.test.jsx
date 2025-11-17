@@ -68,16 +68,16 @@ describe('Header', () => {
     expect(logoLink).toHaveAttribute('href', '/home');
   });
 
-  test('Sell button navigates to login when not authenticated', () => {
+  test('Chat button navigates to login when not authenticated', () => {
     renderWithRouter(<Header />);
     
-    const sellButton = screen.getByText('Sell');
-    fireEvent.click(sellButton);
+    const chatButton = screen.getByRole('button', { name: /chat/i });
+    fireEvent.click(chatButton);
     
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
-  test('Sell button navigates to create listing when authenticated', async () => {
+  test('Chat button navigates to chat when authenticated', async () => {
     authUtils.getSessionUser.mockReturnValue({ id: '123' });
     authUtils.refreshSession.mockResolvedValue({ id: '123' });
     authUtils.isAuthenticated.mockReturnValue(true);
@@ -85,10 +85,10 @@ describe('Header', () => {
     renderWithRouter(<Header />);
     
     await waitFor(() => {
-      const sellButton = screen.getByText('Sell');
-      fireEvent.click(sellButton);
+      const chatButton = screen.getByRole('button', { name: /chat/i });
+      fireEvent.click(chatButton);
       
-      expect(mockNavigate).toHaveBeenCalledWith('/create-listing');
+      expect(mockNavigate).toHaveBeenCalledWith('/chat');
     });
   });
 });
