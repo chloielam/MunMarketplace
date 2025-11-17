@@ -281,7 +281,7 @@ export default function Items() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex space-x-6 border-b border-gray-200 mb-6">
+      <div className="flex flex-wrap gap-x-6 gap-y-3 border-b border-gray-200 mb-6">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
