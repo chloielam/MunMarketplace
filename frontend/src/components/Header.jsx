@@ -105,7 +105,7 @@ const Header = () => {
       <div className="w-full">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           {/* Logo and navigation */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 flex-shrink-0">
             <Link to="/home" className="flex items-center gap-2">
               <div className="bg-mun-red text-white w-12 h-10 flex items-center justify-center font-bold text-base border-2 border-mun-red rounded">
                 MUN
@@ -125,26 +125,18 @@ const Header = () => {
               >
                 Browse
               </Link>
-              <a href="#requests" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Requests</a>
-              <a href="#messages" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">Messages</a>
-              <button 
-                onClick={handleSellClick}
-                className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300"
-              >
-                Sell
-              </button>
-              <a href="#about" className="text-gray-800 font-medium hover:text-mun-red transition-colors duration-300">About</a>
             </nav>
           </div>
           {/* Auth buttons */}
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 min-w-64">
+          <div className="flex items-center gap-4 flex-1 justify-end ml-8">
+            <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 flex-1 max-w-xl">
+              <button className="text-gray-600 hover:text-gray-800">🔍</button>
               <input
                 type="text"
                 placeholder="Search products..."
                 className="border-none bg-transparent outline-none flex-1 px-1 text-sm"
               />
-              <button className="text-gray-600 hover:text-gray-800">🔍</button>
+              
             </div>
             <button
               onClick={handleChatClick}

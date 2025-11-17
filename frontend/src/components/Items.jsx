@@ -1,8 +1,31 @@
 // frontend/src/components/Items.jsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getItems } from "../services/items";
+import { getItems, createListing } from "../services/items";
 import { authUtils } from "../services/auth";
+
+const CATEGORIES = [
+  "All Categories",
+  "Furniture",
+  "Textbooks",
+  "Electronics",
+  "Housing",
+  "Transportation",
+  "Academic Services",
+];
+
+const LISTING_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All Categories");
+
+const getInitialFormState = () => ({
+  title: "",
+  description: "",
+  price: "",
+  currency: "CAD",
+  category: LISTING_CATEGORIES[0] || "",
+  city: "",
+  campus: "",
+  imageUrls: "",
+});
 
 export default function Items() {
   const location = useLocation();
@@ -15,16 +38,11 @@ export default function Items() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const categories = [
-    "All Categories",
-    "Furniture",
-    "Textbooks",
-    "Electronics",
-    "Housing",
-    "Transportation",
-    "Academic Services",
-  ];
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [formData, setFormData] = useState(getInitialFormState);
+  const [formError, setFormError] = useState(null);
+  const [isPosting, setIsPosting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let active = true;
@@ -82,6 +100,83 @@ export default function Items() {
       window.removeEventListener('authChange', handleAuthChange);
     };
   }, [location.search]);
+
+  const handlePostListingClick = () => {
+    if (!authUtils.isAuthenticated()) {
+      alert("Please log in to post a listing.");
+      navigate("/login");
+      return;
+    }
+    setIsPostModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsPostModalOpen(false);
+    setFormError(null);
+    setFormData(getInitialFormState());
+  };
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateListing = async (event) => {
+    event.preventDefault();
+    setFormError(null);
+
+    const priceValue = parseFloat(formData.price);
+    if (Number.isNaN(priceValue)) {
+      setFormError("Please enter a valid price.");
+      return;
+    }
+
+    if (!formData.category) {
+      setFormError("Please select a category.");
+      return;
+    }
+
+    setIsPosting(true);
+
+    const imageUrls = formData.imageUrls
+      ? formData.imageUrls
+          .split(",")
+          .map((url) => url.trim())
+          .filter(Boolean)
+      : [];
+
+    const payload = {
+      title: formData.title.trim(),
+      description: formData.description.trim() || undefined,
+      price: priceValue,
+      currency: formData.currency.trim() || "CAD",
+      category: formData.category,
+      city: formData.city.trim(),
+      campus: formData.campus.trim(),
+    };
+
+    if (imageUrls.length > 0) {
+      payload.imageUrls = imageUrls;
+    }
+
+    try {
+      await createListing(payload);
+      const updatedItems = await getItems();
+      setItems(updatedItems);
+      handleModalClose();
+    } catch (err) {
+      setFormError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to post listing"
+      );
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   const handleSortChange = (e) => {
     const value = e.target.value;
@@ -157,14 +252,8 @@ export default function Items() {
             <p className="text-gray-600 mt-1">Category: {selectedCategory}</p>
           )}
         </div>
-        <button 
-          onClick={() => {
-            if (isAuthenticated) {
-              navigate('/create-listing');
-            } else {
-              navigate('/login');
-            }
-          }}
+        <button
+          onClick={handlePostListingClick}
           className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
         >
           Post a Listing
@@ -187,7 +276,7 @@ export default function Items() {
 
       {/* Category Tabs */}
       <div className="flex space-x-6 border-b border-gray-200 mb-6">
-        {categories.map((cat) => (
+        {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
@@ -263,6 +352,177 @@ export default function Items() {
           ))
         )}
       </div>
+
+      {isPostModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Post a Listing</h2>
+              <button
+                type="button"
+                onClick={handleModalClose}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close Post a Listing form"
+              >
+                ✕
+              </button>
+            </div>
+            <form className="space-y-4" onSubmit={handleCreateListing}>
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                  Title
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleFormChange}
+                  required
+                  placeholder="What are you selling?"
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                />
+              </div>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={3}
+                  value={formData.description}
+                  onChange={handleFormChange}
+                  placeholder="Add condition, usage details, or contact preferences"
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                    Price
+                  </label>
+                  <input
+                    id="price"
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={handleFormChange}
+                    required
+                    placeholder="0.00"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+                    Currency
+                  </label>
+                  <input
+                    id="currency"
+                    name="currency"
+                    type="text"
+                    value={formData.currency}
+                    onChange={handleFormChange}
+                    required
+                    placeholder="CAD"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                    Category
+                  </label>
+                  <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleFormChange}
+                    required
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  >
+                    <option value="">Select a category</option>
+                    {LISTING_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                    City
+                  </label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleFormChange}
+                    required
+                    placeholder="St. John's"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label htmlFor="campus" className="block text-sm font-medium text-gray-700">
+                    Campus
+                  </label>
+                  <input
+                    id="campus"
+                    name="campus"
+                    type="text"
+                    value={formData.campus}
+                    onChange={handleFormChange}
+                    required
+                    placeholder="St. John's"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="imageUrls" className="block text-sm font-medium text-gray-700">
+                    Image URLs (optional)
+                  </label>
+                  <textarea
+                    id="imageUrls"
+                    name="imageUrls"
+                    rows={2}
+                    value={formData.imageUrls}
+                    onChange={handleFormChange}
+                    placeholder="Separate multiple links with commas"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Example: https://example.com/photo.jpg, https://example.com/photo2.jpg
+                  </p>
+                </div>
+              </div>
+              {formError && <p className="text-sm text-red-600">{formError}</p>}
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleModalClose}
+                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPosting}
+                  className="rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-600 disabled:opacity-70"
+                >
+                  {isPosting ? "Posting..." : "Post Listing"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
