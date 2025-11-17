@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Items from '../Items';
-import { getItems } from '../../services/items';
+import { getItems, createListing } from '../../services/items';
 import { authUtils } from '../../services/auth';
 
 // Mock the services
@@ -45,12 +45,19 @@ const mockItems = [
 ];
 
 describe('Items', () => {
+  beforeAll(() => {
+    window.alert = jest.fn();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockLocation.search = '';
     getItems.mockResolvedValue(mockItems);
+    createListing.mockResolvedValue({ id: 'new-listing' });
     authUtils.getSessionUser.mockReturnValue(null);
     authUtils.refreshSession.mockResolvedValue(null);
+    authUtils.isAuthenticated.mockReturnValue(false);
+    window.alert.mockClear();
   });
 
   test('renders loading state initially', () => {
@@ -407,6 +414,53 @@ describe('Items', () => {
     });
   });
 
+  test('allows authenticated users to open and submit the Post a Listing form', async () => {
+    const mockUser = { id: 'user-123' };
+    authUtils.getSessionUser.mockReturnValue(mockUser);
+    authUtils.refreshSession.mockResolvedValue(mockUser);
+    authUtils.isAuthenticated.mockReturnValue(true);
+
+    render(
+      <BrowserRouter>
+        <Items />
+      </BrowserRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Post a Listing')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Post a Listing'));
+
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'New Listing' } });
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Great condition' } });
+    fireEvent.change(screen.getByLabelText('Price'), { target: { value: '25' } });
+    fireEvent.change(screen.getByLabelText('Currency'), { target: { value: 'CAD' } });
+    fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'Furniture' } });
+    fireEvent.change(screen.getByLabelText('City'), { target: { value: "St. John's" } });
+    fireEvent.change(screen.getByLabelText('Campus'), { target: { value: "St. John's Campus" } });
+    fireEvent.change(screen.getByLabelText('Image URLs (optional)'), { target: { value: 'https://example.com/img.jpg' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Post Listing' }));
+
+    await waitFor(() => {
+      expect(createListing).toHaveBeenCalledTimes(1);
+    });
+
+    expect(createListing).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'New Listing',
+      price: 25,
+      currency: 'CAD',
+      category: 'Furniture',
+      city: "St. John's",
+      campus: "St. John's Campus"
+    }));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+    });
+  });
+
   test('shows "Sign in to View" overlay when not authenticated', async () => {
     authUtils.getSessionUser.mockReturnValue(null);
     authUtils.refreshSession.mockResolvedValue(null);
@@ -457,4 +511,3 @@ describe('Items', () => {
     expect(screen.getByText('No listings found')).toBeInTheDocument();
   });
 });
-
