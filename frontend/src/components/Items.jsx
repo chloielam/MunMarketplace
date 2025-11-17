@@ -12,6 +12,13 @@ const CATEGORIES = [
   "Housing",
   "Transportation",
   "Academic Services",
+  "Food & Beverages",
+  "Clothing & Accessories",
+  "Sports & Fitness",
+  "Health & Beauty",
+  "Hobbies & Leisure",
+  "Miscellaneous",
+  "Other",
 ];
 
 const LISTING_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All Categories");
@@ -42,7 +49,6 @@ export default function Items() {
   const [formData, setFormData] = useState(getInitialFormState);
   const [formError, setFormError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let active = true;
