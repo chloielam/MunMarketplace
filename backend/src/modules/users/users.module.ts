@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UserProfile } from './entities/user-profile.entity';
+import { SellerRatingsModule } from '../ratings/seller-ratings.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserProfile])],
+  imports: [TypeOrmModule.forFeature([User, UserProfile]), SellerRatingsModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

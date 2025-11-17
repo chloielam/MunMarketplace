@@ -14,8 +14,10 @@ import { ChatModule } from './modules/chat/chat.module';
 import { Message } from './modules/chat/entities/message.entity';
 import { Conversation } from './modules/chat/entities/conversation.entity';
 import { TestSupportModule } from './modules/test-support/test-support.module';
+import { SellerRating } from './modules/ratings/entities/seller-rating.entity';
+import { SellerRatingsModule } from './modules/ratings/seller-ratings.module';
 
-const ENTITIES = [Listing, User, UserProfile, OtpCode, Session, Conversation, Message];
+const ENTITIES = [Listing, User, UserProfile, OtpCode, Session, Conversation, Message, SellerRating];
 
 const OPTIONAL_MODULES =
   process.env.NODE_ENV === 'production' || process.env.ENABLE_TEST_SUPPORT === 'false'
@@ -60,6 +62,7 @@ const OPTIONAL_MODULES =
     ListingModule,
     ChatModule,
     AuthModule,
+    SellerRatingsModule,
     ...OPTIONAL_MODULES,
   ],
   controllers: [AppController],

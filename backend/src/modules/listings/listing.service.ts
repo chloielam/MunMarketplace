@@ -6,10 +6,14 @@ import { QueryListingDto } from './dto/query-listing.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { QueryOwnListingsDto } from './dto/query-own-listings.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ListingService {
-  constructor(@InjectRepository(Listing) private repo: Repository<Listing>) {}
+  constructor(
+    @InjectRepository(Listing) private readonly repo: Repository<Listing>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+  ) {}
 
   async findMany(q: QueryListingDto) {
     const qb = this.repo.createQueryBuilder('l')
@@ -159,6 +163,27 @@ export class ListingService {
     if (!result.affected) throw new NotFoundException('Listing not found');
   }
 
+  async markListingAsSold(listingId: string, sellerId: string, buyerId: string) {
+    const listing = await this.repo.findOne({ where: { id: listingId, seller_id: sellerId } });
+    if (!listing || listing.deletedAt) {
+      throw new NotFoundException('Listing not found');
+    }
+
+    if (listing.seller_id === buyerId) {
+      throw new BadRequestException('Seller cannot be selected as the buyer');
+    }
+
+    const buyer = await this.userRepo.findOne({ where: { user_id: buyerId } });
+    if (!buyer) throw new NotFoundException('Buyer not found');
+
+    listing.status = ListingStatus.SOLD;
+    listing.sold_to_user_id = buyerId;
+    listing.soldAt = new Date();
+
+    const saved = await this.repo.save(listing);
+    return this.mapListing(saved);
+  }
+
   private formatPrice(value: number | string) {
     const numeric = typeof value === 'string' ? Number(value) : value;
     if (!Number.isFinite(numeric)) {
@@ -175,7 +200,7 @@ export class ListingService {
 
   // Add this new public method to ListingService:
 
-async findOne(listingId: string) {
+  async findOne(listingId: string) {
     const listing = await this.repo.createQueryBuilder('l')
         .where('l.id = :listingId', { listingId })
         .andWhere('l.deletedAt IS NULL') // Must not be deleted

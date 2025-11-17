@@ -15,6 +15,7 @@ import { QueryOwnListingsDto } from './dto/query-own-listings.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { ListingService } from './listing.service';
 import { SessionUserId } from '../auth/session-user.decorator';
+import { MarkListingSoldDto } from './dto/mark-listing-sold.dto';
 
 @Controller('me/listings')
 export class UserListingController {
@@ -53,6 +54,15 @@ export class UserListingController {
     return this.listings.updateListing(listingId, userId, body);
   }
 
+  @Patch(':listingId/sold')
+  markListingSold(
+    @Param('listingId', new ParseUUIDPipe()) listingId: string,
+    @SessionUserId() userId: string,
+    @Body() body: MarkListingSoldDto,
+  ) {
+    return this.listings.markListingAsSold(listingId, userId, body.buyerId);
+  }
+
   @Delete(':listingId')
   @HttpCode(204)
   removeListing(
@@ -62,4 +72,3 @@ export class UserListingController {
     return this.listings.removeListing(listingId, userId);
   }
 }
-
