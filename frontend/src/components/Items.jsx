@@ -42,6 +42,7 @@ export default function Items() {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,12 +51,19 @@ export default function Items() {
   const [formError, setFormError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
 
+  const filterVisibleItems = (list) => list.filter((item) => {
+    const isActive = item.status === 'ACTIVE';
+    const isNotSelf = !currentUserId || item.seller_id !== currentUserId;
+    return isActive && isNotSelf;
+  });
+
   useEffect(() => {
     let active = true;
 
     const syncAuth = (user) => {
       if (!active) return;
       setIsAuthenticated(!!user);
+      setCurrentUserId(user?.id || user?.user_id || null);
     };
 
     const handleStorageChange = () => {
@@ -85,8 +93,10 @@ export default function Items() {
 
     async function fetchItems() {
       try {
+        setLoading(true);
         const data = await getItems();
-        if (active) setItems(data);
+        const filtered = filterVisibleItems(data);
+        if (active) setItems(filtered);
       } catch (err) {
         if (active) setError(err.message || "Failed to fetch items");
       } finally {
@@ -105,7 +115,7 @@ export default function Items() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleAuthChange);
     };
-  }, [location.search]);
+  }, [location.search, currentUserId]);
 
   const handlePostListingClick = () => {
     if (!authUtils.isAuthenticated()) {
@@ -171,7 +181,7 @@ export default function Items() {
     try {
       await createListing(payload);
       const updatedItems = await getItems();
-      setItems(updatedItems);
+      setItems(filterVisibleItems(updatedItems));
       handleModalClose();
     } catch (err) {
       setFormError(

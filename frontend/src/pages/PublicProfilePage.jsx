@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
-import { getUserListings } from '../services/items';
+import { getItems, getUserListings } from '../services/items';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
 
@@ -30,7 +30,6 @@ const PublicProfilePage = () => {
         }
 
           // Fetch user and profile data
-        // Note: Listings for other users not available yet (would need backend endpoint)
         const [userData, profileData] = await Promise.all([
           authService.getUser(userId).catch(err => {
             console.error('Error fetching user:', err);
@@ -42,14 +41,17 @@ const PublicProfilePage = () => {
           })
         ]);
         
-        // Try to fetch listings if viewing own profile (shouldn't happen due to redirect, but just in case)
+        // Fetch listings: own via /me, others via public list filtered by seller_id
         let listingsData = [];
-        if (currentId === userId) {
-          try {
+        try {
+          if (currentId === userId) {
             listingsData = await getUserListings();
-          } catch (err) {
-            console.log('Error fetching listings:', err);
+          } else {
+            const publicItems = await getItems();
+            listingsData = publicItems.filter(item => item.seller_id === userId);
           }
+        } catch (err) {
+          console.log('Error fetching listings:', err);
         }
 
         setUser(userData);
@@ -330,4 +332,3 @@ const PublicProfilePage = () => {
 };
 
 export default PublicProfilePage;
-
