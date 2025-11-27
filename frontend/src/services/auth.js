@@ -93,6 +93,12 @@ export const authService = {
       newPassword
     });
     return response.data;
+  },
+
+  // Get seller ratings
+  async getSellerRatings(sellerId) {
+    const response = await api.get(`/users/${sellerId}/ratings`);
+    return response.data;
   }
 };
 

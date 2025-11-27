@@ -131,6 +131,48 @@ describe('authService', () => {
     });
     expect(result).toEqual({ message: 'Password reset successful' });
   });
+
+  test('getSellerRatings calls correct endpoint', async () => {
+    const sellerId = 'seller123';
+    const mockRatings = [
+      {
+        id: 'rating1',
+        rating: 5,
+        review: 'Great seller!',
+        buyer: { first_name: 'John', last_name: 'Doe' },
+        createdAt: '2024-01-01'
+      }
+    ];
+    
+    api.get.mockResolvedValue({
+      data: mockRatings
+    });
+    
+    const result = await authService.getSellerRatings(sellerId);
+    
+    expect(api.get).toHaveBeenCalledWith(`/users/${sellerId}/ratings`);
+    expect(result).toEqual(mockRatings);
+  });
+
+  test('getSellerRatings handles empty ratings', async () => {
+    const sellerId = 'seller123';
+    
+    api.get.mockResolvedValue({
+      data: []
+    });
+    
+    const result = await authService.getSellerRatings(sellerId);
+    
+    expect(result).toEqual([]);
+  });
+
+  test('getSellerRatings handles errors', async () => {
+    const sellerId = 'seller123';
+    
+    api.get.mockRejectedValue(new Error('Failed to fetch ratings'));
+    
+    await expect(authService.getSellerRatings(sellerId)).rejects.toThrow('Failed to fetch ratings');
+  });
 });
 
 describe('authUtils', () => {

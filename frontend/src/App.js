@@ -13,6 +13,7 @@ import CreateListingPage from './pages/CreateListingPage.jsx';
 import ListingDetailPage from './pages/ListingDetailPage.jsx';
 import ListingDeletedPage from './pages/ListingDeletedPage.jsx';
 import ListingCreatedPage from './pages/ListingCreatedPage.jsx';
+import SellerRatingHistoryPage from './pages/SellerRatingHistoryPage.jsx';
 import Items from './components/Items.jsx';
 import { authUtils } from './services/auth';
 import ChatPage from './pages/ChatPage';
@@ -175,6 +176,18 @@ function App() {
               <>
                 <Header />
                 <PublicProfilePage />
+                <Footer />
+              </>
+            }
+          />
+
+          {/* Seller Rating History route */}
+          <Route
+            path="/sellers/:sellerId/ratings"
+            element={
+              <>
+                <Header />
+                <SellerRatingHistoryPage />
                 <Footer />
               </>
             }

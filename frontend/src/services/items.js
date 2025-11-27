@@ -39,6 +39,14 @@ export async function getListingById(listingId) {
 // Alias for backward compatibility with ItemDetail component
 export const getItemById = getListingById;
 
+// Update a listing
+// Backend endpoint: PATCH /api/me/listings/:listingId
+// Only the listing owner can update their own listing
+export async function updateListing(listingId, listingData) {
+  const response = await api.patch(`/me/listings/${listingId}`, listingData);
+  return response.data;
+}
+
 // Delete a listing
 // Backend endpoint: DELETE /api/me/listings/:listingId
 // Only the listing owner can delete their own listing

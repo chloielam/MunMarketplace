@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ListingDetailPage from '../ListingDetailPage';
-import { getListingById, deleteListing } from '../../services/items';
+import { getListingById, deleteListing, updateListing } from '../../services/items';
 import { authService, authUtils } from '../../services/auth';
 
 // Mock useNavigate
@@ -18,6 +18,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../../services/items', () => ({
   getListingById: jest.fn(),
   deleteListing: jest.fn(),
+  updateListing: jest.fn(),
 }));
 
 jest.mock('../../services/auth', () => ({
@@ -79,7 +80,7 @@ describe('ListingDetailPage', () => {
     expect(screen.getByText('Electronics')).toBeInTheDocument();
   });
 
-  test('shows delete button for listing owner', async () => {
+  test('shows delete button inside edit form for listing owner', async () => {
     authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
     authUtils.getUserId.mockReturnValue('seller123');
     
@@ -90,23 +91,18 @@ describe('ListingDetailPage', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Delete Listing' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
     });
-  });
-
-  test('does not show delete button for non-owner', async () => {
-    render(
-      <BrowserRouter>
-        <ListingDetailPage />
-      </BrowserRouter>
-    );
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
     
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: 'Delete Listing' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
     });
   });
 
-  test('shows confirmation modal when delete is clicked', async () => {
+  test('shows confirmation modal when delete is clicked from edit form', async () => {
     authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
     authUtils.getUserId.mockReturnValue('seller123');
     
@@ -117,10 +113,17 @@ describe('ListingDetailPage', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Delete Listing' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
     });
     
-    const deleteButton = screen.getByRole('button', { name: 'Delete Listing' });
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
+    
+    const deleteButton = screen.getByRole('button', { name: 'Delete' });
     fireEvent.click(deleteButton);
     
     await waitFor(() => {
@@ -143,17 +146,30 @@ describe('ListingDetailPage', () => {
     );
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Delete Listing' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
     });
     
-    const deleteButton = screen.getByRole('button', { name: 'Delete Listing' });
-    fireEvent.click(deleteButton);
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+      const deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+      expect(deleteButtons.length).toBeGreaterThan(0);
     });
     
-    const confirmButton = screen.getByRole('button', { name: 'Delete' });
+    // Get the delete button from the form (first one)
+    const deleteButtons = screen.getAllByRole('button', { name: 'Delete' });
+    const deleteButton = deleteButtons[0];
+    fireEvent.click(deleteButton);
+    
+    // Wait for modal to appear
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Delete Listing' })).toBeInTheDocument();
+    });
+    
+    // Get the confirm button from the modal (should be the last Delete button)
+    const confirmButtons = screen.getAllByRole('button', { name: 'Delete' });
+    const confirmButton = confirmButtons[confirmButtons.length - 1];
     fireEvent.click(confirmButton);
     
     await waitFor(() => {
@@ -175,6 +191,212 @@ describe('ListingDetailPage', () => {
     
     await waitFor(() => {
       expect(screen.getByText(/Listing not found/)).toBeInTheDocument();
+    });
+  });
+
+  test('shows edit button for listing owner', async () => {
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+  });
+
+  test('does not show edit button for non-owner', async () => {
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Edit Listing' })).not.toBeInTheDocument();
+    });
+  });
+
+  test('opens edit form when edit button is clicked', async () => {
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Edit Listing' })).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Test Item')).toBeInTheDocument();
+    });
+  });
+
+  test('cancels edit form when cancel button is clicked', async () => {
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    });
+    
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    fireEvent.click(cancelButton);
+    
+    await waitFor(() => {
+      expect(screen.queryByRole('heading', { name: 'Edit Listing' })).not.toBeInTheDocument();
+      expect(screen.getByText('Test Item')).toBeInTheDocument();
+    });
+  });
+
+  test('updates listing when form is submitted', async () => {
+    const updatedListing = {
+      ...mockListing,
+      title: 'Updated Title',
+      price: 150
+    };
+    
+    updateListing.mockResolvedValue(updatedListing);
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Test Item')).toBeInTheDocument();
+    });
+    
+    const titleInput = screen.getByDisplayValue('Test Item');
+    fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
+    
+    const priceInput = screen.getByDisplayValue('100');
+    fireEvent.change(priceInput, { target: { value: '150' } });
+    
+    const submitButton = screen.getByRole('button', { name: 'Save Changes' });
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(updateListing).toHaveBeenCalledWith('123', expect.objectContaining({
+        title: 'Updated Title',
+        price: 150
+      }));
+    });
+  });
+
+  test('shows delete button inside edit form', async () => {
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
+  });
+
+  test('navigates to seller rating history when seller card is clicked', async () => {
+    const mockSellerWithUserId = {
+      ...mockSeller,
+      user_id: 'seller123'
+    };
+    
+    authService.getUser.mockResolvedValue(mockSellerWithUserId);
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+    
+    const sellerCard = screen.getByText('John Doe').closest('div[role="button"]');
+    fireEvent.click(sellerCard);
+    
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/sellers/seller123/ratings');
+    });
+  });
+
+  test('validates edit form fields', async () => {
+    authUtils.refreshSession.mockResolvedValue({ id: 'seller123' });
+    authUtils.getUserId.mockReturnValue('seller123');
+    
+    render(
+      <BrowserRouter>
+        <ListingDetailPage />
+      </BrowserRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Edit Listing' })).toBeInTheDocument();
+    });
+    
+    const editButton = screen.getByRole('button', { name: 'Edit Listing' });
+    fireEvent.click(editButton);
+    
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Test Item')).toBeInTheDocument();
+    });
+    
+    // Clear required fields
+    const titleInput = screen.getByDisplayValue('Test Item');
+    fireEvent.change(titleInput, { target: { value: '' } });
+    
+    const submitButton = screen.getByRole('button', { name: 'Save Changes' });
+    fireEvent.click(submitButton);
+    
+    await waitFor(() => {
+      expect(updateListing).not.toHaveBeenCalled();
     });
   });
 });
