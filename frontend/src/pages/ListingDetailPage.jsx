@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getListingById, deleteListing, updateListing } from '../services/items';
+import { getListingById, getMyListingById, deleteListing, updateListing } from '../services/items';
 import { authService, authUtils } from '../services/auth';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
@@ -15,6 +15,7 @@ const ListingDetailPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+<<<<<<< HEAD
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -69,8 +70,17 @@ const ListingDetailPage = () => {
         const userId = sessionUser?.id || authUtils.getUserId();
         setCurrentUserId(userId);
 
-        // Get listing
-        const listingData = await getListingById(listingId);
+        // Get listing - try public endpoint first, fallback to user's own listing if 404
+        let listingData = null;
+        try {
+          listingData = await getListingById(listingId);
+        } catch (err) {
+          if (err.response?.status === 404 && userId) {
+            listingData = await getMyListingById(listingId);
+          } else {
+            throw err;
+          }
+        }
         setListing(listingData);
 
         // Fetch seller information
@@ -121,33 +131,19 @@ const ListingDetailPage = () => {
     }
   };
 
-  const handleDeleteClick = () => {
-    setShowDeleteConfirm(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      setIsDeleting(true);
-      await deleteListing(listingId);
-      navigate('/listing-deleted', { 
-        state: { listingTitle: listing.title } 
-      });
-    } catch (err) {
-      console.error('Error deleting listing:', err);
-      alert(err.response?.data?.message || 'Failed to delete listing');
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirm(false);
+  const handleEditClick = () => {
+    navigate(`/listings/${listingId}/edit`);
   };
   const handleChatClick = () => {
+    const sellerName = seller
+      ? `${seller.first_name || ''} ${seller.last_name || ''}`.trim() || 'Seller'
+      : 'Seller';
     const chatContext = {
       currentUser: authUtils.getSessionUser(),
       otherUser: {
         id: listing.seller_id,
+        name: sellerName,
+        email: seller?.mun_email || seller?.email || '',
       },
       product: {
         productId: listing.id,
@@ -369,6 +365,16 @@ const ListingDetailPage = () => {
                   SOLD
                 </div>
               )}
+              {listing.status === 'PENDING' && (
+                <div className="absolute top-4 left-4 bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-bold">
+                  PENDING
+                </div>
+              )}
+              {listing.status === 'ACTIVE' && (
+                <div className="absolute top-4 left-4 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold">
+                  ACTIVE
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Images */}
@@ -423,6 +429,52 @@ const ListingDetailPage = () => {
                   )}
                 </div>
 
+            {/* Seller Section */}
+            {seller && (
+              <div className="border-t pt-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Seller Information</h2>
+                <div 
+                  onClick={handleSellerClick}
+                  className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-mun-red hover:shadow-md transition-all cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSellerClick(e);
+                    }
+                  }}
+                >
+                  <div className="flex-shrink-0 pointer-events-none">
+                    <ProfilePicture 
+                      src={seller.profile_picture_url}
+                      size="large"
+                    />
+                  </div>
+                  <div className="flex-1 pointer-events-none">
+                    <div className="font-semibold text-gray-900">
+                      {seller.first_name} {seller.last_name}
+                    </div>
+                    {sellerProfile && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <StarRating 
+                          rating={parseFloat(sellerProfile.rating || 0)} 
+                          size="sm"
+                        />
+                        <span className="text-sm text-gray-600">
+                          ({sellerProfile.total_ratings || 0} reviews)
+                        </span>
+                      </div>
+                    )}
+                    {sellerProfile?.location && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        📍 {sellerProfile.location}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-mun-red pointer-events-none">→</div>
+                </div>
+
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -467,6 +519,7 @@ const ListingDetailPage = () => {
                     )}
                   </div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -773,7 +826,6 @@ const ListingDetailPage = () => {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -782,4 +834,3 @@ const ListingDetailPage = () => {
 };
 
 export default ListingDetailPage;
-

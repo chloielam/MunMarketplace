@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Brackets } from 'typeorm';
+import { Repository, Brackets, In } from 'typeorm';
 import { Listing, ListingStatus } from './entities/listing.entity';
 import { QueryListingDto } from './dto/query-listing.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
@@ -103,7 +103,7 @@ export class ListingService {
 
   async findOne(listingId: string) {
     const listing = await this.repo.findOne({
-      where: { id: listingId, status: ListingStatus.ACTIVE },
+      where: { id: listingId, status: In([ListingStatus.ACTIVE, ListingStatus.PENDING, ListingStatus.SOLD]) },
     });
     if (!listing || listing.deletedAt) {
       throw new NotFoundException('Listing not found');

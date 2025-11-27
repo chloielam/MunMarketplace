@@ -14,6 +14,7 @@ import ListingDetailPage from './pages/ListingDetailPage.jsx';
 import ListingDeletedPage from './pages/ListingDeletedPage.jsx';
 import ListingCreatedPage from './pages/ListingCreatedPage.jsx';
 import SellerRatingHistoryPage from './pages/SellerRatingHistoryPage.jsx';
+import EditListingPage from './pages/EditListingPage.jsx';
 import Items from './components/Items.jsx';
 import { authUtils } from './services/auth';
 import ChatPage from './pages/ChatPage';
@@ -92,6 +93,18 @@ function App() {
               <>
                 <Header />
                 <CreateListingPage />
+                <Footer />
+              </>
+            }
+          />
+
+          {/* Edit Listing route */}
+          <Route 
+            path="/listings/:listingId/edit" 
+            element={
+              <>
+                <Header />
+                <EditListingPage />
                 <Footer />
               </>
             } 

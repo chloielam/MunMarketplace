@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import { FaUserCircle, FaTimes, FaCommentDots, FaStore, FaSpinner } from 'react-icons/fa';
 import api from "../services/api";
 import { getUserListings } from '../services/items';
-import { authUtils } from '../services/auth';
+import { authService, authUtils } from '../services/auth';
 import { API_BASE_URL, SOCKET_URL } from "../config";
 
 // Avatar Fallback Component
@@ -41,7 +41,7 @@ function ChatPage() {
 
     // Conversation List states
     const [allConversations, setAllConversations] = useState([]);
-    const [viewMode, setViewMode] = useState(initialChatContext ? 'Buyer' : 'Seller');
+    const [viewMode, setViewMode] = useState(initialChatContext ? 'Buyer' : 'All');
 
     // Loading states
     const [isLoadingConvo, setIsLoadingConvo] = useState(false);
@@ -67,18 +67,29 @@ function ChatPage() {
     // --- API Functions ---
 
     // 1. Fetch User Details (Mocking /api/users/:userId endpoint)
+    const normalizeIds = useCallback((input) => {
+        if (!input) return [];
+        if (Array.isArray(input)) return input.filter(Boolean).map(String);
+        if (typeof input === 'string') return input.split(',').map(s => s.trim()).filter(Boolean);
+        return [];
+    }, []);
+
+    const participantsIncludeBoth = useCallback((participants, idA, idB) => {
+        const set = new Set(normalizeIds(participants));
+        return set.has(idA) && set.has(idB);
+    }, [normalizeIds]);
+
     const fetchUserDetails = useCallback(async (userId) => {
         if (!userId) return null;
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${userId}`);
-            if (!response.ok) return null;
-            const userData = await response.json();
-
+            const userData = await authService.getUser(userId);
+            const id = userData.user_id || userData.id || userId;
+            const name = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
             return {
-                id: userData.user_id,
-                name: `${userData.first_name} ${userData.last_name || ''}`.trim() || `User ${userData.user_id.slice(0, 8)}`,
-                email: userData.mun_email,
-                avatar: userData.profilePictureUrl || null
+                id,
+                name: name || `User ${String(id).slice(0, 8)}`,
+                email: userData.mun_email || userData.email || '',
+                avatar: userData.profile_picture_url || userData.profilePictureUrl || null
             };
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -122,14 +133,18 @@ function ChatPage() {
         setIsLoadingList(true);
 
         try {
-            console.log(currentUserId, "currentUserId===")
             // API Call: GET /chat/users/:userId/conversations
             const allConvosRes = await fetch(`${API_BASE_URL}/chat/users/${currentUserId}/conversations`);
 
             if (!allConvosRes.ok) throw new Error("Failed to fetch all conversations.");
             const rawConvos = await allConvosRes.json();
 
-            const listingsData = await getUserListings();
+            let listingsData = [];
+            try {
+                listingsData = await getUserListings();
+            } catch (err) {
+                console.warn('Could not load user listings for chat context; continuing with fallback data.', err);
+            }
 
             const ownedListingIds = new Set(listingsData.map(l => l.id));
             const listingDetailsMap = new Map(listingsData.map(l => [l.id, l]));
@@ -137,10 +152,15 @@ function ChatPage() {
             let finalConversations = [];
 
             for (const convo of rawConvos) {
+                const participants = normalizeIds(convo.participantIds);
+                const otherUserId = participants.find(id => id && id !== currentUserId)
+                    || participants.find(Boolean)
+                    || convo.otherUser?.id;
+
                 let role = 'Buyer';
                 let productDetails = {
-                    id: null,
-                    title: 'General Chat',
+                    id: convo.listingId || null,
+                    title: convo.listingId ? 'Listing' : 'General Chat',
                     price: null,
                     status: 'ACTIVE',
                 };
@@ -157,19 +177,23 @@ function ChatPage() {
                     }
                 }
 
-                const otherUserId = convo.participantIds.find(id => id !== currentUserId);
-                const otherUserDetails = await fetchUserDetails(otherUserId);
+                const otherUserDetails = otherUserId ? await fetchUserDetails(otherUserId) : null;
 
-                if (!otherUserDetails) {
-                    console.warn(`Skipping conversation ${convo.id}: Could not fetch other user details.`);
-                    continue;
-                }
+                const otherUser = otherUserDetails
+                    || (initialChatContext?.otherUser && initialChatContext.otherUser.id === otherUserId ? initialChatContext.otherUser : null)
+                    || {
+                        id: otherUserId || 'unknown',
+                        name: otherUserId ? `User ${String(otherUserId).slice(0, 8)}` : 'Marketplace User',
+                        email: '',
+                        avatar: null,
+                    };
 
                 finalConversations.push({
                     id: convo.id,
                     listingId: convo.listingId,
+                    participantIds: participants,
                     product: productDetails,
-                    otherUser: otherUserDetails,
+                    otherUser,
                     lastMessage: convo.lastMessage || 'Start a new chat!',
                     lastMessageAt: convo.lastMessageAt ? new Date(convo.lastMessageAt) : new Date(convo.createdAt),
                     role: role // 'Buyer' or 'Seller'
@@ -191,14 +215,18 @@ function ChatPage() {
 
             setAllConversations(uniqueConversations);
 
+            return uniqueConversations;
+
             // setAllConversations(finalConversations);
 
         } catch (error) {
             console.error('Error fetching conversations list:', error);
+            setAllConversations([]);
+            return [];
         } finally {
             setIsLoadingList(false);
         }
-    }, [currentUserId, fetchUserDetails, fetchProductDetails]);
+    }, [currentUserId, fetchUserDetails, fetchProductDetails, normalizeIds]);
 
     // 4. Handle Conversation Selection
     const handleConvoClick = useCallback(async (convo) => {
@@ -246,12 +274,17 @@ function ChatPage() {
         if (!currentUserId || !targetListingId || !sellerId) return null;
 
         // Check if conversation already exists in our fetched list
-        const existingConvo = allConversations.find(c =>
-            c.listingId === targetListingId && c.otherUser.id === sellerId
-        );
+        const existingConvo = allConversations.find(c => c.listingId === targetListingId && participantsIncludeBoth(c.participantIds || [c.otherUser?.id, currentUserId], currentUserId, sellerId));
 
         if (existingConvo) {
             return existingConvo;
+        }
+
+        // Double-check by fetching fresh conversations in case state is stale
+        const freshConvos = await fetchAllConversations();
+        const existingFresh = freshConvos?.find(c => c.listingId === targetListingId && participantsIncludeBoth(c.participantIds || [c.otherUser?.id, currentUserId], currentUserId, sellerId));
+        if (existingFresh) {
+            return existingFresh;
         }
 
         setIsLoadingConvo(true);
@@ -270,6 +303,17 @@ function ChatPage() {
             if (!response.ok) throw new Error("Failed to create new conversation.");
 
             const newConvoData = await response.json();
+            const normalizedParticipants = normalizeIds(newConvoData.participantIds || [currentUserId, sellerId]);
+
+            const existingById = allConversations.find(c => c.id === newConvoData.id);
+            if (existingById) {
+                return existingById;
+            }
+
+            const existingByParticipants = allConversations.find(c => c.listingId === targetListingId && participantsIncludeBoth(c.participantIds || [c.otherUser?.id, currentUserId], currentUserId, sellerId));
+            if (existingByParticipants) {
+                return existingByParticipants;
+            }
 
             // Populate full context for the new conversation object
             const sellerDetails = await fetchUserDetails(sellerId);
@@ -278,15 +322,20 @@ function ChatPage() {
             const newConvo = {
                 id: newConvoData.id,
                 listingId: targetListingId,
+                participantIds: normalizedParticipants,
                 product: productDetails,
-                otherUser: sellerDetails,
+                otherUser: sellerDetails || initialChatContext?.otherUser || { id: sellerId, name: 'Marketplace User', email: '', avatar: null },
                 lastMessage: 'New chat started.',
                 lastMessageAt: new Date(),
                 role: 'Buyer'
             };
 
-            // Add new conversation to the list and return it
-            // setAllConversations(prev => [newConvo, ...prev]);
+            // Add new conversation to the list (ensure uniqueness by id or listing+participants)
+            setAllConversations(prev => {
+                const already = prev.find(c => c.id === newConvo.id || (c.listingId === targetListingId && participantsIncludeBoth(c.participantIds || [c.otherUser?.id, currentUserId], currentUserId, sellerId)));
+                if (already) return prev;
+                return [newConvo, ...prev];
+            });
             return newConvo;
 
         } catch (error) {
@@ -295,7 +344,7 @@ function ChatPage() {
         } finally {
             setIsLoadingConvo(false);
         }
-    }, [currentUserId, allConversations, fetchUserDetails, fetchProductDetails]);
+    }, [currentUserId, allConversations, fetchUserDetails, fetchProductDetails, participantsIncludeBoth, fetchAllConversations, normalizeIds, initialChatContext]);
 
     // --- Effects ---
 
@@ -428,19 +477,21 @@ function ChatPage() {
         setInputMessage(''); // Clear input immediately
 
         try {
-            console.log({
-                conversationId,
-                senderId: currentUserId,
-                content: messageContent,
-                userId: currentUserId,
-                listingId: initialProductTemp.id
-            }, "send in BE")
-           
+            const otherParticipantId = activeConvo.otherUser?.id
+                || initialChatContext?.otherUser?.id
+                || initialProductTemp.seller_id
+                || initialProductTemp.otherUser?.id;
+
+            // Use the other participant ID when available so participantIds stay accurate
+            const participantB = otherParticipantId && otherParticipantId !== currentUserId
+                ? otherParticipantId
+                : initialProductTemp.seller_id;
+
             socketRef.current.emit('sendMessage', {
                 conversationId,
                 senderId: currentUserId,
                 content: messageContent,
-                sellerId: initialProductTemp.seller_id,
+                sellerId: participantB,
                 listingId: initialProductTemp.id
             });
 
@@ -469,7 +520,16 @@ function ChatPage() {
         }
     };
 
-    const filteredConvos = allConversations.filter(convo => convo.role === viewMode);
+    const filteredConvos = allConversations
+        .map(convo => ({
+            ...convo,
+            otherUser: convo.otherUser || { id: 'unknown', name: 'Marketplace User', email: '', avatar: null },
+            product: convo.product || {},
+        }))
+        .filter(convo => {
+            if (viewMode === 'All') return true;
+            return convo.role === viewMode;
+        });
 
     if (!currentUser) {
         return (
@@ -501,8 +561,15 @@ function ChatPage() {
                     {/* View Mode Tabs */}
                     <div className="flex w-full text-sm font-semibold">
                         <button
+                            onClick={() => setViewMode('All')}
+                            className={`flex-1 p-2 transition-colors flex items-center justify-center space-x-2 ${viewMode === 'All' ? 'bg-white text-red-700 rounded-tl-md' : 'bg-red-800 hover:bg-red-900 text-white'}`}
+                        >
+                            <FaCommentDots className="text-lg" />
+                            <span>All</span>
+                        </button>
+                        <button
                             onClick={() => setViewMode('Buyer')}
-                            className={`flex-1 p-2 transition-colors flex items-center justify-center space-x-2 ${viewMode === 'Buyer' ? 'bg-white text-red-700 rounded-tl-md' : 'bg-red-800 hover:bg-red-900 text-white'}`}
+                            className={`flex-1 p-2 transition-colors flex items-center justify-center space-x-2 ${viewMode === 'Buyer' ? 'bg-white text-red-700' : 'bg-red-800 hover:bg-red-900 text-white'}`}
                         >
                             <FaCommentDots className="text-lg" />
                             <span>Buying</span>
@@ -536,10 +603,10 @@ function ChatPage() {
                                     ${activeConvo.id === convo.id ? 'bg-blue-50 border-l-4 border-blue-600' : 'hover:bg-gray-100'}`}
                             >
                                 <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
-                                    {renderAvatar(convo.otherUser.avatar)}
+                                    {renderAvatar(convo.otherUser?.avatar)}
                                 </div>
                                 <div className="flex flex-col overflow-hidden flex-1">
-                                    <strong className="text-sm font-semibold text-gray-800 truncate">{convo.otherUser.name}</strong>
+                                    <strong className="text-sm font-semibold text-gray-800 truncate">{convo.otherUser?.name || 'Marketplace User'}</strong>
                                     <span className="text-xs text-gray-500 truncate">Re: {convo.product.title || 'General Chat'}</span>
                                     <span className="text-xs text-gray-400 truncate">{convo.lastMessage}</span>
                                 </div>
@@ -556,14 +623,14 @@ function ChatPage() {
                 <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-white shadow-sm">
                     <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 border border-gray-300 overflow-hidden">
-                            {renderAvatar(activeConvo.otherUser.avatar)}
+                            {renderAvatar(activeConvo.otherUser?.avatar)}
                         </div>
                         <div>
                             <p className="font-bold text-lg text-gray-800">
-                                {activeConvo.otherUser.name}
+                                {activeConvo.otherUser?.name || 'Marketplace User'}
                             </p>
                             <p className={`text-xs text-mun-red font-semibold`}>
-                                {activeConvo.otherUser.email}
+                                {activeConvo.otherUser?.email || ''}
                             </p>
                         </div>
                     </div>
@@ -578,7 +645,11 @@ function ChatPage() {
                 {/* Product Context Bar */}
                 {activeConvo.product.id && activeConvo.product.title && (
                     <div className="p-4 bg-white border-b border-gray-300 flex justify-center">
-                        <div className="w-full max-w-md border-2 border-gray-200 rounded-lg shadow-xl p-3 bg-gray-50">
+                        <button
+                            type="button"
+                            onClick={() => navigate(`/listings/${activeConvo.product.id}`)}
+                            className="w-full max-w-md text-left border-2 border-gray-200 rounded-lg shadow-xl p-3 bg-gray-50 hover:border-mun-red transition-colors"
+                        >
                             <img
                                 src={activeConvo.product.imageUrls?.[0] || "https://via.placeholder.com/400x200?text=No+Image"}
                                 alt={activeConvo.product.title || 'Product'}
@@ -592,7 +663,7 @@ function ChatPage() {
                                 <span>Status: <span className={`font-bold ${activeConvo.product.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>{activeConvo.product.status || 'N/A'}</span></span>
                                 <span>Campus: <span className="font-bold">{activeConvo.product.campus || 'N/A'}</span></span>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 )}
 
