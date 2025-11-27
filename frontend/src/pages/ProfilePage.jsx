@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
-import { getUserListings, deleteListing } from '../services/items';
+import { getUserListings, deleteListing, getListingById } from '../services/items';
+import api from '../services/api';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
 
@@ -10,6 +11,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
+  const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -60,6 +62,30 @@ const ProfilePage = () => {
         setUser(userData);
         setProfile(profileData);
         setListings(listingsData || []);
+
+        // Fetch purchases by inspecting chat conversations and pulling sold listings for this user
+        try {
+          const convoRes = await api.get(`/chat/users/${userId}/conversations`);
+          const listingIds = Array.from(new Set((convoRes.data || [])
+            .map(c => c.listingId)
+            .filter(Boolean)));
+
+          const purchased = [];
+          for (const lid of listingIds) {
+            try {
+              const listing = await getListingById(lid);
+              if (listing.sold_to_user_id === userId) {
+                purchased.push(listing);
+              }
+            } catch (err) {
+              // Ignore listings we cannot load (may be deleted or inaccessible)
+              console.warn('Unable to load listing for purchases', lid, err?.response?.data || err?.message);
+            }
+          }
+          setPurchases(purchased);
+        } catch (err) {
+          console.warn('Could not load purchase history', err?.response?.data || err?.message);
+        }
         
         // Initialize edit form with current data
         setEditForm({
@@ -303,6 +329,7 @@ const ProfilePage = () => {
 
   const activeListings = listings.filter(l => l.status === 'ACTIVE');
   const totalListings = listings.length;
+  const totalPurchases = purchases.length;
 
   if (loading) {
     return (
@@ -453,7 +480,7 @@ const ProfilePage = () => {
                     <div className="text-sm text-gray-600">Active</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-mun-red">0</div>
+                    <div className="text-2xl font-bold text-mun-red">{totalPurchases}</div>
                     <div className="text-sm text-gray-600">Purchases</div>
                   </div>
                   <div className="text-center">
@@ -470,7 +497,7 @@ const ProfilePage = () => {
                     <div className="text-sm text-gray-600">Items Sold</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-mun-red">0</div>
+                    <div className="text-2xl font-bold text-mun-red">{totalPurchases}</div>
                     <div className="text-sm text-gray-600">Purchases</div>
                   </div>
                   <div className="text-center">

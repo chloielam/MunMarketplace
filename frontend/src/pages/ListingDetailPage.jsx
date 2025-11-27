@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getListingById, deleteListing } from '../services/items';
+import { getListingById, getMyListingById } from '../services/items';
 import { authService, authUtils } from '../services/auth';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
@@ -15,8 +15,6 @@ const ListingDetailPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const fetchListingData = async () => {
@@ -28,7 +26,16 @@ const ListingDetailPage = () => {
         const userId = sessionUser?.id || authUtils.getUserId();
         setCurrentUserId(userId);
 
-        const listingData = await getListingById(listingId);
+        let listingData = null;
+        try {
+          listingData = await getListingById(listingId);
+        } catch (err) {
+          if (err.response?.status === 404 && userId) {
+            listingData = await getMyListingById(listingId);
+          } else {
+            throw err;
+          }
+        }
         setListing(listingData);
 
         // Fetch seller information
@@ -69,38 +76,25 @@ const ListingDetailPage = () => {
   };
 
   const handleSellerClick = () => {
-    if (seller?.id) {
-      navigate(`/users/${seller.id}`);
+    const sellerId = seller?.id || seller?.user_id;
+    if (sellerId) {
+      navigate(`/users/${sellerId}`);
     }
   };
 
-  const handleDeleteClick = () => {
-    setShowDeleteConfirm(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    try {
-      setIsDeleting(true);
-      await deleteListing(listingId);
-      navigate('/listing-deleted', { 
-        state: { listingTitle: listing.title } 
-      });
-    } catch (err) {
-      console.error('Error deleting listing:', err);
-      alert(err.response?.data?.message || 'Failed to delete listing');
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirm(false);
+  const handleEditClick = () => {
+    navigate(`/listings/${listingId}/edit`);
   };
   const handleChatClick = () => {
+    const sellerName = seller
+      ? `${seller.first_name || ''} ${seller.last_name || ''}`.trim() || 'Seller'
+      : 'Seller';
     const chatContext = {
       currentUser: authUtils.getSessionUser(),
       otherUser: {
         id: listing.seller_id,
+        name: sellerName,
+        email: seller?.mun_email || seller?.email || '',
       },
       product: {
         productId: listing.id,
@@ -167,6 +161,16 @@ const ListingDetailPage = () => {
               {listing.status === 'SOLD' && (
                 <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold">
                   SOLD
+                </div>
+              )}
+              {listing.status === 'PENDING' && (
+                <div className="absolute top-4 left-4 bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-bold">
+                  PENDING
+                </div>
+              )}
+              {listing.status === 'ACTIVE' && (
+                <div className="absolute top-4 left-4 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold">
+                  ACTIVE
                 </div>
               )}
             </div>
@@ -237,7 +241,9 @@ const ListingDetailPage = () => {
                 </div>
                 <div>
                   <span className="text-gray-500">Status:</span>
-                  <span className="ml-2 font-medium capitalize">{listing.status}</span>
+                  <span className={`ml-2 font-medium capitalize ${listing.status === 'SOLD' ? 'text-red-600' : listing.status === 'PENDING' ? 'text-yellow-600' : 'text-green-700'}`}>
+                    {listing.status}
+                  </span>
                 </div>
               </div>
             </div>
@@ -285,25 +291,19 @@ const ListingDetailPage = () => {
             <div className="flex gap-4 pt-4">
               {isOwner && (
                 <button
-                  onClick={handleDeleteClick}
-                  disabled={isDeleting}
-                  className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleEditClick}
+                  className="px-6 py-3 bg-mun-red text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete Listing'}
+                  Edit Listing
                 </button>
               )}
               {!isOwner && (
                 <button
                   onClick={handleChatClick}
-                  disabled={listing.status === 'SOLD'}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition flex items-center justify-center ${
-                    listing.status === 'SOLD'
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-mun-red hover:bg-red-600 text-white shadow-sm'
-                  }`}
+                  className="flex-1 py-3 px-4 rounded-lg font-medium transition flex items-center justify-center bg-mun-red hover:bg-red-600 text-white shadow-sm"
                 >
                   <span className="mr-2">💬</span>
-                  {listing.status === 'SOLD' ? 'Item Sold' : 'Chat with Seller'}
+                  Chat with Seller
                 </button>
               )}
               <button
@@ -313,33 +313,6 @@ const ListingDetailPage = () => {
                 Browse More Listings
               </button>
             </div>
-
-            {/* Delete Confirmation Modal */}
-            {showDeleteConfirm && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Delete Listing</h3>
-                  <p className="text-gray-700 mb-6">
-                    Are you sure you want to delete "{listing.title}"? This action cannot be undone.
-                  </p>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleDeleteCancel}
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleDeleteConfirm}
-                      disabled={isDeleting}
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isDeleting ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -348,4 +321,3 @@ const ListingDetailPage = () => {
 };
 
 export default ListingDetailPage;
-
