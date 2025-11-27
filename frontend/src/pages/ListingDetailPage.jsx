@@ -15,7 +15,6 @@ const ListingDetailPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
-<<<<<<< HEAD
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -131,9 +130,29 @@ const ListingDetailPage = () => {
     }
   };
 
-  const handleEditClick = () => {
-    navigate(`/listings/${listingId}/edit`);
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
   };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteListing(listingId);
+      navigate('/listing-deleted', { 
+        state: { listingTitle: listing.title } 
+      });
+    } catch (err) {
+      console.error('Error deleting listing:', err);
+      alert(err.response?.data?.message || 'Failed to delete listing');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
   const handleChatClick = () => {
     const sellerName = seller
       ? `${seller.first_name || ''} ${seller.last_name || ''}`.trim() || 'Seller'
@@ -152,7 +171,6 @@ const ListingDetailPage = () => {
     };
     navigate('/chat', { state: { chatContext } });
   };
-
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -429,52 +447,6 @@ const ListingDetailPage = () => {
                   )}
                 </div>
 
-            {/* Seller Section */}
-            {seller && (
-              <div className="border-t pt-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Seller Information</h2>
-                <div 
-                  onClick={handleSellerClick}
-                  className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-mun-red hover:shadow-md transition-all cursor-pointer"
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleSellerClick(e);
-                    }
-                  }}
-                >
-                  <div className="flex-shrink-0 pointer-events-none">
-                    <ProfilePicture 
-                      src={seller.profile_picture_url}
-                      size="large"
-                    />
-                  </div>
-                  <div className="flex-1 pointer-events-none">
-                    <div className="font-semibold text-gray-900">
-                      {seller.first_name} {seller.last_name}
-                    </div>
-                    {sellerProfile && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <StarRating 
-                          rating={parseFloat(sellerProfile.rating || 0)} 
-                          size="sm"
-                        />
-                        <span className="text-sm text-gray-600">
-                          ({sellerProfile.total_ratings || 0} reviews)
-                        </span>
-                      </div>
-                    )}
-                    {sellerProfile?.location && (
-                      <div className="text-sm text-gray-500 mt-1">
-                        📍 {sellerProfile.location}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-mun-red pointer-events-none">→</div>
-                </div>
-
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -519,8 +491,6 @@ const ListingDetailPage = () => {
                     )}
                   </div>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Currency

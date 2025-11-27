@@ -3,8 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ListingDetailPage from '../ListingDetailPage';
-import { getListingById, deleteListing, updateListing } from '../../services/items';
+import * as itemsService from '../../services/items';
 import { authService, authUtils } from '../../services/auth';
+
+const { getListingById, getMyListingById, deleteListing, updateListing } = itemsService;
 
 // Mock useNavigate
 const mockNavigate = jest.fn();
@@ -17,6 +19,7 @@ jest.mock('react-router-dom', () => ({
 // Mock services
 jest.mock('../../services/items', () => ({
   getListingById: jest.fn(),
+  getMyListingById: jest.fn(),
   deleteListing: jest.fn(),
   updateListing: jest.fn(),
 }));
@@ -59,6 +62,7 @@ describe('ListingDetailPage', () => {
     jest.clearAllMocks();
     mockNavigate.mockClear();
     getListingById.mockResolvedValue(mockListing);
+    getMyListingById.mockResolvedValue(mockListing);
     authService.getUser.mockResolvedValue(mockSeller);
     authService.getUserProfile.mockResolvedValue({ rating: '4.5', total_ratings: 10 });
     authUtils.refreshSession.mockResolvedValue({ id: 'user123' });
