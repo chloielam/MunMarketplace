@@ -28,7 +28,8 @@ const mockItems = [
     campus: 'St. John\'s',
     createdAt: '2024-01-01T00:00:00Z',
     imageUrls: ['https://example.com/image1.jpg'],
-    status: 'AVAILABLE'
+    status: 'ACTIVE',
+    seller_id: 'seller-123'
   },
   {
     id: 2,
@@ -40,7 +41,8 @@ const mockItems = [
     campus: 'St. John\'s',
     createdAt: '2024-01-02T00:00:00Z',
     imageUrls: ['https://example.com/image2.jpg'],
-    status: 'SOLD'
+    status: 'ACTIVE',
+    seller_id: 'seller-456'
   }
 ];
 
@@ -482,16 +484,54 @@ describe('Items', () => {
     });
   });
 
-  test('shows SOLD badge for sold items', async () => {
+  test('filters out SOLD items from display', async () => {
+    // SOLD items should be filtered out by filterVisibleItems
+    // Only ACTIVE items should be displayed
+    const mixedItems = [
+      {
+        id: 1,
+        title: 'Test Item 1',
+        price: '50',
+        currency: 'CAD',
+        category: 'Textbooks',
+        city: 'St. John\'s',
+        campus: 'St. John\'s',
+        createdAt: '2024-01-01T00:00:00Z',
+        imageUrls: ['https://example.com/image1.jpg'],
+        status: 'ACTIVE',
+        seller_id: 'seller-123'
+      },
+      {
+        id: 2,
+        title: 'Test Item 2',
+        price: '100',
+        currency: 'CAD',
+        category: 'Electronics',
+        city: 'St. John\'s',
+        campus: 'St. John\'s',
+        createdAt: '2024-01-02T00:00:00Z',
+        imageUrls: ['https://example.com/image2.jpg'],
+        status: 'SOLD',
+        seller_id: 'seller-456'
+      }
+    ];
+    
+    getItems.mockResolvedValue(mixedItems);
+    
     render(
       <BrowserRouter>
         <Items />
       </BrowserRouter>
     );
     
+    // Only ACTIVE items should be displayed, SOLD items should be filtered out
     await waitFor(() => {
-      expect(screen.getByText('SOLD')).toBeInTheDocument();
+      expect(screen.getByText('Test Item 1')).toBeInTheDocument();
+      expect(screen.queryByText('Test Item 2')).not.toBeInTheDocument();
     });
+    
+    // Verify that SOLD badge is not displayed (SOLD items are filtered out)
+    expect(screen.queryByText('SOLD')).not.toBeInTheDocument();
   });
 
   test('displays "No listings found" when filtered results are empty', async () => {

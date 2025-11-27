@@ -23,7 +23,8 @@ describe('MainPage', () => {
         campus: 'St. John\'s',
         createdAt: '2024-01-01T00:00:00Z',
         imageUrls: ['https://example.com/image1.jpg'],
-        status: 'AVAILABLE'
+        status: 'ACTIVE',
+        seller_id: 'seller-123'
       }
     ]);
     authUtils.getSessionUser.mockReturnValue(null);
