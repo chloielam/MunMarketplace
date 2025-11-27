@@ -45,7 +45,9 @@ export async function getMyListingById(listingId) {
   return response.data;
 }
 
-// Update a listing you own
+// Update a listing
+// Backend endpoint: PATCH /api/me/listings/:listingId
+// Only the listing owner can update their own listing
 export async function updateListing(listingId, listingData) {
   const response = await api.patch(`/me/listings/${listingId}`, listingData);
   return response.data;
@@ -56,7 +58,6 @@ export async function markListingSold(listingId, buyerId) {
   const response = await api.patch(`/me/listings/${listingId}/sold`, { buyerId });
   return response.data;
 }
-
 // Delete a listing
 // Backend endpoint: DELETE /api/me/listings/:listingId
 // Only the listing owner can delete their own listing
