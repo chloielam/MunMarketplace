@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant Seller as Seller UI
+  participant Buyer as Buyer UI
+  participant BE as API/WS
+  participant DB as DB
+  Buyer->>BE: POST /api/chat/conversations {userId1=buyer,userId2=seller,listingId}
+  BE->>DB: find/create Conversation
+  Buyer->>BE: WS sendMessage(conversationId,...)
+  BE->>DB: save Message, update Conversation.lastMessage
+  BE-->>Buyer: WS newMessage broadcast
+  Seller->>BE: PATCH /api/me/listings/:id/sold {buyerId}
+  BE->>DB: update Listing.status=SOLD, sold_to_user_id=buyer
+  Buyer->>BE: POST /api/users/:sellerId/ratings {listingId,rating,review}
+  BE->>DB: upsert SellerRating + refresh profile aggregates
+  BE-->>Buyer: rating receipt

@@ -1,0 +1,78 @@
+classDiagram
+  direction LR
+  class User {
+    uuid user_id
+    mun_email
+    first_name
+    last_name
+    password_hash
+  }
+  class UserProfile {
+    bio
+    city
+    campus
+    avatar_url
+    rating
+    total_ratings
+  }
+  class Listing {
+    uuid id
+    title
+    description
+    price
+    currency
+    category
+    city
+    campus
+    imageUrls[]
+    status( ACTIVE|PENDING|SOLD|HIDDEN )
+    seller_id
+    sold_to_user_id
+    soldAt
+  }
+  class Conversation {
+    uuid id
+    participantIds[]
+    listingId
+    lastMessage
+    lastMessageAt
+  }
+  class Message {
+    uuid id
+    conversationId
+    senderId
+    content
+    createdAt
+  }
+  class SellerRating {
+    uuid id
+    seller_id
+    buyer_id
+    listing_id
+    rating
+    review
+  }
+  class Session {
+    id
+    json
+    expiredAt
+  }
+  class OtpCode {
+    id
+    mun_email
+    codeHash
+    expiresAt
+    used
+    attempts
+  }
+
+  User "1" --> "1" UserProfile : owns
+  User "1" --> "*" Listing : sells
+  User "1" --> "*" Message : sends
+  User "1" <-- "*" SellerRating : receives
+  Listing "*" --> "0..1" User : soldTo(sold_to_user_id)
+  Listing "1" --> "*" Conversation : discussedIn
+  Conversation "1" --> "*" Message : contains
+  SellerRating "*" --> "1" Listing : about
+  Session "*" --> "1" User : authenticates
+  OtpCode "*" --> "1" User : validatesEmail
