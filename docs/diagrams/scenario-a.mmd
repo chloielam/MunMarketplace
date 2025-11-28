@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant SellerFE as Seller UI
+  participant BE as API
+  participant DB as DB
+  SellerFE->>BE: POST /api/auth/login (gets session)
+  SellerFE->>BE: POST /api/me/listings {title, price, ...}
+  BE->>DB: insert Listing(seller_id)
+  BE-->>SellerFE: 201 Listing id
+  Note over BE,DB: Listing.status defaults to ACTIVE
+  BuyerFE->>BE: GET /api/listings?category=...
+  BE->>DB: filter + paginate
+  BE-->>BuyerFE: listings JSON + hasNext

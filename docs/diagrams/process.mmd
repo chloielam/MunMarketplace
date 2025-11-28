@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant U as User Browser
+  participant FE as Frontend (React)
+  participant BE as Backend (NestJS)
+  participant DB as DB (TypeORM -> MySQL/SQLite)
+  participant Mailer as MailerService (Gmail SMTP)
+
+  U->>FE: Enter MUN email for OTP
+  FE->>BE: POST /api/auth/send-otp
+  BE->>Mailer: sendOtp(email)
+  Mailer-->>BE: SMTP accepted
+
+  U->>FE: Submit OTP + password
+  FE->>BE: POST /api/auth/register or /api/auth/login
+  BE->>DB: validate user + write Session entity
+  BE-->>FE: 200 + session cookie (mun.sid)
+
+  FE->>BE: GET /api/listings?filters...
+  BE->>DB: query listings with pagination
+  BE-->>FE: paged listings JSON
+
+  U->>FE: Send chat message
+  FE->>BE: WS sendMessage(conversationId, senderId, content)
+  BE->>DB: persist Message, update Conversation.lastMessage
+  BE-->>FE: emit newMessage to room participants

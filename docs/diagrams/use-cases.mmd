@@ -1,0 +1,61 @@
+flowchart LR
+  %% A user can play buyer or seller roles; both inherit base auth/profile uses
+  classDef actor fill:#f6f6f6,stroke:#333,stroke-width:1px,font-weight:bold;
+  classDef usecase fill:#eef6ff,stroke:#4a6fa5,stroke-width:1px;
+
+  User([Authenticated MUN User]):::actor
+  Buyer([Buyer role]):::actor
+  Seller([Seller role]):::actor
+  MUNAuth([MUN Auth / IdP]):::actor
+
+  User -->|"plays role"| Buyer
+  User -->|"plays role"| Seller
+
+  subgraph System [MUN Marketplace]
+    Signup((Sign up / Register)):::usecase
+    Login((Login)):::usecase
+    Logout((Logout)):::usecase
+    ViewProfile((View profile)):::usecase
+
+    Browse((Browse listings)):::usecase
+    Search((Search listings)):::usecase
+    Filter((Filter listings price/category)):::usecase
+    ViewListing((View listing details)):::usecase
+
+    CreateListing((Create a listing)):::usecase
+    EditListing((Edit a listing)):::usecase
+    DeleteListing((Delete a listing)):::usecase
+
+    ChatInit((Initiate chat with seller)):::usecase
+    ChatSend((Send/receive messages)):::usecase
+    ChatHistory((View chat history)):::usecase
+
+    RateSeller((Rate a seller)):::usecase
+    ViewRatings((View seller ratings)):::usecase
+  end
+
+  User --> Signup
+  User --> Login
+  User --> Logout
+  User --> ViewProfile
+  MUNAuth --> Signup
+  MUNAuth --> Login
+
+  Buyer --> Browse
+  Buyer --> Search
+  Buyer --> Filter
+  Buyer --> ViewListing
+
+  Seller --> CreateListing
+  Seller --> EditListing
+  Seller --> DeleteListing
+
+  Buyer --> ChatInit
+  Buyer --> ChatSend
+  Buyer --> ChatHistory
+  Seller --> ChatSend
+  Seller --> ChatHistory
+
+  Buyer --> RateSeller
+  Buyer --> ViewRatings
+  Seller --> ViewRatings
