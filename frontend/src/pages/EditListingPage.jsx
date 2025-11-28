@@ -103,6 +103,9 @@ const EditListingPage = () => {
 
         const userId = sessionUser.id || sessionUser.user_id;
         const listing = await getMyListingById(listingId);
+        const normalizedStatus = ['ACTIVE', 'PENDING', 'SOLD'].includes(listing.status)
+          ? listing.status
+          : 'ACTIVE';
 
         setListingTitle(listing.title || 'Edit Listing');
         setFormData({
@@ -114,7 +117,7 @@ const EditListingPage = () => {
           city: listing.city || '',
           campus: listing.campus || '',
           imageUrls: Array.isArray(listing.imageUrls) && listing.imageUrls.length > 0 ? listing.imageUrls : [''],
-          status: listing.status || 'ACTIVE',
+          status: normalizedStatus,
           soldToUserId: listing.sold_to_user_id || ''
         });
 
@@ -203,6 +206,10 @@ const EditListingPage = () => {
       newErrors.soldToUserId = 'Select who bought the item';
     }
 
+    if (!['ACTIVE', 'PENDING', 'SOLD'].includes(formData.status)) {
+      newErrors.status = 'Invalid status';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -228,11 +235,13 @@ const EditListingPage = () => {
         city: formData.city.trim(),
         campus: formData.campus.trim(),
         imageUrls: imageUrls.length ? imageUrls : undefined,
-        status: formData.status === 'SOLD' ? 'ACTIVE' : formData.status
+        status: formData.status
       };
 
+      // First update all fields including desired status
       await updateListing(listingId, listingPayload);
 
+      // If marking as sold, ensure buyer link is set
       if (formData.status === 'SOLD') {
         await markListingSold(listingId, formData.soldToUserId.trim());
       }
