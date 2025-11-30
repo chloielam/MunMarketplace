@@ -98,6 +98,7 @@ describe('ProfilePage', () => {
     authUtils.getUserId.mockReturnValue('123');
     authService.getUser.mockResolvedValue(mockUser);
     authService.getUserProfile.mockResolvedValue(mockProfile);
+    authService.getSellerRatings.mockResolvedValue([]);
     getUserListings.mockResolvedValue(mockListings);
   });
 
@@ -164,7 +165,7 @@ describe('ProfilePage', () => {
       const statsNumbers = screen.getAllByText('2');
       expect(statsNumbers.length).toBeGreaterThan(0);
       expect(screen.getByText('Active')).toBeInTheDocument();
-      expect(screen.getByText('Purchases')).toBeInTheDocument();
+      expect(screen.getByText('Saved Items')).toBeInTheDocument();
       expect(screen.getByText('Rating')).toBeInTheDocument();
     });
 
@@ -178,14 +179,16 @@ describe('ProfilePage', () => {
       });
       
       expect(screen.getByText('Saved Items')).toBeInTheDocument();
-      expect(screen.getByText('Purchases')).toBeInTheDocument();
+      expect(screen.getByText('Rating')).toBeInTheDocument();
     });
 
     test('displays rating correctly', async () => {
       renderProfilePage();
       
       await waitFor(() => {
-        expect(screen.getByText('4.5')).toBeInTheDocument();
+        // Rating appears multiple times, so use getAllByText
+        const ratings = screen.getAllByText('4.5');
+        expect(ratings.length).toBeGreaterThan(0);
       });
     });
   });
@@ -353,17 +356,29 @@ describe('ProfilePage', () => {
     });
   });
 
-  describe('Purchase History Section', () => {
-    test('displays purchase history section', async () => {
+  describe('My Listings - Create Listing Button', () => {
+    test('shows Create Listing button when user has listings', async () => {
       renderProfilePage();
       
       await waitFor(() => {
-        expect(screen.getByText('Purchase History')).toBeInTheDocument();
+        const listingsTexts = screen.getAllByText('My Listings');
+        expect(listingsTexts.length).toBeGreaterThan(0);
       });
       
-      expect(screen.getByText('No purchases yet')).toBeInTheDocument();
-      expect(screen.getByText('Start shopping to see your purchase history here')).toBeInTheDocument();
-      expect(screen.getByText('Browse Items')).toBeInTheDocument();
+      // Create Listing button should be visible
+      const createButtons = screen.getAllByText('Create Listing');
+      expect(createButtons.length).toBeGreaterThan(0);
+    });
+
+    test('shows Create Listing button in empty state when user has no listings', async () => {
+      getUserListings.mockResolvedValue([]);
+      
+      renderProfilePage();
+      
+      await waitFor(() => {
+        const createButtons = screen.getAllByText('Create Listing');
+        expect(createButtons.length).toBeGreaterThan(0);
+      });
     });
   });
 
@@ -619,6 +634,148 @@ describe('ProfilePage', () => {
       await waitFor(() => {
         expect(screen.queryByPlaceholderText('Enter current password')).not.toBeInTheDocument();
         expect(screen.getAllByText('Change Password').length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Ratings Given by Buyers', () => {
+    const mockRatings = [
+      {
+        id: 'rating1',
+        rating: 5,
+        review: 'Great seller!',
+        createdAt: '2024-01-15T10:00:00Z',
+        buyer: {
+          first_name: 'Jane',
+          last_name: 'Smith',
+          profile_picture_url: 'https://example.com/jane.jpg',
+        },
+      },
+      {
+        id: 'rating2',
+        rating: 4,
+        review: 'Good experience',
+        createdAt: '2024-01-10T10:00:00Z',
+        buyer: {
+          first_name: 'Bob',
+          last_name: 'Johnson',
+        },
+      },
+    ];
+
+    test('shows ratings section when seller has ratings', async () => {
+      // mockProfile already has total_ratings: 10, so it should show
+      renderProfilePage();
+      
+      // Wait for profile to load first
+      await waitFor(() => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      });
+      
+      // Then wait for ratings section to appear
+      await waitFor(() => {
+        expect(screen.getByText(/Ratings Given by Buyers/)).toBeInTheDocument();
+      }, { timeout: 3000 });
+      expect(screen.getByText('Average Rating')).toBeInTheDocument();
+      expect(screen.getByText('View all ratings')).toBeInTheDocument();
+    });
+
+    test('does not show ratings section when seller has no ratings', async () => {
+      const profileNoRatings = { ...mockProfile, total_ratings: 0, rating: '0' };
+      authService.getUserProfile.mockResolvedValue(profileNoRatings);
+      
+      renderProfilePage();
+      
+      await waitFor(() => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      });
+      
+      expect(screen.queryByText('Ratings Given by Buyers')).not.toBeInTheDocument();
+    });
+
+    test('loads and displays ratings when View all ratings is clicked', async () => {
+      authService.getSellerRatings.mockResolvedValue(mockRatings);
+      
+      renderProfilePage();
+      
+      // Wait for profile and ratings section to load
+      await waitFor(() => {
+        expect(screen.getByText('View all ratings')).toBeInTheDocument();
+      }, { timeout: 3000 });
+      
+      const viewAllButton = screen.getByText('View all ratings');
+      fireEvent.click(viewAllButton);
+      
+      await waitFor(() => {
+        expect(authService.getSellerRatings).toHaveBeenCalled();
+      });
+      
+      // Wait for ratings to load and display
+      await waitFor(() => {
+        expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+        expect(screen.getByText('Bob Johnson')).toBeInTheDocument();
+      }, { timeout: 3000 });
+      
+      expect(screen.getByText('Great seller!')).toBeInTheDocument();
+      expect(screen.getByText('Good experience')).toBeInTheDocument();
+    });
+
+    test('hides ratings when Hide ratings is clicked', async () => {
+      authService.getSellerRatings.mockResolvedValue(mockRatings);
+      
+      renderProfilePage();
+      
+      await waitFor(() => {
+        expect(screen.getByText('View all ratings')).toBeInTheDocument();
+      });
+      
+      // Expand
+      fireEvent.click(screen.getByText('View all ratings'));
+      
+      await waitFor(() => {
+        expect(screen.getByText('Hide ratings')).toBeInTheDocument();
+      }, { timeout: 3000 });
+      
+      // Collapse
+      fireEvent.click(screen.getByText('Hide ratings'));
+      
+      await waitFor(() => {
+        expect(screen.getByText('View all ratings')).toBeInTheDocument();
+        expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
+      });
+    });
+
+    test('shows loading state when fetching ratings', async () => {
+      authService.getSellerRatings.mockImplementation(() => new Promise(() => {})); // Never resolves
+      
+      renderProfilePage();
+      
+      await waitFor(() => {
+        expect(screen.getByText('View all ratings')).toBeInTheDocument();
+      });
+      
+      const viewAllButton = screen.getByText('View all ratings');
+      fireEvent.click(viewAllButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Loading...')).toBeInTheDocument();
+      }, { timeout: 2000 });
+    });
+
+    test('handles error when fetching ratings fails', async () => {
+      const error = { response: { data: { message: 'Failed to load ratings' } } };
+      authService.getSellerRatings.mockRejectedValue(error);
+      
+      renderProfilePage();
+      
+      await waitFor(() => {
+        expect(screen.getByText('View all ratings')).toBeInTheDocument();
+      });
+      
+      fireEvent.click(screen.getByText('View all ratings'));
+      
+      await waitFor(() => {
+        expect(global.alert).toHaveBeenCalledWith('Failed to load ratings');
       });
     });
   });

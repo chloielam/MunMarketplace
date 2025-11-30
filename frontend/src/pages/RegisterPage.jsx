@@ -143,7 +143,13 @@ const RegisterPage = () => {
         const profileData = {};
         await authService.register(formData.email, formData.fullName, formData.password, profileData);
         
-        navigate("/login");
+        // Navigate to login with success state
+        navigate("/login", { 
+          state: { 
+            registrationSuccess: true,
+            message: 'Registration complete! Please login to view your account.'
+          } 
+        });
       } catch (err) {
         console.error(err);
         alert(err.response?.data?.message || err.message || "Registration failed");

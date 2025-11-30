@@ -11,9 +11,11 @@ const PublicProfilePage = () => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
+  const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [showAllRatings, setShowAllRatings] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +32,7 @@ const PublicProfilePage = () => {
         }
 
           // Fetch user and profile data
-        const [userData, profileData] = await Promise.all([
+        const [userData, profileData, ratingsData] = await Promise.all([
           authService.getUser(userId).catch(err => {
             console.error('Error fetching user:', err);
             throw err;
@@ -38,6 +40,10 @@ const PublicProfilePage = () => {
           authService.getUserProfile(userId).catch(err => {
             console.log('Profile not found:', err.message);
             return null;
+          }),
+          authService.getSellerRatings(userId).catch(err => {
+            console.log('Error fetching ratings:', err);
+            return [];
           })
         ]);
         
@@ -57,6 +63,7 @@ const PublicProfilePage = () => {
         setUser(userData);
         setProfile(profileData);
         setListings(listingsData);
+        setRatings(ratingsData || []);
       } catch (err) {
         console.error('Error fetching user data:', err);
         setError(err.response?.data?.message || 'Failed to load profile');
@@ -324,6 +331,99 @@ const PublicProfilePage = () => {
                 )}
               </div>
             )}
+
+            {/* Ratings Section */}
+            <div className="mt-8 border-t pt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Ratings & Reviews ({ratings.length})
+                </h3>
+                {ratings.length > 0 && (
+                  <button
+                    onClick={() => setShowAllRatings(!showAllRatings)}
+                    className="text-mun-red hover:text-red-700 font-medium text-sm"
+                  >
+                    {showAllRatings ? 'Hide ratings' : 'View all ratings'}
+                  </button>
+                )}
+              </div>
+              {ratings.length === 0 ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">No ratings yet</p>
+                </div>
+              ) : (
+                <>
+                  {/* Summary - Always visible */}
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <div className="text-2xl font-bold text-mun-red">
+                          {ratings.length > 0 
+                            ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+                            : '0.0'}
+                        </div>
+                        <div className="text-sm text-gray-600">Average Rating</div>
+                      </div>
+                      <div className="flex-1">
+                        <StarRating 
+                          rating={ratings.length > 0 
+                            ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+                            : 0} 
+                          totalRatings={ratings.length}
+                          size="md"
+                        />
+                        <p className="text-sm text-gray-600 mt-1">
+                          Based on {ratings.length} {ratings.length === 1 ? 'rating' : 'ratings'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detailed Ratings - Only visible when expanded */}
+                  {showAllRatings && (
+                    <div className="space-y-4">
+                      {ratings.map((rating) => {
+                        const buyerName = rating.buyer 
+                          ? `${rating.buyer.first_name || ''} ${rating.buyer.last_name || ''}`.trim() || 'Anonymous'
+                          : 'Anonymous';
+
+                        return (
+                          <div key={rating.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="flex-shrink-0">
+                                <ProfilePicture 
+                                  src={rating.buyer?.profile_picture_url}
+                                  size="small"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-medium text-gray-900 truncate">{buyerName}</span>
+                                  <span className="text-sm text-gray-500 ml-2 flex-shrink-0">
+                                    {formatDate(rating.createdAt)}
+                                  </span>
+                                </div>
+                                <div className="mb-2">
+                                  <StarRating 
+                                    rating={rating.rating} 
+                                    size="sm"
+                                    showCount={false}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {rating.review && (
+                              <p className="text-gray-700 whitespace-pre-wrap">{rating.review}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

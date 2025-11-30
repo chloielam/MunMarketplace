@@ -129,15 +129,6 @@ const Header = () => {
           </div>
           {/* Auth buttons */}
           <div className="flex items-center gap-4 flex-1 justify-end ml-8">
-            <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 flex-1 max-w-xl">
-              <button className="text-gray-600 hover:text-gray-800">🔍</button>
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="border-none bg-transparent outline-none flex-1 px-1 text-sm"
-              />
-              
-            </div>
             <button
               onClick={handleChatClick}
               className="flex items-center justify-center bg-mun-red text-white px-6 py-2 rounded-full font-medium hover:bg-red-00 transition-all duration-300"

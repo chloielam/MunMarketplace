@@ -1,7 +1,21 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleQuickLinkClick = (path) => {
+    navigate(path);
+    // Scroll to top when navigating
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategoryClick = (category) => {
+    navigate(`/items?category=${encodeURIComponent(category)}`);
+    // Scroll to top when navigating
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-gray-800 text-white mt-16">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-12 max-w-7xl mx-auto">
@@ -11,30 +25,100 @@ const Footer = () => {
             MUN Marketplace is the dedicated platform for Memorial University students to buy, sell, and connect safely within our community.
           </p>
           <div className="flex gap-4">
-            <a href="https://instagram.com" className="text-white text-2xl hover:text-mun-gold transition-colors duration-300">📷</a>
-            <a href="https://facebook.com" className="text-white text-2xl hover:text-mun-gold transition-colors duration-300">📘</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white text-2xl hover:text-mun-gold transition-colors duration-300">📷</a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white text-2xl hover:text-mun-gold transition-colors duration-300">📘</a>
           </div>
         </div>
         
         <div className="space-y-4">
           <h4 className="text-lg font-bold text-mun-gold">Quick Links</h4>
           <ul className="space-y-2">
-            <li><a href="#home" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Home</a></li>
-            <li><a href="#browse" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Browse</a></li>
-            <li><a href="#requests" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Requests</a></li>
-            <li><a href="#sell" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Sell Item</a></li>
-            <li><a href="#about" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">About</a></li>
+            <li>
+              <button 
+                onClick={() => handleQuickLinkClick('/home')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleQuickLinkClick('/items')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Browse
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleQuickLinkClick('/items')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Requests
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleQuickLinkClick('/create-listing')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Sell Item
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleQuickLinkClick('/home')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                About
+              </button>
+            </li>
           </ul>
         </div>
         
         <div className="space-y-4">
           <h4 className="text-lg font-bold text-mun-gold">Categories</h4>
           <ul className="space-y-2">
-            <li><a href="#textbooks" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Textbooks</a></li>
-            <li><a href="#electronics" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Electronics</a></li>
-            <li><a href="#housing" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Housing</a></li>
-            <li><a href="#furniture" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Furniture</a></li>
-            <li><a href="#transportation" className="text-gray-300 hover:text-white transition-colors duration-300 text-sm">Transportation</a></li>
+            <li>
+              <button 
+                onClick={() => handleCategoryClick('Textbooks')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Textbooks
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleCategoryClick('Electronics')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Electronics
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleCategoryClick('Housing')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Housing
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleCategoryClick('Furniture')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Furniture
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => handleCategoryClick('Transportation')} 
+                className="text-gray-300 hover:text-white transition-colors duration-300 text-sm cursor-pointer"
+              >
+                Transportation
+              </button>
+            </li>
           </ul>
         </div>
         

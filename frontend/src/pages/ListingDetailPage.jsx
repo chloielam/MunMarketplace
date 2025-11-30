@@ -227,7 +227,7 @@ const ListingDetailPage = () => {
     e.stopPropagation();
     const sellerId = seller?.user_id || seller?.id || listing?.seller_id;
     if (sellerId) {
-      navigate(`/sellers/${sellerId}/ratings`);
+      navigate(`/users/${sellerId}`);
     } else {
       console.error('Seller ID not found', { seller, listing });
     }

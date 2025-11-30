@@ -1,8 +1,25 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import RegisterPage from '../RegisterPage';
+import { authService } from '../../services/auth';
+
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+// Mock authService
+jest.mock('../../services/auth', () => ({
+  authService: {
+    sendOtp: jest.fn(),
+    verifyOtp: jest.fn(),
+    register: jest.fn(),
+  },
+}));
 
 describe('RegisterPage', () => {
   test('renders registration form', () => {
@@ -86,9 +103,78 @@ describe('RegisterPage', () => {
   });
 
   test('has navigation buttons', () => {
-    render(<RegisterPage />);
+    render(
+      <BrowserRouter>
+        <RegisterPage />
+      </BrowserRouter>
+    );
     
     expect(screen.getByText('← Back to Home')).toBeInTheDocument();
     expect(screen.getByText('SIGN IN')).toBeInTheDocument();
+  });
+
+  test('navigates to login with success state after successful registration', async () => {
+    authService.sendOtp.mockResolvedValue({});
+    authService.verifyOtp.mockResolvedValue({});
+    authService.register.mockResolvedValue({});
+
+    render(
+      <BrowserRouter>
+        <RegisterPage />
+      </BrowserRouter>
+    );
+
+    // Fill form
+    const fullNameInput = screen.getByPlaceholderText('Enter your full name');
+    const emailInput = screen.getByPlaceholderText('your.name@mun.ca');
+    const passwordInput = screen.getByPlaceholderText('Create a password');
+    const confirmPasswordInput = screen.getByPlaceholderText('Confirm your password');
+
+    fireEvent.change(fullNameInput, { target: { value: 'John Doe' } });
+    fireEvent.change(emailInput, { target: { value: 'john.doe@mun.ca' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    fireEvent.change(confirmPasswordInput, { target: { value: 'password123' } });
+
+    // Wait a bit for validation
+    await waitFor(() => {
+      expect(screen.queryByText('Passwords do not match')).not.toBeInTheDocument();
+    });
+
+    // Submit form to send OTP
+    const form = fullNameInput.closest('form');
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+    Object.defineProperty(submitEvent, 'preventDefault', { value: jest.fn(), writable: true });
+    fireEvent(form, submitEvent);
+
+    await waitFor(() => {
+      expect(authService.sendOtp).toHaveBeenCalledWith('john.doe@mun.ca');
+    }, { timeout: 2000 });
+
+    // Wait for OTP step to appear
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter 6-digit code')).toBeInTheDocument();
+    });
+
+    // Enter OTP
+    const otpInput = screen.getByPlaceholderText('Enter 6-digit code');
+    fireEvent.change(otpInput, { target: { value: '123456' } });
+
+    // Complete registration
+    const completeButton = screen.getByText('COMPLETE REGISTRATION');
+    fireEvent.click(completeButton);
+
+    await waitFor(() => {
+      expect(authService.verifyOtp).toHaveBeenCalledWith('john.doe@mun.ca', '123456');
+      expect(authService.register).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/login', {
+        state: {
+          registrationSuccess: true,
+          message: 'Registration complete! Please login to view your account.',
+        },
+      });
+    }, { timeout: 3000 });
   });
 });

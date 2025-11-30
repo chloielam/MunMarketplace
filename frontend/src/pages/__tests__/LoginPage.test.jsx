@@ -4,7 +4,24 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import LoginPage from '../LoginPage';
 import { authService } from '../../services/auth';
-import { mockNavigate } from '../../__mocks__/react-router-dom';
+
+// Mock useNavigate
+const mockNavigate = jest.fn();
+
+// Mock useLocation with state support
+let mockLocationState = null;
+const mockUseLocation = jest.fn(() => ({ 
+  pathname: '/login',
+  state: mockLocationState,
+  search: '',
+  hash: '',
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockUseLocation(),
+}));
 
 // Mock authService
 jest.mock('../../services/auth', () => ({
@@ -27,6 +44,18 @@ describe('LoginPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockNavigate.mockClear();
+    mockLocationState = null;
+    mockUseLocation.mockReturnValue({
+      pathname: '/login',
+      state: mockLocationState,
+      search: '',
+      hash: '',
+    });
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   test('renders login form', () => {
@@ -413,6 +442,102 @@ describe('LoginPage', () => {
       
       // Should be back on login step
       expect(screen.getByText('Welcome Back')).toBeInTheDocument();
+    });
+  });
+
+  describe('Registration Success Notification', () => {
+    test('shows registration success notification when coming from registration', () => {
+      mockLocationState = {
+        registrationSuccess: true,
+        message: 'Registration complete! Please login to view your account.',
+      };
+      mockUseLocation.mockReturnValue({
+        pathname: '/login',
+        state: mockLocationState,
+        search: '',
+        hash: '',
+      });
+
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      expect(screen.getByText('Registration Complete!')).toBeInTheDocument();
+      expect(screen.getByText('Login to view your account')).toBeInTheDocument();
+    });
+
+    test('hides notification when close button is clicked', () => {
+      mockLocationState = {
+        registrationSuccess: true,
+        message: 'Registration complete! Please login to view your account.',
+      };
+      mockUseLocation.mockReturnValue({
+        pathname: '/login',
+        state: mockLocationState,
+        search: '',
+        hash: '',
+      });
+
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      expect(screen.getByText('Registration Complete!')).toBeInTheDocument();
+
+      const closeButton = screen.getByLabelText('Close notification');
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByText('Registration Complete!')).not.toBeInTheDocument();
+    });
+
+    test('auto-dismisses notification after 5 seconds', () => {
+      mockLocationState = {
+        registrationSuccess: true,
+        message: 'Registration complete! Please login to view your account.',
+      };
+      mockUseLocation.mockReturnValue({
+        pathname: '/login',
+        state: mockLocationState,
+        search: '',
+        hash: '',
+      });
+
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      expect(screen.getByText('Registration Complete!')).toBeInTheDocument();
+
+      // Fast-forward 5 seconds
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+
+      expect(screen.queryByText('Registration Complete!')).not.toBeInTheDocument();
+    });
+
+    test('does not show notification when not coming from registration', () => {
+      mockLocationState = null;
+      mockUseLocation.mockReturnValue({
+        pathname: '/login',
+        state: null,
+        search: '',
+        hash: '',
+      });
+
+      render(
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      );
+
+      expect(screen.queryByText('Registration Complete!')).not.toBeInTheDocument();
     });
   });
 });

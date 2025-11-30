@@ -1,250 +1,249 @@
-# Testing
+# Testing Guide
+
+This document covers how to run tests and what's currently being tested in the frontend.
 
 ## Running Tests
 
-### Basic Commands
-
-Run all tests in watch mode (automatically reruns when files change):
+The easiest way to run tests is just:
 ```bash
 npm test
 ```
 
-Run tests once without watch mode:
+This starts Jest in watch mode, so it'll automatically rerun when you change files. Super handy during development.
+
+If you want to run all tests once (like in CI), use:
 ```bash
 npm test -- --watchAll=false
 ```
 
-Run tests for a specific file:
-```bash
-npm test -- Header.test.jsx
-```
-
-Run tests matching a pattern:
-```bash
-npm test -- --testNamePattern="renders"
-```
-
-Run ProfilePage tests specifically:
+You can also run specific test files:
 ```bash
 npm test -- ProfilePage.test.jsx --watchAll=false
 ```
 
-## Test Coverage
+Or filter by test name pattern:
+```bash
+npm test -- --testNamePattern="ratings"
+```
 
-The frontend has comprehensive unit tests covering all major components and functionality. The ProfilePage component has **31 tests** covering all profile features, and the LoginPage component has **14 tests** including the complete forgot password flow.
+## Current Test Status
 
-### Components (6 test files)
-1. `src/__tests__/App.test.jsx` - Main app component and routing
-2. `src/components/__tests__/Header.test.jsx` - Navigation header
-3. `src/components/__tests__/Footer.test.jsx` - Footer component
-4. `src/components/__tests__/MainPage.test.jsx` - Landing page
-5. `src/components/__tests__/Layout.test.jsx` - Layout wrapper
-6. `src/components/__tests__/Items.test.jsx` - Items listing with filtering and sorting
+Right now we have **213 tests** across **21 test files**, and they're all passing! The test suite covers most of the major functionality in the app.
 
-### Pages (5 test files)
-1. `src/pages/__tests__/LoginPage.test.jsx` - Login form, validation, and forgot password flow (14 tests)
-2. `src/pages/__tests__/RegisterPage.test.jsx` - Registration form and validation
-3. `src/pages/__tests__/ProfilePage.test.jsx` - User profile management (31 tests)
-4. `src/pages/__tests__/DebugPage.test.jsx` - Debug utility page
-5. `src/pages/__tests__/TestProfilePage.test.jsx` - Test utility page
+### Test Files Breakdown
 
-### Services (3 test files)
-1. `src/services/__tests__/api.test.js` - API configuration and interceptors
-2. `src/services/__tests__/auth.test.js` - Authentication service functions (11 tests including forgot password)
-3. `src/services/__tests__/items.test.js` - Items API service
+**Components (8 files):**
+1. `Header.test.jsx` Tests navigation, auth buttons, chat button, and verifies search bar is removed
+2. `Footer.test.jsx` Tests footer links, navigation, and category filtering
+3. `Items.test.jsx` Item listing, filtering, sorting, search
+4. `ItemDetail.test.jsx` Individual item display
+5. `MainPage.test.jsx` Landing page components
+6. `Layout.test.jsx` Layout wrapper
+7. `ProfilePicture.test.jsx` Profile picture component (if exists)
+8. `StarRating.test.jsx` Star rating display (if exists)
 
-## Setup Files
+**Pages (13 files):**
+1. `App.test.jsx` Main app routing
+2. `LoginPage.test.jsx` Login form, validation, forgot password flow (18 tests)
+3. `RegisterPage.test.jsx` Registration with OTP, navigation to login with success state
+4. `ProfilePage.test.jsx` Profile management, edit mode, listings, ratings from buyers (55 tests)
+5. `PublicProfilePage.test.jsx` Public profile view with ratings display (6 tests)
+6. `ListingDetailPage.test.jsx` Listing details, seller navigation to profile
+7. `CreateListingPage.test.jsx` Create listing form
+8. `ListingCreatedPage.test.jsx` Success page after creating listing
+9. `ListingDeletedPage.test.jsx` Confirmation page after deleting listing
+10. `SellerRatingHistoryPage.test.jsx` Seller rating history view
+11. `TestProfilePage.test.jsx` Test utility page
+12. `DebugPage.test.jsx` Debug utilities
 
-- `src/setupTests.js` - Jest configuration and global mocks (axios, window.alert)
-- `jest.config.js` - Test environment setup
-- `src/__mocks__/axios.js` - Axios mock for testing
-- `src/__mocks__/react-router-dom.js` - React Router mocks
+**Services (3 files):**
+1. `api.test.js` API configuration and interceptors
+2. `auth.test.js` Authentication service (26 tests)
+3. `items.test.js` Items API service (12 tests)
 
-## Test Mocks
+## What's Actually Tested
 
-The ProfilePage tests use the following mocks:
-- **Auth Service** (`authService`, `authUtils`) - Mocked for user authentication and profile management
-- **Items Service** (`getUserListings`) - Mocked for fetching user listings
-- **React Router** (`useNavigate`) - Mocked for navigation testing
-- **Child Components** (`ProfilePicture`, `StarRating`) - Mocked to focus on ProfilePage logic
-- **Window.alert** - Mocked to prevent test failures in jsdom environment
+### ProfilePage (55 tests)
 
-## Dependencies
+This is probably the most thoroughly tested component. It covers:
 
-Required testing dependencies (already in package.json):
-- `@testing-library/jest-dom` - Custom Jest matchers for DOM
-- `@testing-library/react` - React component testing utilities
-- `@testing-library/user-event` - User interaction simulation
+**Basic rendering:**
+1. Loading states
+2. User info display (name, email, verification badge)
+3. Profile details (bio, location, study program, etc.)
+4. Statistics display (listings count, active items, rating)
 
-## What's Tested
+**Edit functionality:**
+1. Entering edit mode
+2. Form fields populate with current data
+3. Saving changes (both user and profile updates)
+4. Canceling and resetting form
+5. Image upload handling
 
-The tests verify that components render properly and functionality works as expected.
+**Listings management:**
+1. Displaying user's listings
+2. Empty state when no listings
+3. Create Listing button (always visible, even with listings)
+4. Delete listing with confirmation
 
-### App Component
-1. Renders without crashing
-2. Home page renders by default
-3. Navigation works correctly
-4. Search functionality exists
+**Ratings from buyers:**
+1. Ratings section appears when seller has ratings
+2. Summary view with average rating
+3. "View all ratings" button loads and displays detailed ratings
+4. Shows buyer names, profile pictures, star ratings, reviews, and dates
+5. Hide/show toggle functionality
+6. Loading and error states
 
-### Header Component
-1. Logo and navigation render
-2. Sign in button displays
-3. Logo links to home page
+**Password management:**
+1. Change password form
+2. Password validation (match, minimum length)
+3. Success and error handling
 
-### Footer Component
-1. Brand name and links render
-2. Contact information displays
-3. Newsletter signup form works
+**Error handling:**
+1. Failed API calls
+2. Missing profile data
+3. Authentication redirects
 
-### MainPage Component
-1. Hero section displays
-2. Categories show up
-3. Featured products display
-4. "How it works" section renders
+### LoginPage (18 tests)
 
-### Layout Component
-1. Renders Header and Footer
-2. Wraps children content correctly
+Covers the full login flow plus forgot password:
 
-### Items Component (17 tests)
-1. Loading state displays
-2. Items render after loading
-3. Error handling works
-4. Category filtering works
-5. Search functionality works
-6. Sorting (price, date) works
-7. Authentication-based visibility
-8. SOLD badge displays for sold items
-9. "No listings found" message displays when filtered results are empty
-
-#### Category Filtering (5 tests)
-- Filters items with "Textbooks" category correctly
-- Shows items with "Books" category when filtering by "Textbooks" (backward compatibility)
-  - Tests the normalization fix that maps "Books" → "Textbooks" for legacy data
-- Does not show "Books" items when filtering by other categories
-- Shows all items including "Books" when "All Categories" is selected
-- Handles category normalization (Books → Textbooks) for legacy data compatibility
-
-### LoginPage Component (14 tests)
-1. Form renders with email and password fields
-2. MUN email validation (shows error for non-MUN emails)
-3. Password required validation
-4. Navigation buttons work
-
-#### Forgot Password Flow (9 tests)
-- Clicking "Click here" shows email input step
-- Email step validates MUN email
-- Email step sends OTP on valid email
-- OTP step validates 6-digit code
-- OTP step verifies code and moves to password step
-- OTP step shows error on invalid OTP
-- Password step validates password match
-- Password step successfully resets password (with success message and redirect)
-- Can navigate back from email step to login
-
-### RegisterPage Component
-1. Form renders with all required fields
+**Login:**
+1. Form rendering
 2. MUN email validation
-3. Password matching validation
-4. Required field validation
-5. Navigation buttons work
+3. Password required validation
+4. Successful login
 
-### ProfilePage Component (31 tests)
+**Forgot password flow:**
+1. Email input step
+2. OTP verification
+3. New password creation
+4. Success handling
+5. Navigation between steps
+6. Registration success notification display
 
-The ProfilePage component has comprehensive test coverage for all profile functionality:
+### RegisterPage (7 tests)
 
-#### Loading and Initial Render (4 tests)
-- Shows loading state initially
-- Redirects to login if no user ID is found
-- Displays user information (name, email, verification status) after loading
-- Displays profile information (bio, location, study program, department)
+1. Form rendering
+2. MUN email validation
+3. Password matching
+4. OTP verification flow
+5. Navigation to login with success state after registration
 
-#### Statistics Display (3 tests)
-- Displays correct statistics for sellers (Items for Sale, Active, Purchases, Rating)
-- Displays correct statistics for buyers (Items Sold, Purchases, Saved Items, Rating)
-- Displays rating correctly with star rating component
+### PublicProfilePage (6 tests)
 
-#### Edit Mode (4 tests)
-- Enters edit mode when "Edit Profile" button is clicked
-- Shows input fields in edit mode (first name, last name, bio, etc.)
-- Populates form fields with current user data
-- Cancels edit mode and resets form to original values
+1. User profile display
+2. Ratings summary (collapsed by default)
+3. Expand/collapse ratings functionality
+4. Empty state when no ratings
+5. Detailed rating display with buyer info
 
-#### Save Functionality (2 tests)
-- Saves profile changes successfully (user and profile updates)
-- Handles save errors gracefully with proper error messages
+### ListingDetailPage (13 tests)
 
-#### Items for Sale Section (2 tests)
-- Displays items for sale when user has listings (with images, prices, status)
-- Shows empty state with "Create Listing" button when user has no listings
+1. Listing details display
+2. Seller information
+3. Navigation to seller profile (not rating history)
+4. Edit/delete functionality for owners
 
-#### Purchase History Section (1 test)
-- Displays purchase history section with empty state and "Browse Items" button
+### Footer (10 tests)
 
-#### Account Information (2 tests)
-- Displays account information (Member Since, Last Login, Email Verification, Profile Last Updated)
-- Displays email verification status correctly (Verified/Not Verified)
+1. All quick links navigate correctly (Home, Browse, Sell Item)
+2. Category links filter items correctly
+3. Newsletter form
+4. External links (social media)
 
-#### Navigation (2 tests)
-- Navigates back to home when "Back to Home" button is clicked
-- Handles logout functionality correctly
+### Header (6 tests)
 
-#### Error Handling (2 tests)
-- Displays error message when user fetch fails
-- Handles missing profile gracefully (shows default values)
+1. Logo and navigation
+2. Auth buttons (Sign In vs Profile/Logout)
+3. Chat button navigation
+4. Search bar removal verification
 
-#### Additional Features Tested
-- Profile picture display and upload functionality
-- Star rating component integration
-- Adaptive statistics for buyers vs sellers
-- Form validation and data sanitization
-- API integration with auth and items services
+### Items Component (15 tests)
 
-### DebugPage Component
-1. Debug information displays
-2. Authentication status shows
-3. Session refresh works
+1. Loading and error states
+2. Item display
+3. Category filtering (including Books → Textbooks normalization)
+4. Search functionality
+5. Sorting (price, date)
+6. Authentication-based visibility
+7. SOLD badge display
 
-### TestProfilePage Component
-1. Authentication status displays
-2. Navigation buttons work
+## Test Setup
 
-### API Service
-1. Axios instance created correctly
-2. API methods available
+The test setup is pretty standard for a React app using Create React App. We use:
 
-### Auth Service (11 tests)
-1. Login endpoint calls
-2. Register endpoint calls
-3. User data fetching
-4. Profile management
-5. Session management (localStorage)
-6. Authentication state utilities
-7. Forgot password endpoint calls
-8. Verify password reset OTP endpoint calls
-9. Reset password endpoint calls with correct data
+1. **Jest** as the test runner (comes with CRA)
+2. **React Testing Library** for component testing
+3. **jsdom** for DOM simulation
 
-### Items Service
-1. Items fetching from API
-2. Error handling
+**Key setup files:**
+1. `src/setupTests.js` Configures Jest, mocks axios and window.alert
+2. `jest.config.js` Test environment configuration
+3. `src/__mocks__/axios.js` Axios mock
+4. `src/__mocks__/react-router-dom.js` Router mocks
 
-## Recent Test Additions
+## Common Patterns
 
-### Forgot Password Functionality (December 2024)
-- **LoginPage Component**: Added 9 comprehensive tests for the forgot password flow
-  - Email input and validation
-  - OTP verification with error handling
-  - New password creation with confirmation
-  - Success message and redirect
-  - Navigation between steps
-- **Auth Service**: Added 3 tests for password reset API endpoints
-  - `forgotPassword()` - Sends OTP to email
-  - `verifyPasswordResetOtp()` - Verifies OTP before password reset
-  - `resetPassword()` - Resets password with verified OTP
+Most tests follow a similar pattern:
+1. Mock the services/APIs
+2. Render the component
+3. Wait for async operations
+4. Assert what should be on screen
+5. Simulate user interactions
+6. Assert the results
 
-### Category Filtering Fix (December 2024)
-- **Items Component**: Added 5 tests for category normalization
-  - Tests backward compatibility for "Books" → "Textbooks" mapping
-  - Ensures legacy data with "Books" category appears when filtering by "Textbooks"
-  - Verifies isolation (Books items don't appear in other category filters)
-  - Tests "All Categories" view includes all items regardless of category name
+For example, testing a button click:
+```javascript
+await waitFor(() => {
+  expect(screen.getByText('Button Text')).toBeInTheDocument();
+});
+
+fireEvent.click(screen.getByText('Button Text'));
+
+await waitFor(() => {
+  expect(mockNavigate).toHaveBeenCalledWith('/expected-path');
+});
+```
+
+## Recent Updates
+
+**January 2025:**
+1. Added tests for ratings display in ProfilePage (ratings from buyers)
+2. Added tests for PublicProfilePage ratings functionality
+3. Updated Footer tests to cover navigation links
+4. Added tests for registration success notification
+5. Updated Header tests to verify search bar removal
+6. Updated ProfilePage tests for Create Listing button always visible
+7. Removed purchase history tests (feature was removed)
+
+**December 2024:**
+1. Added comprehensive forgot password flow tests
+2. Added category filtering tests with Books/Textbooks normalization
+3. Added seller rating history tests
+
+## Notes
+
+1. Some tests use `waitFor` with timeouts for async operations - this is normal
+2. We mock most API calls to keep tests fast and isolated
+3. The ProfilePage tests are pretty comprehensive because that component does a lot
+4. We're using `screen.getByText` and similar queries from React Testing Library - they're pretty reliable
+
+## Running Specific Test Suites
+
+If you want to run just the component tests:
+```bash
+npm test -- --testPathPattern="components"
+```
+
+Or just page tests:
+```bash
+npm test -- --testPathPattern="pages"
+```
+
+Or a specific feature:
+```bash
+npm test -- --testPathPattern="ratings"
+```
+
+That's about it! The tests are pretty straightforward and should be easy to extend when adding new features.
