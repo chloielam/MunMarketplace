@@ -345,7 +345,7 @@ describe('ListingDetailPage', () => {
     });
   });
 
-  test('navigates to seller rating history when seller card is clicked', async () => {
+  test('navigates to seller profile when seller card is clicked', async () => {
     const mockSellerWithUserId = {
       ...mockSeller,
       user_id: 'seller123'
@@ -367,7 +367,7 @@ describe('ListingDetailPage', () => {
     fireEvent.click(sellerCard);
     
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/sellers/seller123/ratings');
+      expect(mockNavigate).toHaveBeenCalledWith('/users/seller123');
     });
   });
 

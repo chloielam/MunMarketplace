@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
-import { getUserListings, deleteListing, getListingById } from '../services/items';
-import api from '../services/api';
+import { getUserListings, deleteListing } from '../services/items';
 import ProfilePicture from '../components/ProfilePicture';
 import StarRating from '../components/StarRating';
 
@@ -11,7 +10,6 @@ const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
-  const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -19,6 +17,9 @@ const ProfilePage = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [deletingListingId, setDeletingListingId] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [ratings, setRatings] = useState([]);
+  const [showRatings, setShowRatings] = useState(false);
+  const [loadingRatings, setLoadingRatings] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: '',
     lastName: '',
@@ -62,30 +63,6 @@ const ProfilePage = () => {
         setUser(userData);
         setProfile(profileData);
         setListings(listingsData || []);
-
-        // Fetch purchases by inspecting chat conversations and pulling sold listings for this user
-        try {
-          const convoRes = await api.get(`/chat/users/${userId}/conversations`);
-          const listingIds = Array.from(new Set((convoRes.data || [])
-            .map(c => c.listingId)
-            .filter(Boolean)));
-
-          const purchased = [];
-          for (const lid of listingIds) {
-            try {
-              const listing = await getListingById(lid);
-              if (listing.sold_to_user_id === userId) {
-                purchased.push(listing);
-              }
-            } catch (err) {
-              // Ignore listings we cannot load (may be deleted or inaccessible)
-              console.warn('Unable to load listing for purchases', lid, err?.response?.data || err?.message);
-            }
-          }
-          setPurchases(purchased);
-        } catch (err) {
-          console.warn('Could not load purchase history', err?.response?.data || err?.message);
-        }
         
         // Initialize edit form with current data
         setEditForm({
@@ -329,7 +306,28 @@ const ProfilePage = () => {
 
   const activeListings = listings.filter(l => l.status === 'ACTIVE');
   const totalListings = listings.length;
-  const totalPurchases = purchases.length;
+
+  const handleLoadRatings = async () => {
+    if (showRatings) {
+      setShowRatings(false);
+      return;
+    }
+
+    const userId = user?.id || user?.user_id || authUtils.getUserId();
+    if (!userId) return;
+
+    setLoadingRatings(true);
+    try {
+      const ratingsData = await authService.getSellerRatings(userId);
+      setRatings(ratingsData || []);
+      setShowRatings(true);
+    } catch (err) {
+      console.error('Error fetching ratings:', err);
+      alert('Failed to load ratings');
+    } finally {
+      setLoadingRatings(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -480,8 +478,8 @@ const ProfilePage = () => {
                     <div className="text-sm text-gray-600">Active</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-mun-red">{totalPurchases}</div>
-                    <div className="text-sm text-gray-600">Purchases</div>
+                    <div className="text-2xl font-bold text-mun-red">0</div>
+                    <div className="text-sm text-gray-600">Saved Items</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-mun-red">
@@ -495,10 +493,6 @@ const ProfilePage = () => {
                   <div className="text-center">
                     <div className="text-2xl font-bold text-mun-red">0</div>
                     <div className="text-sm text-gray-600">Items Sold</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-mun-red">{totalPurchases}</div>
-                    <div className="text-sm text-gray-600">Purchases</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-mun-red">0</div>
@@ -646,17 +640,25 @@ const ProfilePage = () => {
 
             {/* Activity Sections */}
             <div className="mt-8 space-y-6">
-              {/* My Listings Section - Only show if user has listings */}
+              {/* My Listings Section */}
               {listings.length > 0 ? (
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-800">My Listings</h3>
-                    <button
-                      onClick={() => navigate('/items?myListings=true')}
-                      className="text-mun-red hover:underline text-sm"
-                    >
-                      View all →
-                    </button>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => navigate('/create-listing')}
+                        className="bg-mun-red text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                      >
+                        Create Listing
+                      </button>
+                      <button
+                        onClick={() => navigate('/items?myListings=true')}
+                        className="text-mun-red hover:underline text-sm"
+                      >
+                        View all →
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {listings.slice(0, 6).map((listing) => {
@@ -719,25 +721,129 @@ const ProfilePage = () => {
                 </div>
               )}
 
-              {/* Purchase History Section - Always show for buyers */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">Purchase History</h3>
+              {/* Ratings Given by Buyers Section */}
+              {profile && profile.total_ratings > 0 && (
+                <div className="mt-8 border-t pt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Ratings Given by Buyers ({ratings.length || profile.total_ratings})
+                    </h3>
+                    {ratings.length > 0 && showRatings && (
+                      <button
+                        onClick={() => setShowRatings(false)}
+                        className="text-mun-red hover:text-red-700 font-medium text-sm"
+                      >
+                        Hide ratings
+                      </button>
+                    )}
+                  </div>
+                  
+                  {!showRatings ? (
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <div className="text-2xl font-bold text-mun-red">
+                            {parseFloat(profile.rating || 0).toFixed(1)}
+                          </div>
+                          <div className="text-sm text-gray-600">Average Rating</div>
+                        </div>
+                        <div className="flex-1">
+                          <StarRating
+                            rating={parseFloat(profile.rating || 0)}
+                            totalRatings={profile.total_ratings || 0}
+                            size="md"
+                          />
+                          <p className="text-sm text-gray-600 mt-1">
+                            Based on {profile.total_ratings} {profile.total_ratings === 1 ? 'rating' : 'ratings'}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleLoadRatings}
+                          disabled={loadingRatings}
+                          className="bg-mun-red text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50"
+                        >
+                          {loadingRatings ? 'Loading...' : 'View all ratings'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* Summary */}
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <div className="text-2xl font-bold text-mun-red">
+                              {ratings.length > 0 
+                                ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+                                : parseFloat(profile.rating || 0).toFixed(1)}
+                            </div>
+                            <div className="text-sm text-gray-600">Average Rating</div>
+                          </div>
+                          <div className="flex-1">
+                            <StarRating
+                              rating={ratings.length > 0 
+                                ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+                                : parseFloat(profile.rating || 0)}
+                              totalRatings={ratings.length || profile.total_ratings}
+                              size="md"
+                            />
+                            <p className="text-sm text-gray-600 mt-1">
+                              Based on {ratings.length || profile.total_ratings} {(ratings.length || profile.total_ratings) === 1 ? 'rating' : 'ratings'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detailed Ratings */}
+                      {ratings.length > 0 ? (
+                        <div className="space-y-4">
+                          {ratings.map((rating) => {
+                            const buyerName = rating.buyer
+                              ? `${rating.buyer.first_name || ''} ${rating.buyer.last_name || ''}`.trim() || 'Anonymous'
+                              : 'Anonymous';
+
+                            return (
+                              <div key={rating.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div className="flex items-start gap-3 mb-3">
+                                  <div className="flex-shrink-0">
+                                    <ProfilePicture
+                                      src={rating.buyer?.profile_picture_url}
+                                      size="small"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-gray-900 truncate">{buyerName}</span>
+                                      <span className="text-sm text-gray-500 ml-2 flex-shrink-0">
+                                        {formatDate(rating.createdAt)}
+                                      </span>
+                                    </div>
+                                    <div className="mb-2">
+                                      <StarRating
+                                        rating={rating.rating}
+                                        size="sm"
+                                        showCount={false}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {rating.review && (
+                                  <p className="text-gray-700 whitespace-pre-wrap">{rating.review}</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg">
+                          <p className="text-gray-500">No ratings yet</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="bg-gray-50 rounded-lg p-8 text-center">
-                  <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  <p className="text-gray-600 mb-2">No purchases yet</p>
-                  <p className="text-sm text-gray-500">Start shopping to see your purchase history here</p>
-                  <button
-                    onClick={() => navigate('/items')}
-                    className="mt-4 bg-mun-red text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Browse Items
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Change Password Section */}

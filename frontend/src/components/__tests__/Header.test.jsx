@@ -91,4 +91,10 @@ describe('Header', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/chat');
     });
   });
+
+  test('does not show search bar', () => {
+    renderWithRouter(<Header />);
+    
+    expect(screen.queryByPlaceholderText('Search products...')).not.toBeInTheDocument();
+  });
 });

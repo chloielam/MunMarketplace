@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService, authUtils } from '../services/auth';
 
 // Login page
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -12,6 +13,7 @@ const LoginPage = () => {
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(false);
   
   // Forgot password flow state
   const [forgotPasswordStep, setForgotPasswordStep] = useState('login'); // 'login' | 'email' | 'otp' | 'newPassword' | 'success'
@@ -23,6 +25,18 @@ const LoginPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [forgotPasswordErrors, setForgotPasswordErrors] = useState({});
+
+  // Check if user came from registration
+  useEffect(() => {
+    if (location.state?.registrationSuccess) {
+      setShowRegistrationSuccess(true);
+      // Hide notification after 5 seconds
+      const timer = setTimeout(() => {
+        setShowRegistrationSuccess(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -537,6 +551,28 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Registration Success Notification */}
+      {showRegistrationSuccess && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in max-w-md">
+          <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <div className="flex-1">
+            <p className="font-semibold">Registration Complete!</p>
+            <p className="text-sm">Login to view your account</p>
+          </div>
+          <button
+            onClick={() => setShowRegistrationSuccess(false)}
+            className="ml-2 text-white hover:text-gray-200 flex-shrink-0"
+            aria-label="Close notification"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Close button */}
       <button
         onClick={() => navigate('/home')}
