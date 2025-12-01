@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MailerService } from '../src/common/mailer.service';
+import { MailerService } from '../mailer.service';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -76,7 +76,7 @@ describe('MailerService', () => {
 
     await service.sendOtp('user@test.com', '888888');
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Email sending failed'));
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Email sending failed'), expect.any(String));
     expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('OTP for user@test.com'));
 
     consoleErrorSpy.mockRestore();

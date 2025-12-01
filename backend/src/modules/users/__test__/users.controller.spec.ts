@@ -1,6 +1,7 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
+import { SellerRatingsService } from '../../ratings/seller-ratings.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -14,12 +15,15 @@ describe('UsersController', () => {
       upsertProfile: jest.fn(),
     };
 
-    const module = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [{ provide: UsersService, useValue: service }],
+      providers: [
+        { provide: UsersService, useValue: service },
+        { provide: SellerRatingsService, useValue: {} }, // mock
+      ],
     }).compile();
 
-    controller = module.get(UsersController);
+    controller = module.get<UsersController>(UsersController);
   });
 
   it('delegates to service.findOne', async () => {
