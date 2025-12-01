@@ -12,6 +12,11 @@ describe('ChatService', () => {
   let conversationRepo: jest.Mocked<Repository<Conversation>>;
   let sellerRatings: jest.Mocked<SellerRatingsService>;
 
+  const mockConversations = [
+    { id: 'c1', participantIds: ['user1', 'user2'], listingId: 'list1', lastMessageAt: new Date() },
+    { id: 'c2', participantIds: ['user1', 'user3'], listingId: 'list2', lastMessageAt: new Date() },
+  ];
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -27,15 +32,10 @@ describe('ChatService', () => {
         {
           provide: getRepositoryToken(Conversation),
           useValue: {
-            createQueryBuilder: jest.fn().mockReturnValue({
-              where: jest.fn().mockReturnThis(),
-              andWhere: jest.fn().mockReturnThis(),
-              getOne: jest.fn(),
-              getMany: jest.fn(),
-            }),
             create: jest.fn(),
             save: jest.fn(),
             update: jest.fn(),
+            createQueryBuilder: jest.fn(), // will mock below
           },
         },
         {
@@ -51,12 +51,21 @@ describe('ChatService', () => {
     messageRepo = module.get(getRepositoryToken(Message));
     conversationRepo = module.get(getRepositoryToken(Conversation));
     sellerRatings = module.get(SellerRatingsService);
+
+    // Mock full QueryBuilder chain
+    const mockQueryBuilder = {
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getOne: jest.fn(),
+      getMany: jest.fn().mockResolvedValue([...mockConversations]),
+    };
+    conversationRepo.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
-
 
   it('should create a message and update conversation', async () => {
     const conversationId = 'conv1';
@@ -83,7 +92,6 @@ describe('ChatService', () => {
     expect(result).toEqual(messageObj);
   });
 
-
   it('should return messages for a conversation', async () => {
     const conversationId = 'conv1';
     const messages = [
@@ -100,7 +108,6 @@ describe('ChatService', () => {
     });
     expect(result).toEqual(messages);
   });
-
 
   it('should return existing conversation if found', async () => {
     const userId1 = 'user1';
@@ -120,7 +127,7 @@ describe('ChatService', () => {
     const userId1 = 'user1';
     const userId2 = 'user2';
     const listingId = 'list1';
-    const conversationObj = { participantIds: ['user1', 'user2'], listingId };
+    const conversationObj = { id: 'convNew', participantIds: ['user1','user2'], listingId };
     const qb: any = conversationRepo.createQueryBuilder();
     qb.getOne.mockResolvedValue(null);
     conversationRepo.create.mockReturnValue(conversationObj as any);
@@ -133,17 +140,15 @@ describe('ChatService', () => {
     expect(result).toEqual({ id: 'convNew', ...conversationObj });
   });
 
- 
   it('should return enriched conversations', async () => {
     const userId = 'user1';
-    const conversations = [{ id: 'c1', participantIds: ['user1', 'user2'], listingId: 'list1' }];
-    const qb: any = conversationRepo.createQueryBuilder();
-    qb.getMany.mockResolvedValue(conversations);
     sellerRatings.getBuyerRatingState.mockResolvedValue({ canRate: true });
 
     const result = await service.getUserConversations(userId);
 
-    expect(result[0]).toHaveProperty('ratingState');
+    expect(result).toEqual(
+      mockConversations.map(c => ({ ...c, ratingState: { canRate: true } }))
+    );
     expect(sellerRatings.getBuyerRatingState).toHaveBeenCalledWith('list1', userId);
   });
 });
