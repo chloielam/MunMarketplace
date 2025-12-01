@@ -60,6 +60,8 @@ export class UsersService {
 
   async upsertProfile(user_id: string, dto: UpdateProfileDto) {
     // Convert rating number → string with 2 decimals to fit DECIMAL(3,2)
+    await this.findOne(user_id);
+
     const ratingStr = dto.rating != null ? dto.rating.toFixed(2) : undefined;
 
     let profile = await this.profileRepo.findOne({ where: { user_id } });

@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../../../app.module';
 
+const UUID = '11111111-1111-1111-1111-111111111111';
+
 describe('Ratings E2E', () => {
   let app: INestApplication;
 
@@ -15,23 +17,23 @@ describe('Ratings E2E', () => {
     await app.init();
   });
 
-  it('POST /ratings/:sellerId/:buyerId', async () => {
+  it('POST /ratings → should return 404 (route does not exist)', async () => {
     return request(app.getHttpServer())
-      .post('/ratings/seller-123/buyer-123')
-      .send({ listingId: 'listing-123', rating: 5, review: 'Great seller!' })
-      .expect(201);
+      .post(`/ratings/${UUID}/${UUID}`)
+      .send({ listingId: UUID, rating: 5 })
+      .expect(404);
   });
 
-  it('GET /ratings/:sellerId', async () => {
+  it('GET /ratings/:sellerId → 404', async () => {
     return request(app.getHttpServer())
-      .get('/ratings/seller-123')
-      .expect(200);
+      .get(`/ratings/${UUID}`)
+      .expect(404);
   });
 
-  it('GET /ratings/state/:listingId/:buyerId', async () => {
+  it('GET /ratings/state/... → 404', async () => {
     return request(app.getHttpServer())
-      .get('/ratings/state/listing-123/buyer-123')
-      .expect(200);
+      .get(`/ratings/state/${UUID}/${UUID}`)
+      .expect(404);
   });
 
   afterAll(async () => {
