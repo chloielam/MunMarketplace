@@ -12,6 +12,7 @@ import { User } from '../../users/entities/user.entity';
 import { ManyToOne, JoinColumn } from 'typeorm';
 export enum ListingStatus {
   ACTIVE = 'ACTIVE',
+  PENDING = 'PENDING',
   SOLD = 'SOLD',
   HIDDEN = 'HIDDEN',
 }

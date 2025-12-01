@@ -1,0 +1,23 @@
+flowchart TD
+  subgraph FE [Frontend Vite React Axios]
+    Pages --> Components --> Services --> APIClient[services/api.js Axios instance]
+    APIClient --> LocalState[localStorage sessionUser]
+  end
+
+  subgraph BE [Backend NestJS TypeORM]
+    App[AppModule] --> Auth[AuthModule\nsessions + OTP + mailer]
+    App --> Users[UsersModule\nusers + profiles]
+    App --> Listings[ListingModule\nlisting.controller.ts\nuser-listing.controller.ts]
+    App --> Chat[ChatModule\nChatGateway Socket.IO]
+    App --> Ratings[SellerRatingsModule\naggregates profile ratings]
+    App --> TestSupport[(TestSupportModule\nnon-prod only)]
+    Auth --> Users
+    Listings --> Users
+    Chat --> Ratings
+    Ratings --> Users
+    App --> TypeORM[(TypeORM datasource)]
+  end
+
+  FE -->|HTTP /api...| BE
+  FE -->|WebSocket /socket.io| Chat
+  TypeORM --> DB[(MySQL in dev/prod; SQLite in tests)]

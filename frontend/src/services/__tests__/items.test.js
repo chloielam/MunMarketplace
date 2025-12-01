@@ -1,4 +1,4 @@
-import { getItems, createListing, getListingById, getItemById, deleteListing } from '../items';
+import { getItems, createListing, getListingById, getItemById, deleteListing, updateListing } from '../items';
 import api from '../api';
 
 // Mock api
@@ -6,6 +6,7 @@ jest.mock('../api', () => {
   const mockApiInstance = {
     get: jest.fn(),
     post: jest.fn(),
+    patch: jest.fn(),
     delete: jest.fn(),
   };
   return {
@@ -129,6 +130,54 @@ describe('items service', () => {
     
     expect(result1).toEqual(result2);
     expect(result1).toEqual(mockListing);
+  });
+
+  test('updateListing calls correct endpoint with data', async () => {
+    const listingId = '123';
+    const updateData = {
+      title: 'Updated Item',
+      price: 150,
+      description: 'Updated description',
+      category: 'Electronics',
+      city: "St. John's",
+      campus: 'MUN-StJohns'
+    };
+    const mockResponse = { id: listingId, ...updateData };
+    
+    api.patch.mockResolvedValue({
+      data: mockResponse
+    });
+    
+    const result = await updateListing(listingId, updateData);
+    
+    expect(api.patch).toHaveBeenCalledWith(`/me/listings/${listingId}`, updateData);
+    expect(result).toEqual(mockResponse);
+  });
+
+  test('updateListing handles errors', async () => {
+    const listingId = '123';
+    const updateData = { title: 'Updated Item' };
+    
+    api.patch.mockRejectedValue(new Error('Update failed'));
+    
+    await expect(updateListing(listingId, updateData)).rejects.toThrow('Update failed');
+  });
+
+  test('updateListing can update partial fields', async () => {
+    const listingId = '123';
+    const updateData = {
+      title: 'New Title Only'
+    };
+    const mockResponse = { id: listingId, title: 'New Title Only', price: 100 };
+    
+    api.patch.mockResolvedValue({
+      data: mockResponse
+    });
+    
+    const result = await updateListing(listingId, updateData);
+    
+    expect(api.patch).toHaveBeenCalledWith(`/me/listings/${listingId}`, updateData);
+    expect(result).toEqual(mockResponse);
   });
 });
 

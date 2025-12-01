@@ -39,6 +39,25 @@ export async function getListingById(listingId) {
 // Alias for backward compatibility with ItemDetail component
 export const getItemById = getListingById;
 
+// Get a listing owned by the current user (returns even if hidden/sold)
+export async function getMyListingById(listingId) {
+  const response = await api.get(`/me/listings/${listingId}`);
+  return response.data;
+}
+
+// Update a listing
+// Backend endpoint: PATCH /api/me/listings/:listingId
+// Only the listing owner can update their own listing
+export async function updateListing(listingId, listingData) {
+  const response = await api.patch(`/me/listings/${listingId}`, listingData);
+  return response.data;
+}
+
+// Mark a listing as sold to a buyer
+export async function markListingSold(listingId, buyerId) {
+  const response = await api.patch(`/me/listings/${listingId}/sold`, { buyerId });
+  return response.data;
+}
 // Delete a listing
 // Backend endpoint: DELETE /api/me/listings/:listingId
 // Only the listing owner can delete their own listing

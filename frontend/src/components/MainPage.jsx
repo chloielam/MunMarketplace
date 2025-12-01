@@ -11,6 +11,7 @@ const MainPage = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -19,6 +20,7 @@ const MainPage = () => {
     const updateAuthState = (user) => {
       if (!active) return;
       setIsAuthenticated(!!user);
+      setCurrentUserId(user?.id || user?.user_id || null);
     };
 
     const handleStorageChange = () => {
@@ -33,21 +35,8 @@ const MainPage = () => {
       handleStorageChange();
     };
 
-    const fetchFeaturedItems = async () => {
-      try {
-        const items = await getItems();
-        // Get first 4 items as featured
-        setFeaturedItems(items.slice(0, 4));
-      } catch (error) {
-        console.error('Error fetching featured items:', error);
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
     updateAuthState(authUtils.getSessionUser());
     authUtils.refreshSession().then(updateAuthState);
-    fetchFeaturedItems();
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('authChange', handleAuthChange);
 
@@ -57,6 +46,32 @@ const MainPage = () => {
       window.removeEventListener('authChange', handleAuthChange);
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchFeaturedItems = async () => {
+      try {
+        setLoading(true);
+        const items = await getItems();
+        const visible = items.filter((item) => item.status === 'ACTIVE');
+        const filtered = currentUserId
+          ? visible.filter((item) => item.seller_id !== currentUserId)
+          : visible;
+        if (active) setFeaturedItems(filtered.slice(0, 4));
+      } catch (error) {
+        console.error('Error fetching featured items:', error);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    fetchFeaturedItems();
+
+    return () => {
+      active = false;
+    };
+  }, [currentUserId]);
 
   const handleSearch = (e) => {
     e.preventDefault();

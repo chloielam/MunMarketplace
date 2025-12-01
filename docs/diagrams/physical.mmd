@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph Client
+    Browser[Browser\nReact SPA runtime]
+  end
+
+  subgraph AppTier
+    Frontend[Static assets\nVite dev :5173 or CDN]
+    Backend[NestJS API + Socket.IO\n:3000]
+  end
+
+  subgraph DataTier
+    MySQL[(MySQL 8\nDocker service 3306)]
+    phpMyAdmin[phpMyAdmin UI\nDocker :8081]
+  end
+
+  Browser -->|HTTPS| Frontend
+  Frontend -->|REST /api + cookies| Backend
+  Frontend -->|WS /socket.io| Backend
+  Backend -->|TypeORM| MySQL
+  phpMyAdmin <-->|SQL| MySQL
+  Backend -->|SMTP| Gmail["Gmail SMTP\nmarketplacemun@gmail.com"]
