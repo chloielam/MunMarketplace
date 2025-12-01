@@ -2,10 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
-  Index,
+
 } from 'typeorm';
 import { User } from './user.entity';
 import { ManyToOne, JoinColumn } from 'typeorm';
