@@ -255,7 +255,7 @@ const ListingDetailPage = () => {
   const handleDeleteCancel = () => {
     setShowDeleteConfirm(false);
   };
-  const handleChatClick = () => {
+  const handleChatClickModal= () => {
     const chatContext = {
       currentUser: authUtils.getSessionUser(),
       otherUser: {
@@ -973,20 +973,7 @@ const ListingDetailPage = () => {
                       Edit Listing
                     </button>
                   )}
-              {!isOwner && (
-                <button
-                  onClick={handleChatClick}
-                  disabled={listing.status === 'SOLD'}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition flex items-center justify-center ${
-                    listing.status === 'SOLD'
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-mun-red hover:bg-red-600 text-white shadow-sm'
-                  }`}
-                >
-                  <span className="mr-2">💬</span>
-                  {listing.status === 'SOLD' ? 'Item Sold' : 'Chat with Seller'}
-                </button>
-              )}
+             
               {!isOwner && (
                 <button
                   onClick={handleChatClick}
