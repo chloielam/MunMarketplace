@@ -44,17 +44,6 @@ The platform will ensure trust by requiring authentication with a valid MUN emai
 
 ---
 
-## 📂 Repository Structure
-```plaintext
-mun-marketplace/
-│
-├── frontend/        # React application (UI)
-├── backend/         # NestJS application (API, auth, chat, etc.)
-├── docker-compose.yml
-├── README.md
-└── .gitignore
-```
----
 
 ## ⚡ Quickstart (Local Setup)
 # Start database
@@ -85,5 +74,18 @@ backend/src/modules/   — Feature modules (users, items, transactions)
 
 
 ---
+
+## 📂 Repository Structure
+```plaintext
+mun-marketplace/
+│
+├── frontend/        # React application (UI)
+├── backend/         # NestJS application (API, auth, chat, etc.)
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+```
+---
+
 
 
