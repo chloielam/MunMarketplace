@@ -33,6 +33,7 @@ The platform will ensure trust by requiring authentication with a valid MUN emai
 
 ---
 
+
 ## 🛠️ Tech Stack
 - **Frontend:** React (Vite + TypeScript)  
 - **Backend:** NestJS (Node.js, TypeScript)  
@@ -52,3 +53,37 @@ mun-marketplace/
 ├── docker-compose.yml
 ├── README.md
 └── .gitignore
+
+---
+
+## ⚡ Quickstart (Local Setup)
+# Start database
+docker-compose up -d db
+
+# Start backend
+cd backend
+npm install
+npm run start:dev
+
+# Start frontend
+cd ../frontend
+npm install
+npm run dev
+
+---
+
+## 🗂️ Module / Package Map
+frontend/              — All UI components, pages, and state management  
+backend/               — API controllers, services, authentication, chat  
+backend/src/modules/   — Feature modules (users, items, transactions)  
+
+---
+
+## 🖼️ Architecture Diagram
+│
+├──docs/diagrams
+
+
+---
+
+
