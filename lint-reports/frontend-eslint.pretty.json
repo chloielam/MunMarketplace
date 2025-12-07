@@ -1,0 +1,1940 @@
+[
+  {
+    "filePath": "/work/frontend/src/App.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/__mocks__/axios.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/__mocks__/react-router-dom.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/__tests__/App.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/Footer.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/Header.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/ItemDetail.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/Items.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/Layout.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/MainPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/ProfilePicture.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/StarRating.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/Footer.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/Header.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/ItemDetail.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/Items.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/Layout.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/components/__tests__/MainPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/config.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/index.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/ChatPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/CreateListingPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/DebugPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/EditListingPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/ListingCreatedPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/ListingDeletedPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/ListingDetailPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/LoginPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/ProfilePage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/PublicProfilePage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/RegisterPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/SellerRatingHistoryPage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/TestProfilePage.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/CreateListingPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/DebugPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/ListingCreatedPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/ListingDeletedPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/ListingDetailPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/LoginPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/ProfilePage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/PublicProfilePage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/RegisterPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/SellerRatingHistoryPage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/pages/__tests__/TestProfilePage.test.jsx",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/__tests__/api.test.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/__tests__/auth.test.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/__tests__/items.test.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/api.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/auth.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/services/items.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  },
+  {
+    "filePath": "/work/frontend/src/setupTests.js",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": [
+      {
+        "ruleId": "dot-location",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "new-parens",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-mixed-operators",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "no-new-object",
+        "replacedBy": [
+          "no-object-constructor"
+        ]
+      },
+      {
+        "ruleId": "no-whitespace-before-property",
+        "replacedBy": []
+      },
+      {
+        "ruleId": "rest-spread-spacing",
+        "replacedBy": []
+      }
+    ]
+  }
+]
