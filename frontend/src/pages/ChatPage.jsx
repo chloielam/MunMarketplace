@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import { FaUserCircle, FaTimes, FaCommentDots, FaStore, FaSpinner } from 'react-icons/fa';
-import api from "../services/api";
 import { getUserListings } from '../services/items';
 import { authService, authUtils } from '../services/auth';
 import { API_BASE_URL, SOCKET_URL } from "../config";
@@ -226,7 +225,7 @@ function ChatPage() {
         } finally {
             setIsLoadingList(false);
         }
-    }, [currentUserId, fetchUserDetails, fetchProductDetails, normalizeIds]);
+    }, [currentUserId, fetchUserDetails, fetchProductDetails, normalizeIds, initialChatContext]);
 
     // 4. Handle Conversation Selection
     const handleConvoClick = useCallback(async (convo) => {

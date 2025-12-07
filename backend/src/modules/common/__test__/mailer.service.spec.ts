@@ -11,7 +11,9 @@ describe('MailerService', () => {
 
   beforeEach(async () => {
     mockSendMail = jest.fn().mockResolvedValue({});
-    (nodemailer.createTransport as jest.Mock).mockReturnValue({ sendMail: mockSendMail });
+    (nodemailer.createTransport as jest.Mock).mockReturnValue({
+      sendMail: mockSendMail,
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -21,10 +23,14 @@ describe('MailerService', () => {
           useValue: {
             get: jest.fn((key) => {
               switch (key) {
-                case 'GMAIL_USER': return 'test@gmail.com';
-                case 'GMAIL_PASS': return 'password';
-                case 'OTP_TTL_MINUTES': return 10;
-                default: return undefined;
+                case 'GMAIL_USER':
+                  return 'test@gmail.com';
+                case 'GMAIL_PASS':
+                  return 'password';
+                case 'OTP_TTL_MINUTES':
+                  return 10;
+                default:
+                  return undefined;
               }
             }),
           },
@@ -65,19 +71,30 @@ describe('MailerService', () => {
     const faultyService = faultyModule.get(MailerService);
     await faultyService.sendOtp('user@test.com', '999999');
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('OTP for user@test.com'));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('OTP for user@test.com'),
+    );
     consoleSpy.mockRestore();
   });
 
   it('should log error if sendMail throws', async () => {
     mockSendMail.mockRejectedValueOnce(new Error('SMTP error'));
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const consoleLogSpy = jest
+      .spyOn(console, 'log')
+      .mockImplementation(() => {});
 
     await service.sendOtp('user@test.com', '888888');
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Email sending failed'), expect.any(String));
-    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('OTP for user@test.com'));
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Email sending failed'),
+      expect.any(String),
+    );
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('OTP for user@test.com'),
+    );
 
     consoleErrorSpy.mockRestore();
     consoleLogSpy.mockRestore();

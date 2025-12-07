@@ -21,17 +21,24 @@ export class ChatGateway {
 
   // When a user joins a conversation room
   @SubscribeMessage('joinConversation')
-  handleJoinConversation(
+  async handleJoinConversation(
     @MessageBody() data: { conversationId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    client.join(data.conversationId);
+    await client.join(data.conversationId);
     return { success: true };
   }
 
   @SubscribeMessage('sendMessage')
   async handleMessage(
-    @MessageBody() data: { conversationId: string; senderId: string; content: string, sellerId: string; listingId: string },
+    @MessageBody()
+    data: {
+      conversationId: string;
+      senderId: string;
+      content: string;
+      sellerId: string;
+      listingId: string;
+    },
   ) {
     // Save message to database
     const message = await this.chatService.createMessage(

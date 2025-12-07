@@ -18,9 +18,7 @@ describe('Users E2E', () => {
   });
 
   it('/GET users/:id → should return 404', async () => {
-    return request(app.getHttpServer())
-      .get(`/users/${UUID}`)
-      .expect(404);
+    return request(app.getHttpServer()).get(`/users/${UUID}`).expect(404);
   });
 
   it('/GET users/:id/profile → should return 404', async () => {

@@ -25,9 +25,7 @@ describe('Ratings E2E', () => {
   });
 
   it('GET /ratings/:sellerId → 404', async () => {
-    return request(app.getHttpServer())
-      .get(`/ratings/${UUID}`)
-      .expect(404);
+    return request(app.getHttpServer()).get(`/ratings/${UUID}`).expect(404);
   });
 
   it('GET /ratings/state/... → 404', async () => {

@@ -1,18 +1,23 @@
 // src/seed/listings.seeder.ts
 import { DataSource } from 'typeorm';
-import { Listing, ListingStatus } from '../modules/listings/entities/listing.entity';
+import {
+  Listing,
+  ListingStatus,
+} from '../modules/listings/entities/listing.entity';
 import { User } from '../modules/users/entities/user.entity';
 
 export async function runListingsSeeder(ds: DataSource, users: User[]) {
   const listingRepo = ds.getRepository(Listing);
 
-  const userMap = new Map(users.map(u => [u.mun_email, u]));
+  const userMap = new Map(users.map((u) => [u.mun_email, u]));
   const seller = userMap.get('gia.lam@mun.ca') || users[0];
   const buyerOne = userMap.get('rumnaz@mun.ca');
   const buyerTwo = userMap.get('kriti@mun.ca');
 
   if (!seller || !buyerOne || !buyerTwo) {
-    throw new Error('Seeding listings requires seed users for Gia, Rumnaz, and Kriti.');
+    throw new Error(
+      'Seeding listings requires seed users for Gia, Rumnaz, and Kriti.',
+    );
   }
 
   const now = new Date();
@@ -24,9 +29,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '60.00',
       currency: 'CAD',
       category: 'Furniture',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -36,9 +43,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '950.00',
       currency: 'CAD',
       category: 'Electronics',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -50,7 +59,9 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       category: 'Textbooks',
       city: "St. John's",
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -60,9 +71,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '120.00',
       currency: 'CAD',
       category: 'Furniture',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.SOLD,
       sold_to_user_id: buyerOne.user_id,
@@ -74,9 +87,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '275.00',
       currency: 'CAD',
       category: 'Electronics',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.SOLD,
       sold_to_user_id: buyerTwo.user_id,
@@ -88,9 +103,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '180.00',
       currency: 'CAD',
       category: 'Appliances',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -100,9 +117,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '420.00',
       currency: 'CAD',
       category: 'Gaming',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -112,9 +131,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '500.00',
       currency: 'CAD',
       category: 'Electronics',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -124,9 +145,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '650.00',
       currency: 'CAD',
       category: 'Electronics',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=1200&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=1200&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },
@@ -136,9 +159,11 @@ export async function runListingsSeeder(ds: DataSource, users: User[]) {
       price: '380.00',
       currency: 'CAD',
       category: 'Appliances',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
-      imageUrls: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80'],
+      imageUrls: [
+        'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+      ],
       seller_id: seller.user_id,
       status: ListingStatus.ACTIVE,
     },

@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SellerRating } from './entities/seller-rating.entity';
@@ -10,12 +15,19 @@ import { User } from '../users/entities/user.entity';
 @Injectable()
 export class SellerRatingsService {
   constructor(
-    @InjectRepository(SellerRating) private readonly ratingRepo: Repository<SellerRating>,
-    @InjectRepository(Listing) private readonly listingRepo: Repository<Listing>,
-    @InjectRepository(UserProfile) private readonly profileRepo: Repository<UserProfile>,
+    @InjectRepository(SellerRating)
+    private readonly ratingRepo: Repository<SellerRating>,
+    @InjectRepository(Listing)
+    private readonly listingRepo: Repository<Listing>,
+    @InjectRepository(UserProfile)
+    private readonly profileRepo: Repository<UserProfile>,
   ) {}
 
-  async rateSeller(buyerId: string, sellerId: string, dto: CreateSellerRatingDto) {
+  async rateSeller(
+    buyerId: string,
+    sellerId: string,
+    dto: CreateSellerRatingDto,
+  ) {
     if (buyerId === sellerId) {
       throw new BadRequestException('You cannot rate yourself');
     }
@@ -71,7 +83,7 @@ export class SellerRatingsService {
       relations: ['buyer', 'listing'],
       order: { createdAt: 'DESC' },
     });
-    return ratings.map(rating => this.serializeRating(rating));
+    return ratings.map((rating) => this.serializeRating(rating));
   }
 
   async getBuyerRatingState(listingId: string, buyerId: string) {
@@ -110,7 +122,9 @@ export class SellerRatingsService {
     const numericAverage = average ? Number(average) : 0;
     const numericTotal = total ? Number(total) : 0;
 
-    let profile = await this.profileRepo.findOne({ where: { user_id: sellerId } });
+    let profile = await this.profileRepo.findOne({
+      where: { user_id: sellerId },
+    });
     if (!profile) {
       profile = this.profileRepo.create({ user_id: sellerId });
     }
@@ -128,7 +142,8 @@ export class SellerRatingsService {
   }
 
   private pickSafeUser(user: User) {
-    const { user_id, first_name, last_name, mun_email, profile_picture_url } = user;
+    const { user_id, first_name, last_name, mun_email, profile_picture_url } =
+      user;
     return { user_id, first_name, last_name, mun_email, profile_picture_url };
   }
 }

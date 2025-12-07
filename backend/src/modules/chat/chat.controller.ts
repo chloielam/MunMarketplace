@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 class CreateMessageDto {
-    senderId: string;
-    content: string;
-    sellerId: string;
-    listingId: string
+  senderId: string;
+  content: string;
+  sellerId: string;
+  listingId: string;
 }
 
 class GetOrCreateConversationDto {
@@ -27,13 +27,12 @@ export class ChatController {
     @Param('conversationId') conversationId: string,
     @Body() body: CreateMessageDto, // Using the DTO
   ) {
-
     return this.chatService.createMessage(
       conversationId,
       body.senderId,
       body.content,
       body.sellerId,
-      body.listingId
+      body.listingId,
     );
   }
 
@@ -42,16 +41,13 @@ export class ChatController {
    * Get or create a conversation
    */
   @Post('conversations')
-  async getOrCreateConversation(
-    @Body() body: GetOrCreateConversationDto,
-  ) {
+  async getOrCreateConversation(@Body() body: GetOrCreateConversationDto) {
     return this.chatService.getOrCreateConversation(
       body.userId1,
       body.userId2,
       body.listingId,
     );
   }
-
 
   /**
    * GET /chat/users/:userId/conversations
@@ -70,7 +66,4 @@ export class ChatController {
   async getMessages(@Param('conversationId') conversationId: string) {
     return this.chatService.getMessages(conversationId);
   }
-
-
-  
 }

@@ -14,10 +14,13 @@ async function bootstrap() {
 
   const dataSource = app.get(DataSource);
   const sessionRepository = dataSource.getRepository(SessionEntity);
-  const sessionTtlMs = Number(process.env.SESSION_TTL_MS || 1000 * 60 * 60 * 24 * 7); // default 7 days
+  const sessionTtlMs = Number(
+    process.env.SESSION_TTL_MS || 1000 * 60 * 60 * 24 * 7,
+  ); // default 7 days
   const sessionCookieName = process.env.SESSION_COOKIE_NAME || 'mun.sid';
   const sessionSecret = process.env.SESSION_SECRET || 'change-me-in-env';
-  const sameSite = (process.env.SESSION_SAME_SITE as CookieOptions['sameSite']) ??
+  const sameSite =
+    (process.env.SESSION_SAME_SITE as CookieOptions['sameSite']) ??
     (process.env.NODE_ENV === 'production' ? 'none' : 'lax');
 
   app.use(
@@ -45,11 +48,15 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // optional CORS if frontend is on a different port
-  const corsOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_ORIGIN || '')
+  const corsOrigins = (
+    process.env.CORS_ORIGIN ||
+    process.env.FRONTEND_ORIGIN ||
+    ''
+  )
     .split(',')
-    .map(origin => origin.trim())
+    .map((origin) => origin.trim())
     .filter(Boolean);
-  
+
   app.enableCors({
     origin: corsOrigins.length ? corsOrigins : true,
     credentials: true,
@@ -60,4 +67,4 @@ async function bootstrap() {
   await app.listen(port);
   Logger.log(`🚀 Server running on http://localhost:${port}/api`);
 }
-bootstrap();
+void bootstrap();

@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('conversations')
 export class Conversation {
@@ -13,7 +19,7 @@ export class Conversation {
 
   @Column({ type: 'text', nullable: true })
   lastMessage: string; // New column to store the message content for easy lookup
-  
+
   @UpdateDateColumn()
   lastMessageAt: Date;
 

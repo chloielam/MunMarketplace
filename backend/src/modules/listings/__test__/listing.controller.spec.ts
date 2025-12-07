@@ -4,7 +4,9 @@ import { ListingService } from '../listing.service';
 
 describe('ListingController', () => {
   it('delegates to service with query', async () => {
-    const service = { findMany: jest.fn().mockResolvedValue({ items: [], total: 0 }) };
+    const service = {
+      findMany: jest.fn().mockResolvedValue({ items: [], total: 0 }),
+    };
     const module = await Test.createTestingModule({
       controllers: [ListingController],
       providers: [{ provide: ListingService, useValue: service }],
