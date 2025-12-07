@@ -1,11 +1,11 @@
 {
  "scripts": {
-    "test:acceptance": "playwright test",
-    "test:acceptance:ui": "playwright test --ui",
-    "test:acceptance:headed": "playwright test --headed --workers=1",
-    "test:acceptance:slow": "playwright test --headed --workers=1"
-},
-  "devDependencies": {
-    "@playwright/test": "^1.56.1"
-  }
+  "test:acceptance": "playwright test",
+  "test:acceptance:ui": "playwright test --ui",
+  "test:acceptance:headed": "playwright test --headed --workers=1",
+  "test:acceptance:slow": "playwright test --headed --workers=1"
+ },
+ "devDependencies": {
+  "@playwright/test": "^1.57.0"
+ }
 }
