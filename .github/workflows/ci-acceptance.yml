@@ -7,7 +7,6 @@ on:
 jobs:
   # Option A (simple): run regardless and do everything in one job
   acceptance:
-    if: false 
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -24,13 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Backend ---
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
 
+      - name: Install acceptance test deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # --- Backend ---
       - name: Install backend deps
         working-directory: backend
         run: npm ci
@@ -46,7 +55,7 @@ jobs:
           PORT: 3000
         run: |
           npm run build
-          nohup npm run start:dev >/dev/null 2>&1 &
+          nohup npm run start:dev > backend.log 2>&1 &
           npx wait-on http://localhost:3000/api/health
 
       # Seed data (uses your seed script)
@@ -64,27 +73,20 @@ jobs:
       - name: Install frontend deps
         working-directory: frontend
         run: npm ci
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
-      - name: Start frontend preview server
-        working-directory: frontend
-        run: |
-          nohup npm run preview >/dev/null 2>&1 &
-          npx wait-on http://localhost:4173 || sleep 10
 
-      - name: Install Playwright browsers
-        working-directory: frontend
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright login acceptance test
+      - name: Start frontend dev server
         working-directory: frontend
         env:
+          PORT: 5173
+          BROWSER: none
+        run: |
+          nohup npm start > frontend.log 2>&1 &
+          npx wait-on http://127.0.0.1:5173
+
+      - name: Run full-journey Playwright acceptance spec
+        env:
           CI: '1'
-          E2E_SKIP_WEB_SERVERS: '1'
-          E2E_BASE_URL: http://127.0.0.1:4173
-          E2E_BACKEND_BASE_URL: http://127.0.0.1:3000/api
-        run: npm run test:e2e
+        run: npm run test:acceptance -- tests/acceptance/full-journey.spec.js
       
       - name: Upload server logs
         if: always()
@@ -102,7 +104,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: frontend/playwright-report
+          path: |
+            playwright-report
+            frontend/playwright-report
           if-no-files-found: ignore
 
       - name: Upload Playwright artifacts (trace/video/screenshots)
@@ -110,7 +114,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
-          path: frontend/test-results
+          path: |
+            test-results
+            frontend/test-results
           if-no-files-found: ignore
 
 
