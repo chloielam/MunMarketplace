@@ -10,7 +10,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(UserProfile) private readonly profileRepo: Repository<UserProfile>,
+    @InjectRepository(UserProfile)
+    private readonly profileRepo: Repository<UserProfile>,
   ) {}
 
   async findByEmail(mun_email: string) {
@@ -18,7 +19,11 @@ export class UsersService {
   }
 
   async create(mun_email: string, first_name = '') {
-    const user = this.userRepo.create({ mun_email, first_name, is_email_verified: false });
+    const user = this.userRepo.create({
+      mun_email,
+      first_name,
+      is_email_verified: false,
+    });
     return this.userRepo.save(user);
   }
 
@@ -54,7 +59,10 @@ export class UsersService {
     await this.findOne(user_id); // ensure exists
     await this.userRepo.update({ user_id }, dto);
     // return selected fields, not password_hash
-    const { password_hash, ...safe } = await this.findOne(user_id) as any;
+    const { password_hash: _passwordHash, ...safe } = (await this.findOne(
+      user_id,
+    )) as any;
+    void _passwordHash;
     return safe;
   }
 
@@ -73,9 +81,15 @@ export class UsersService {
   }
 
   async findOneWithPassword(user_id: string) {
-    return this.userRepo.findOne({ 
-      where: { user_id }, 
-      select: ['user_id', 'mun_email', 'password_hash', 'is_email_verified', 'first_name'] 
+    return this.userRepo.findOne({
+      where: { user_id },
+      select: [
+        'user_id',
+        'mun_email',
+        'password_hash',
+        'is_email_verified',
+        'first_name',
+      ],
     });
   }
 }

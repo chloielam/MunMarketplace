@@ -17,7 +17,6 @@ import * as bcrypt from 'bcrypt';
 
 describe('AuthService - changePassword', () => {
   let service: AuthService;
-  let usersService: UsersService;
 
   const mockOtpRepository = {
     findOne: jest.fn(),
@@ -69,7 +68,6 @@ describe('AuthService - changePassword', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
   });
 
   afterEach(() => {
@@ -99,29 +97,41 @@ describe('AuthService - changePassword', () => {
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
-      mockUsersService.findOneWithPassword.mockResolvedValue(mockUserWithPassword);
+      mockUsersService.findOneWithPassword.mockResolvedValue(
+        mockUserWithPassword,
+      );
       mockUsersService.setPassword.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (bcrypt.hash as jest.Mock).mockResolvedValue(hashedNewPassword);
 
-      const result = await service.changePassword(userId, currentPassword, newPassword);
+      const result = await service.changePassword(
+        userId,
+        currentPassword,
+        newPassword,
+      );
 
       expect(result).toEqual({ message: 'Password changed successfully' });
       expect(mockUsersService.findOne).toHaveBeenCalledWith(userId);
       expect(mockUsersService.findOneWithPassword).toHaveBeenCalledWith(userId);
-      expect(bcrypt.compare).toHaveBeenCalledWith(currentPassword, hashedOldPassword);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        currentPassword,
+        hashedOldPassword,
+      );
       expect(bcrypt.hash).toHaveBeenCalledWith(newPassword, 10);
-      expect(mockUsersService.setPassword).toHaveBeenCalledWith('test@mun.ca', hashedNewPassword);
+      expect(mockUsersService.setPassword).toHaveBeenCalledWith(
+        'test@mun.ca',
+        hashedNewPassword,
+      );
     });
 
     it('should throw BadRequestException when user is not found', async () => {
       mockUsersService.findOne.mockResolvedValue(null);
 
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow('User not found');
     });
 
@@ -141,13 +151,15 @@ describe('AuthService - changePassword', () => {
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
-      mockUsersService.findOneWithPassword.mockResolvedValue(mockUserWithPassword);
+      mockUsersService.findOneWithPassword.mockResolvedValue(
+        mockUserWithPassword,
+      );
 
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow('Password not set for this account');
     });
 
@@ -167,16 +179,17 @@ describe('AuthService - changePassword', () => {
       };
 
       mockUsersService.findOne.mockResolvedValue(mockUser);
-      mockUsersService.findOneWithPassword.mockResolvedValue(mockUserWithPassword);
+      mockUsersService.findOneWithPassword.mockResolvedValue(
+        mockUserWithPassword,
+      );
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.changePassword(userId, currentPassword, newPassword)
+        service.changePassword(userId, currentPassword, newPassword),
       ).rejects.toThrow('Current password is incorrect');
     });
   });
 });
-

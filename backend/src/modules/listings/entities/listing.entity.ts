@@ -66,7 +66,11 @@ export class Listing {
   soldAt?: Date;
 
   @Index()
-  @Column({ type: 'simple-enum', enum: ListingStatus, default: ListingStatus.ACTIVE })
+  @Column({
+    type: 'simple-enum',
+    enum: ListingStatus,
+    default: ListingStatus.ACTIVE,
+  })
   status: ListingStatus;
 
   // timestamps

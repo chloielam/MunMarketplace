@@ -18,14 +18,16 @@ export class MailerService {
   async sendOtp(email: string, code: string) {
     const gmailUser = this.config.get('GMAIL_USER');
     const gmailPass = this.config.get('GMAIL_PASS');
-    
+
     if (!gmailUser || !gmailPass) {
       // For development: log OTP to console instead of sending email
       console.log(`\nOTP for ${email}: ${code}\n`);
-      console.log('To enable real email sending, configure GMAIL_USER and GMAIL_PASS in .env file');
+      console.log(
+        'To enable real email sending, configure GMAIL_USER and GMAIL_PASS in .env file',
+      );
       return;
     }
-    
+
     const htmlTemplate = `
       <!DOCTYPE html>
       <html>
@@ -90,7 +92,7 @@ If you didn't request this verification code, please ignore this email.
 This email was sent by MUN Marketplace
 Memorial University of Newfoundland
     `;
-    
+
     try {
       await this.transporter.sendMail({
         from: `"MUN Marketplace" <${gmailUser}>`,

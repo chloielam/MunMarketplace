@@ -32,7 +32,9 @@ describe('Listings E2E', () => {
     }).compile();
 
     app = modRef.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
 
     // Seed: User first (for FK), then Listing
@@ -53,10 +55,10 @@ describe('Listings E2E', () => {
       price: '50.00',
       currency: 'CAD',
       category: 'Furniture',
-      city: "St. John’s",
+      city: 'St. John’s',
       campus: 'MUN-StJohns',
       imageUrls: ['https://picsum.photos/seed/desk/400/300'],
-      seller_id: user.user_id,            // valid FK
+      seller_id: user.user_id, // valid FK
       status: ListingStatus.ACTIVE,
     });
   });

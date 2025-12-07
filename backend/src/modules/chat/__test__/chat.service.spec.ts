@@ -13,8 +13,18 @@ describe('ChatService', () => {
   let sellerRatings: jest.Mocked<SellerRatingsService>;
 
   const mockConversations = [
-    { id: 'c1', participantIds: ['user1', 'user2'], listingId: 'list1', lastMessageAt: new Date() },
-    { id: 'c2', participantIds: ['user1', 'user3'], listingId: 'list2', lastMessageAt: new Date() },
+    {
+      id: 'c1',
+      participantIds: ['user1', 'user2'],
+      listingId: 'list1',
+      lastMessageAt: new Date(),
+    },
+    {
+      id: 'c2',
+      participantIds: ['user1', 'user3'],
+      listingId: 'list2',
+      lastMessageAt: new Date(),
+    },
   ];
 
   beforeEach(async () => {
@@ -60,7 +70,9 @@ describe('ChatService', () => {
       getOne: jest.fn(),
       getMany: jest.fn().mockResolvedValue([...mockConversations]),
     };
-    conversationRepo.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
+    conversationRepo.createQueryBuilder = jest
+      .fn()
+      .mockReturnValue(mockQueryBuilder);
   });
 
   afterEach(() => {
@@ -79,9 +91,19 @@ describe('ChatService', () => {
     messageRepo.save.mockResolvedValue(messageObj as any);
     conversationRepo.update.mockResolvedValue({} as any);
 
-    const result = await service.createMessage(conversationId, senderId, content, sellerId, listingId);
+    const result = await service.createMessage(
+      conversationId,
+      senderId,
+      content,
+      sellerId,
+      listingId,
+    );
 
-    expect(messageRepo.create).toHaveBeenCalledWith({ conversationId, senderId, content });
+    expect(messageRepo.create).toHaveBeenCalledWith({
+      conversationId,
+      senderId,
+      content,
+    });
     expect(messageRepo.save).toHaveBeenCalledWith(messageObj);
     expect(conversationRepo.update).toHaveBeenCalledWith(conversationId, {
       lastMessageAt: expect.any(Date),
@@ -118,7 +140,11 @@ describe('ChatService', () => {
     const qb: any = conversationRepo.createQueryBuilder();
     qb.getOne.mockResolvedValue(conversation);
 
-    const result = await service.getOrCreateConversation(userId1, userId2, listingId);
+    const result = await service.getOrCreateConversation(
+      userId1,
+      userId2,
+      listingId,
+    );
 
     expect(result).toEqual(conversation);
   });
@@ -127,15 +153,29 @@ describe('ChatService', () => {
     const userId1 = 'user1';
     const userId2 = 'user2';
     const listingId = 'list1';
-    const conversationObj = { id: 'convNew', participantIds: ['user1','user2'], listingId };
+    const conversationObj = {
+      id: 'convNew',
+      participantIds: ['user1', 'user2'],
+      listingId,
+    };
     const qb: any = conversationRepo.createQueryBuilder();
     qb.getOne.mockResolvedValue(null);
     conversationRepo.create.mockReturnValue(conversationObj as any);
-    conversationRepo.save.mockResolvedValue({ id: 'convNew', ...conversationObj });
+    conversationRepo.save.mockResolvedValue({
+      id: 'convNew',
+      ...conversationObj,
+    });
 
-    const result = await service.getOrCreateConversation(userId1, userId2, listingId);
+    const result = await service.getOrCreateConversation(
+      userId1,
+      userId2,
+      listingId,
+    );
 
-    expect(conversationRepo.create).toHaveBeenCalledWith({ participantIds: ['user1', 'user2'], listingId });
+    expect(conversationRepo.create).toHaveBeenCalledWith({
+      participantIds: ['user1', 'user2'],
+      listingId,
+    });
     expect(conversationRepo.save).toHaveBeenCalledWith(conversationObj);
     expect(result).toEqual({ id: 'convNew', ...conversationObj });
   });
@@ -147,8 +187,11 @@ describe('ChatService', () => {
     const result = await service.getUserConversations(userId);
 
     expect(result).toEqual(
-      mockConversations.map(c => ({ ...c, ratingState: { canRate: true } }))
+      mockConversations.map((c) => ({ ...c, ratingState: { canRate: true } })),
     );
-    expect(sellerRatings.getBuyerRatingState).toHaveBeenCalledWith('list1', userId);
+    expect(sellerRatings.getBuyerRatingState).toHaveBeenCalledWith(
+      'list1',
+      userId,
+    );
   });
 });

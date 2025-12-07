@@ -8,7 +8,10 @@ import { Conversation } from './entities/conversation.entity';
 import { SellerRatingsModule } from '../ratings/seller-ratings.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Message, Conversation]), SellerRatingsModule],
+  imports: [
+    TypeOrmModule.forFeature([Message, Conversation]),
+    SellerRatingsModule,
+  ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway],
   exports: [ChatService], // Export in case other modules need it later

@@ -13,10 +13,14 @@ export class ChatService {
     @InjectRepository(Conversation)
     private conversationRepository: Repository<Conversation>,
     private readonly sellerRatings: SellerRatingsService,
-  ) { }
+  ) {}
 
   // Get or create a conversation between two users
-  async getOrCreateConversation(userId1: string, userId2: string, listingId?: string) {
+  async getOrCreateConversation(
+    userId1: string,
+    userId2: string,
+    listingId?: string,
+  ) {
     // Sort the IDs locally for consistency, but we must query both orders in the DB.
     const sortedIds = [userId1, userId2].sort();
     const [p1, p2] = sortedIds; // p1 < p2 alphabetically
@@ -24,8 +28,8 @@ export class ChatService {
     // For simple-array in MySQL, the best way to ensure containment is to check
     // if the serialized string contains both users, separated by commas/delimiters.
 
-    let conversationQuery = this.conversationRepository
-      .createQueryBuilder('conversation');
+    let conversationQuery =
+      this.conversationRepository.createQueryBuilder('conversation');
 
     // 1. Check for the two potential serialized string formats:
     conversationQuery.where(
@@ -39,9 +43,14 @@ export class ChatService {
 
     // 2. Filter by listingId or check for general chat (listingId IS NULL)
     if (listingId) {
-      conversationQuery = conversationQuery.andWhere('conversation.listingId = :listingId', { listingId });
+      conversationQuery = conversationQuery.andWhere(
+        'conversation.listingId = :listingId',
+        { listingId },
+      );
     } else {
-      conversationQuery = conversationQuery.andWhere('conversation.listingId IS NULL');
+      conversationQuery = conversationQuery.andWhere(
+        'conversation.listingId IS NULL',
+      );
     }
 
     let conversation = await conversationQuery.getOne();
@@ -62,19 +71,23 @@ export class ChatService {
     const conversations = await this.conversationRepository
       .createQueryBuilder('conversation')
       // Use LIKE to find the user ID within the comma-separated string.
-      .where(
-        'conversation.participantIds LIKE :value',
-        { value: `%${userId}%` },
-      )
+      .where('conversation.participantIds LIKE :value', {
+        value: `%${userId}%`,
+      })
       // Keep the two-participant check for robustness
-      .andWhere('CHAR_LENGTH(conversation.participantIds) - CHAR_LENGTH(REPLACE(conversation.participantIds, \',\', \'\')) = 1')
+      .andWhere(
+        "CHAR_LENGTH(conversation.participantIds) - CHAR_LENGTH(REPLACE(conversation.participantIds, ',', '')) = 1",
+      )
       .orderBy('conversation.lastMessageAt', 'DESC')
       .getMany(); // Return the entities directly
 
     const enriched = await Promise.all(
-      conversations.map(async conversation => {
+      conversations.map(async (conversation) => {
         if (!conversation.listingId) return conversation;
-        const ratingState = await this.sellerRatings.getBuyerRatingState(conversation.listingId, userId);
+        const ratingState = await this.sellerRatings.getBuyerRatingState(
+          conversation.listingId,
+          userId,
+        );
         return Object.assign(conversation, { ratingState });
       }),
     );
@@ -91,7 +104,13 @@ export class ChatService {
   }
 
   // Create a new message
-  async createMessage(conversationId: string, senderId: string, content: string, sellerId: string, listingId: string) {
+  async createMessage(
+    conversationId: string,
+    senderId: string,
+    content: string,
+    sellerId: string,
+    listingId: string,
+  ) {
     const message = this.messageRepository.create({
       conversationId,
       senderId,
@@ -103,12 +122,8 @@ export class ChatService {
     await this.conversationRepository.update(conversationId, {
       lastMessageAt: new Date(),
       lastMessage: content,
-      participantIds: [
-        senderId,
-        sellerId
-      ],
-      listingId
-
+      participantIds: [senderId, sellerId],
+      listingId,
     });
 
     return message;

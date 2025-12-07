@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -22,31 +22,6 @@ import ItemDetail from './components/ItemDetail.jsx';
 
 // Main app component 
 function App() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const initialPage = urlParams.get('page') || 'home';
-
-  const [currentPage, setCurrentPage] = useState(initialPage);
-
-  const handleLoginClick = () => {
-    setCurrentPage('login');
-  };
-
-  const handleGoToRegister = () => {
-    setCurrentPage('register');
-  };
-
-  const handleGoToLogin = () => {
-    setCurrentPage('login');
-  };
-
-  const handleBackToHome = () => {
-    setCurrentPage('home');
-  };
-
-  const handleGoToChat = () => {
-    setCurrentPage('chat');
-  };
-
   useEffect(() => {
     authUtils.refreshSession();
   }, []);

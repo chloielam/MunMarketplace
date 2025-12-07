@@ -1,0 +1,19 @@
+{
+  "extends": ["react-app", "react-app/jest"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.{js,jsx}", "**/*.test.{js,jsx}"],
+      "rules": {
+        "testing-library/no-wait-for-multiple-assertions": "off",
+        "testing-library/no-wait-for-side-effects": "off",
+        "testing-library/no-node-access": "off",
+        "jest/no-conditional-expect": "off",
+        "jest/no-mocks-import": "off"
+      }
+    }
+  ]
+}

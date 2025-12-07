@@ -92,14 +92,6 @@ const Header = () => {
     navigate('/profile');
   };
 
-  const handleSellClick = (e) => {
-    e.preventDefault();
-    if (isAuthenticated) {
-      navigate('/create-listing');
-    } else {
-      navigate('/login');
-    }
-  };
   return (
     <header className="z-50 bg-white shadow-md">
       <div className="w-full">

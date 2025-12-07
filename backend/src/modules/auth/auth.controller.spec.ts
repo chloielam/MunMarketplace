@@ -46,10 +46,9 @@ describe('AuthController - changePassword', () => {
       expect(authService.changePassword).toHaveBeenCalledWith(
         userId,
         dto.currentPassword,
-        dto.newPassword
+        dto.newPassword,
       );
       expect(result).toEqual(expectedResult);
     });
   });
 });
-

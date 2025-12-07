@@ -5,10 +5,7 @@ import { SellerRating } from '../entities/seller-rating.entity';
 import { Listing, ListingStatus } from '../../listings/entities/listing.entity';
 import { UserProfile } from '../../users/entities/user-profile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('SellerRatingsService', () => {
   let service: SellerRatingsService;
@@ -37,9 +34,15 @@ describe('SellerRatingsService', () => {
     const module = await Test.createTestingModule({
       providers: [
         SellerRatingsService,
-        { provide: getRepositoryToken(SellerRating), useValue: createMockRepo() },
+        {
+          provide: getRepositoryToken(SellerRating),
+          useValue: createMockRepo(),
+        },
         { provide: getRepositoryToken(Listing), useValue: createMockRepo() },
-        { provide: getRepositoryToken(UserProfile), useValue: createMockRepo() },
+        {
+          provide: getRepositoryToken(UserProfile),
+          useValue: createMockRepo(),
+        },
       ],
     }).compile();
 

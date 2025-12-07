@@ -1,5 +1,5 @@
 // frontend/src/components/Items.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getItems, createListing } from "../services/items";
 import { authUtils } from "../services/auth";
@@ -51,11 +51,11 @@ export default function Items() {
   const [formError, setFormError] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
 
-  const filterVisibleItems = (list) => list.filter((item) => {
-    const isActive = item.status === 'ACTIVE';
-    const isNotSelf = !currentUserId || item.seller_id !== currentUserId;
-    return isActive && isNotSelf;
-  });
+  const filterVisibleItems = useCallback((list) => list.filter((item) => {
+      const isActive = item.status === 'ACTIVE';
+      const isNotSelf = !currentUserId || item.seller_id !== currentUserId;
+      return isActive && isNotSelf;
+    }), [currentUserId]);
 
   useEffect(() => {
     let active = true;
@@ -115,7 +115,7 @@ export default function Items() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authChange', handleAuthChange);
     };
-  }, [location.search, currentUserId]);
+  }, [location.search, currentUserId, filterVisibleItems]);
 
   const handlePostListingClick = () => {
     if (!authUtils.isAuthenticated()) {

@@ -255,19 +255,6 @@ const ListingDetailPage = () => {
   const handleDeleteCancel = () => {
     setShowDeleteConfirm(false);
   };
-  const handleChatClickModal= () => {
-    const chatContext = {
-      currentUser: authUtils.getSessionUser(),
-      otherUser: {
-        id: listing.seller_id,
-      },
-      product: {
-        productId: listing.id,
-        ...listing
-      }
-    };
-    navigate('/chat', { state: { chatContext } });
-  };
 
   const handleChatClick = () => {
     const sellerName = seller

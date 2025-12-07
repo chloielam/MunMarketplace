@@ -50,7 +50,9 @@ export class TestSupportController {
     }
 
     const user = await this.users.findByEmail(dto.email);
-    const { password_hash, ...safeUser } = (user ?? {}) as Record<string, unknown>;
+    const { password_hash: _passwordHash, ...safeUser } = (user ??
+      {}) as Record<string, unknown>;
+    void _passwordHash;
 
     return {
       message: 'Seeded user',

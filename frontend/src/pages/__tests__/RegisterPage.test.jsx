@@ -88,16 +88,6 @@ describe('RegisterPage', () => {
     } else {
       fireEvent.click(submitButton);
     }
-    
-    // Wait for validation errors to appear
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Check if any validation errors appear (they might not show if browser validation prevents submission)
-    const fullNameError = screen.queryByText('Full name is required');
-    const emailError = screen.queryByText('Email is required');
-    const passwordError = screen.queryByText('Password is required');
-    const confirmPasswordError = screen.queryByText('Please confirm your password');
-    
     // At least one error should appear, or the form should prevent submission
     expect(submitButton).toBeInTheDocument();
   });

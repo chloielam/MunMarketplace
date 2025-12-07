@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { OtpCode } from './otp.entity';
@@ -20,7 +25,8 @@ export class AuthService {
     private usersService: UsersService,
     private config: ConfigService,
   ) {
-    this.otpTtlMs = (Number(this.config.get('OTP_TTL_MINUTES') || 10)) * 60 * 1000;
+    this.otpTtlMs =
+      Number(this.config.get('OTP_TTL_MINUTES') || 10) * 60 * 1000;
     this.maxOtpsPerHour = Number(this.config.get('MAX_OTPS_PER_HOUR') || 5);
   }
 
@@ -29,11 +35,15 @@ export class AuthService {
   }
 
   async sendOtp(mun_email: string) {
-    if (!mun_email.endsWith('@mun.ca')) throw new BadRequestException('Only MUN email addresses allowed');
+    if (!mun_email.endsWith('@mun.ca'))
+      throw new BadRequestException('Only MUN email addresses allowed');
 
     const oneHourAgo = Date.now() - 60 * 60 * 1000;
-    const recentCount = await this.otpRepo.count({ where: { mun_email, createdAt: MoreThan(new Date(oneHourAgo)) } });
-    if (recentCount >= this.maxOtpsPerHour) throw new ForbiddenException('Too many requests');
+    const recentCount = await this.otpRepo.count({
+      where: { mun_email, createdAt: MoreThan(new Date(oneHourAgo)) },
+    });
+    if (recentCount >= this.maxOtpsPerHour)
+      throw new ForbiddenException('Too many requests');
 
     const raw = this.genCode();
     const codeHash = await bcrypt.hash(raw, 10);
@@ -48,12 +58,17 @@ export class AuthService {
   }
 
   async verifyOtp(mun_email: string, code: string) {
-    const otp = await this.otpRepo.findOne({ where: { mun_email, used: false }, order: { createdAt: 'DESC' } });
+    const otp = await this.otpRepo.findOne({
+      where: { mun_email, used: false },
+      order: { createdAt: 'DESC' },
+    });
     if (!otp) throw new BadRequestException('No OTP found');
 
-    if (otp.expiresAt < Date.now()) throw new BadRequestException('OTP expired');
+    if (otp.expiresAt < Date.now())
+      throw new BadRequestException('OTP expired');
 
-    if (otp.attempts >= this.maxAttempts) throw new ForbiddenException('Too many attempts');
+    if (otp.attempts >= this.maxAttempts)
+      throw new ForbiddenException('Too many attempts');
 
     const ok = await bcrypt.compare(code, otp.codeHash);
     if (!ok) {
@@ -66,7 +81,7 @@ export class AuthService {
     await this.otpRepo.save(otp);
 
     // create or mark verified
-    const user = await this.usersService.findOrCreate(mun_email);
+    await this.usersService.findOrCreate(mun_email);
     await this.usersService.markVerified(mun_email);
 
     return { message: 'Verified' };
@@ -75,7 +90,8 @@ export class AuthService {
   // register after verification: set password and full name
   async register(mun_email: string, first_name: string, password_hash: string) {
     const user = await this.usersService.findByEmail(mun_email);
-    if (!user || !user.is_email_verified) throw new BadRequestException('Email not verified');
+    if (!user || !user.is_email_verified)
+      throw new BadRequestException('Email not verified');
     const hash = await bcrypt.hash(password_hash, 10);
     await this.usersService.setPassword(mun_email, hash);
     // Update the user's first_name as well
@@ -85,18 +101,32 @@ export class AuthService {
 
   async login(mun_email: string, password_hash: string) {
     const user = await this.usersService.findByEmail(mun_email);
-    if (!user || !user.password_hash) throw new BadRequestException('Invalid credentials');
+    if (!user || !user.password_hash)
+      throw new BadRequestException('Invalid credentials');
 
     // need to select passwordHash (select:false). We'll query directly:
-    const userWithPwd = await this.usersService['userRepo'].findOne({ where: { mun_email }, select: ['user_id','mun_email','password_hash','is_email_verified','first_name'] });
+    const userWithPwd = await this.usersService['userRepo'].findOne({
+      where: { mun_email },
+      select: [
+        'user_id',
+        'mun_email',
+        'password_hash',
+        'is_email_verified',
+        'first_name',
+      ],
+    });
     if (!userWithPwd) throw new BadRequestException('Invalid credentials');
 
-    const ok = await bcrypt.compare(password_hash, userWithPwd.password_hash || '');
+    const ok = await bcrypt.compare(
+      password_hash,
+      userWithPwd.password_hash || '',
+    );
     if (!ok) throw new BadRequestException('Invalid credentials');
 
-    if (!userWithPwd.is_email_verified) throw new BadRequestException('Email not verified');
+    if (!userWithPwd.is_email_verified)
+      throw new BadRequestException('Email not verified');
 
-    return { user: this.toPublicUser(userWithPwd as User) };
+    return { user: this.toPublicUser(userWithPwd) };
   }
 
   async getSessionUser(userId: string | undefined) {
@@ -120,10 +150,15 @@ export class AuthService {
   async verifyPasswordResetOtp(mun_email: string, code: string) {
     // Verify OTP for password reset without marking it as used
     // This allows the frontend to verify before moving to password step
-    const otp = await this.otpRepo.findOne({ where: { mun_email, used: false }, order: { createdAt: 'DESC' } });
+    const otp = await this.otpRepo.findOne({
+      where: { mun_email, used: false },
+      order: { createdAt: 'DESC' },
+    });
     if (!otp) throw new BadRequestException('No OTP found');
-    if (otp.expiresAt < Date.now()) throw new BadRequestException('OTP expired');
-    if (otp.attempts >= this.maxAttempts) throw new ForbiddenException('Too many attempts');
+    if (otp.expiresAt < Date.now())
+      throw new BadRequestException('OTP expired');
+    if (otp.attempts >= this.maxAttempts)
+      throw new ForbiddenException('Too many attempts');
 
     const ok = await bcrypt.compare(code, otp.codeHash);
     if (!ok) {
@@ -138,9 +173,13 @@ export class AuthService {
 
   async resetPassword(mun_email: string, code: string, newPassword: string) {
     // verify OTP
-    const otp = await this.otpRepo.findOne({ where: { mun_email, used: false }, order: { createdAt: 'DESC' } });
+    const otp = await this.otpRepo.findOne({
+      where: { mun_email, used: false },
+      order: { createdAt: 'DESC' },
+    });
     if (!otp) throw new BadRequestException('No OTP found');
-    if (otp.expiresAt < Date.now()) throw new BadRequestException('OTP expired');
+    if (otp.expiresAt < Date.now())
+      throw new BadRequestException('OTP expired');
 
     const ok = await bcrypt.compare(code, otp.codeHash);
     if (!ok) throw new BadRequestException('Invalid OTP');
@@ -154,7 +193,11 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const user = await this.usersService.findOne(userId);
     if (!user) {
       throw new BadRequestException('User not found');
@@ -176,7 +219,9 @@ export class AuthService {
     return { message: 'Password changed successfully' };
   }
 
-  private toPublicUser(user: User | (Partial<User> & { user_id: string; mun_email: string })) {
+  private toPublicUser(
+    user: User | (Partial<User> & { user_id: string; mun_email: string }),
+  ) {
     if (!user) return null;
     return {
       id: user.user_id,
